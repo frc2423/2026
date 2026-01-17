@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.swervedrive.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.swervedrive.Vision;
 
@@ -42,6 +43,8 @@ import frc.robot.subsystems.QuackNav;
  * trigger mappings) should be declared here.
  */
 public class RobotContainer {
+        IntakeSubsystem intake = new IntakeSubsystem();
+
         // Replace with CommandPS4Controller or CommandJoystick if needed
         // final CommandXboxController driverXbox = new CommandXboxController(0);
         public final XboxController driverXbox = new XboxController(0);
@@ -119,7 +122,7 @@ public class RobotContainer {
          */
         public RobotContainer() {
                 // Configure the trigger bindings
-                configureDriverBindings();
+                // configureDriverBindings();
                 Command driveFieldOrientedAngularVelocity = getTeleopDriveCommand();
                 drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
                 DriverStation.silenceJoystickConnectionWarning(true);
@@ -163,7 +166,11 @@ public class RobotContainer {
         }
 
         public void configureBindings() {
-                configureDriverBindings();
+                new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(intake.spin())
+                                .onFalse(intake.stop());
+                new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(intake.outtake())
+                                .onFalse(intake.stop());
+                // configureDriverBindings();
         }
 
         public void setMotorBrake(boolean brake) {
