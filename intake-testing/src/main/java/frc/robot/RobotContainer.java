@@ -128,6 +128,7 @@ public class RobotContainer {
                 DriverStation.silenceJoystickConnectionWarning(true);
                 SmartDashboard.putData("autoChooser", m_chooser);
                 SmartDashboard.putData("swerveSubsystem", drivebase);
+                SmartDashboard.putData("intakeSubsystem", intake);
         }
 
         private Command getTeleopDriveCommand() {
