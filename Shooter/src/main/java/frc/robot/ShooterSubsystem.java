@@ -26,7 +26,7 @@ public class ShooterSubsystem extends SubsystemBase {
     public ShooterSubsystem (){
         SparkFlexConfig config = new SparkFlexConfig();
         // config.closedLoop.p(.002).i(0).d(.04).outputRange(-1,1 );
-        config.closedLoop.p(0.001).i(0).d(0).outputRange(-1,1 );
+        config.closedLoop.p(0.0005).i(0).d(0).outputRange(-1,1 );
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -36,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     public Command spin(){
         return run(()->{
-            double speed = NTHelper.getDouble("/shooter/speed", 0);
+            double speed = NTHelper.getDouble("/shooter/speed", -500);
             double voltage = feedforward.calculate(speed);
             //motor.set(-.25);
             motor.getClosedLoopController().setReference(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0, voltage);
