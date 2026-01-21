@@ -130,7 +130,8 @@ public class Vision {
    * @param aprilTag
    *          The ID of the AprilTag.
    * @param robotOffset
-   *          The offset {@link Transform2d} of the robot to apply to the pose for
+   *          The offset {@link Transform2d} of the robot to apply to
+   *          the pose for
    *          the robot to position
    *          itself correctly.
    * @return The target pose of the AprilTag.
@@ -447,9 +448,10 @@ public class Vision {
    * 
    * @return True when an april tag is discovered.
    */
-  public boolean seesFrontAprilTag() {
-    return Cameras.FRONT_RIGHT_CAM.hasTarget() || Cameras.FRONT_LEFT_CAM.hasTarget();
-  }
+  // public boolean seesFrontAprilTag() {
+  // return Cameras.FRONT_RIGHT_CAM.hasTarget() ||
+  // Cameras.FRONT_LEFT_CAM.hasTarget();
+  // }
 
   /**
    * Camera Enum to select each camera
@@ -459,18 +461,18 @@ public class Vision {
    * 
    */
   enum Cameras {
-    FRONT_RIGHT_CAM("right_cam",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(0)),
-        new Translation3d(Units.inchesToMeters(10.5), // center to front
-            Units.inchesToMeters(-5),
-            Units.inchesToMeters(6)), // front floor
-        VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
+    // FRONT_RIGHT_CAM("right_cam",
+    // new Rotation3d(0, Math.toRadians(-20), Math.toRadians(0)),
+    // new Translation3d(Units.inchesToMeters(10.5), // center to front
+    // Units.inchesToMeters(-5),
+    // Units.inchesToMeters(6)), // front floor
+    // VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
     FRONT_LEFT_CAM("left_cam",
-        new Rotation3d(0, Math.toRadians(-20), Math.toRadians(-45)),
-        new Translation3d(Units.inchesToMeters(5.707),
-            Units.inchesToMeters(9.793),
-            Units.inchesToMeters(7.75)),
+        new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-180)),
+        new Translation3d(Units.inchesToMeters(10.875),
+            Units.inchesToMeters(3.375),
+            Units.inchesToMeters(5)),
         VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1));
 
     /**
@@ -501,7 +503,7 @@ public class Vision {
     /**
      * Current standard deviations used.
      */
-    public Matrix<N3, N1> curStdDevs;
+    public Matrix<N3, N1> curStdDevs = VecBuilder.fill(2, 2, 8);
     /**
      * Estimated robot pose.
      */
@@ -528,16 +530,20 @@ public class Vision {
      * estimation noise on an actual robot.
      *
      * @param name
-     *          Name of the PhotonVision camera found in the PV UI.
+     *          Name of the PhotonVision camera found in the PV
+     *          UI.
      * @param robotToCamRotation
      *          {@link Rotation3d} of the camera.
      * @param robotToCamTranslation
-     *          {@link Translation3d} relative to the center of the robot.
+     *          {@link Translation3d} relative to the center of
+     *          the robot.
      * @param singleTagStdDevs
-     *          Single AprilTag standard deviations of estimated poses from the
+     *          Single AprilTag standard deviations of estimated
+     *          poses from the
      *          camera.
      * @param multiTagStdDevsMatrix
-     *          Multi AprilTag standard deviations of estimated poses from the
+     *          Multi AprilTag standard deviations of estimated
+     *          poses from the
      *          camera.
      */
     Cameras(String name, Rotation3d robotToCamRotation, Translation3d robotToCamTranslation,

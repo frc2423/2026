@@ -81,7 +81,7 @@ public class SwerveSubsystem extends SubsystemBase {
   /**
    * Enable vision odometry updates while driving.
    */
-  private final boolean visionDriveTest = false;
+  private final boolean visionDriveTest = true;
 
   private boolean isPathBlue = true;
 
@@ -187,6 +187,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+
+    NTHelper.setPose("/SmartDashboard/swerveSubsystem/questPose", questNav.getPose());
+    NTHelper.setPose("/SmartDashboard/swerveSubsystem/robotPose", getPose());
     // When vision is enabled we must manually update odometry in SwerveDrive
     if (visionDriveTest) {
       swerveDrive.updateOdometry();
@@ -370,7 +373,8 @@ public class SwerveSubsystem extends SubsystemBase {
    * PathPlanner.
    *
    * @param robotRelativeChassisSpeed
-   *          Robot relative {@link ChassisSpeeds} to achieve.
+   *          Robot relative {@link ChassisSpeeds} to
+   *          achieve.
    * @return {@link Command} to run.
    * @throws IOException
    *           If the PathPlanner GUI settings is invalid
@@ -480,7 +484,8 @@ public class SwerveSubsystem extends SubsystemBase {
    * @param distanceInMeters
    *          the distance to drive in meters
    * @param speedInMetersPerSecond
-   *          the speed at which to drive in meters per second
+   *          the speed at which to drive in meters per
+   *          second
    * @return a Command that drives the swerve drive to a specific distance at a
    *         given speed
    */
@@ -509,11 +514,14 @@ public class SwerveSubsystem extends SubsystemBase {
    * velocity.
    *
    * @param translationX
-   *          Translation in the X direction. Cubed for smoother controls.
+   *          Translation in the X direction. Cubed for smoother
+   *          controls.
    * @param translationY
-   *          Translation in the Y direction. Cubed for smoother controls.
+   *          Translation in the Y direction. Cubed for smoother
+   *          controls.
    * @param angularRotationX
-   *          Angular velocity of the robot to set. Cubed for smoother controls.
+   *          Angular velocity of the robot to set. Cubed for
+   *          smoother controls.
    * @return Drive command.
    */
   public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY,
@@ -533,9 +541,11 @@ public class SwerveSubsystem extends SubsystemBase {
    * setpoint.
    *
    * @param translationX
-   *          Translation in the X direction. Cubed for smoother controls.
+   *          Translation in the X direction. Cubed for smoother
+   *          controls.
    * @param translationY
-   *          Translation in the Y direction. Cubed for smoother controls.
+   *          Translation in the Y direction. Cubed for smoother
+   *          controls.
    * @param headingX
    *          Heading X to calculate angle of the joystick.
    * @param headingY
@@ -569,21 +579,27 @@ public class SwerveSubsystem extends SubsystemBase {
    * how the translation vector is used.
    *
    * @param translation
-   *          {@link Translation2d} that is the commanded linear velocity of the
+   *          {@link Translation2d} that is the commanded linear
+   *          velocity of the
    *          robot, in meters per
-   *          second. In robot-relative mode, positive x is torwards the bow
+   *          second. In robot-relative mode, positive x is torwards
+   *          the bow
    *          (front) and positive y is
-   *          torwards port (left). In field-relative mode, positive x is away
+   *          torwards port (left). In field-relative mode, positive x
+   *          is away
    *          from the alliance wall
-   *          (field North) and positive y is torwards the left wall when looking
+   *          (field North) and positive y is torwards the left wall
+   *          when looking
    *          through the driver station
    *          glass (field West).
    * @param rotation
-   *          Robot angular rate, in radians per second. CCW positive. Unaffected
+   *          Robot angular rate, in radians per second. CCW positive.
+   *          Unaffected
    *          by field/robot
    *          relativity.
    * @param fieldRelative
-   *          Drive mode. True for field-relative, false for robot-relative.
+   *          Drive mode. True for field-relative, false for
+   *          robot-relative.
    */
   public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
     swerveDrive.drive(translation,
