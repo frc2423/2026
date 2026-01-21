@@ -503,7 +503,7 @@ public class Vision {
     /**
      * Current standard deviations used.
      */
-    public Matrix<N3, N1> curStdDevs;
+    public Matrix<N3, N1> curStdDevs = VecBuilder.fill(2, 2, 8);
     /**
      * Estimated robot pose.
      */
