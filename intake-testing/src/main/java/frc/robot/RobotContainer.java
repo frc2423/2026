@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.subsystems.swervedrive.BLine;
 import frc.robot.subsystems.swervedrive.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.swervedrive.Vision;
@@ -31,6 +32,7 @@ import frc.robot.subsystems.swervedrive.Vision;
 import java.io.File;
 import java.util.Optional;
 
+import swervelib.SwerveDrive;
 import swervelib.SwerveInputStream;
 import frc.robot.subsystems.QuackNav;
 
@@ -53,6 +55,8 @@ public class RobotContainer {
         // The robot's subsystems and commands are defined here...
         public final SwerveSubsystem drivebase = new SwerveSubsystem(
                         new File(Filesystem.getDeployDirectory(), deployDirectory));
+
+        public BLine bline = new BLine(drivebase);
 
         SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -163,7 +167,7 @@ public class RobotContainer {
         }
 
         public Command getAutonomousCommand() {
-                return Commands.none();
+                return bline.followCommand();
         }
 
         public void configureBindings() {
