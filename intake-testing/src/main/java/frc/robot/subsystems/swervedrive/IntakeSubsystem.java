@@ -37,7 +37,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command stop() {
-        return run(() -> {
+        return runOnce(() -> {
             motor.stopMotor();
         });
     }
@@ -45,6 +45,7 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("current", () -> motor.getOutputCurrent(), null);
+        builder.addDoubleProperty("motor_speed", () -> motor.get(), null);
 
     } // -147.353760 start /
 

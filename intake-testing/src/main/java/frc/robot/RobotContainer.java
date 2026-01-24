@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotController;
@@ -56,7 +57,7 @@ public class RobotContainer {
         public final SwerveSubsystem drivebase = new SwerveSubsystem(
                         new File(Filesystem.getDeployDirectory(), deployDirectory));
 
-        public BLine bline = new BLine(drivebase);
+        public BLine bline = new BLine(drivebase, intake);
 
         SendableChooser<String> m_chooser = new SendableChooser<>();
 
@@ -133,6 +134,9 @@ public class RobotContainer {
                 SmartDashboard.putData("autoChooser", m_chooser);
                 SmartDashboard.putData("swerveSubsystem", drivebase);
                 SmartDashboard.putData("intakeSubsystem", intake);
+
+                m_chooser.addOption("goFowardGoBackIntake", "goFowardGoBackIntake");
+                m_chooser.addOption("fancyDoubleIntake", "fancyDoubleIntake");
         }
 
         private Command getTeleopDriveCommand() {
@@ -167,7 +171,8 @@ public class RobotContainer {
         }
 
         public Command getAutonomousCommand() {
-                return bline.followCommand();
+
+                return bline.getAutoCommandFromName(m_chooser.getSelected());
         }
 
         public void configureBindings() {
@@ -176,6 +181,7 @@ public class RobotContainer {
                 new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(intake.outtake())
                                 .onFalse(intake.stop());
                 // configureDriverBindings();
+
         }
 
         public void setMotorBrake(boolean brake) {
