@@ -32,8 +32,8 @@ public class BLine {
                                 swerve::drive,
                                 new PIDController(5.0, 0.0, 0.0),
                                 new PIDController(3.0, 0.0, 0.0),
-                                new PIDController(2.0, 0.0, 0.0)).withDefaultShouldFlip()
-                                                .withPoseReset(swerve::resetOdometry);
+                                new PIDController(2.0, 0.0, 0.0)).withDefaultShouldFlip();
+                // .withPoseReset(swerve::resetOdometry);
         }
 
         public Command getAutoCommandFromName(String name) {
@@ -72,8 +72,14 @@ public class BLine {
         private Command followCommand1() {
 
                 Path startingGoFoward = new Path(
-                                new Path.Waypoint(new Translation2d(1.0, 0.0), new Rotation2d(0)),
-                                new Path.Waypoint(new Translation2d(3.0, 0.0), new Rotation2d(0)));
+                                // new Path.Waypoint(new Translation2d(0, 0), new Rotation2d(0)),
+                                // new Path.Waypoint(new Translation2d(1.0, 4), new Rotation2d(0)),
+                                new Path.Waypoint(new Translation2d(2.0, 4), new Rotation2d(0)));
+
+                // startingGoFoward.setElement(0,
+                // new Path.Waypoint(new Translation2d(swerve.getPose().getX(),
+                // swerve.getPose().getY()),
+                // new Rotation2d(0)));
 
                 Command followCommand = pathBuilder.build(startingGoFoward);
 
@@ -82,8 +88,8 @@ public class BLine {
 
         private Command followCommand2() {
                 Path startingGoFoward = new Path(
-                                new Path.Waypoint(new Translation2d(3.0, 0.0), new Rotation2d(0)),
-                                new Path.Waypoint(new Translation2d(1.0, 0.0), new Rotation2d(0)));
+                                new Path.Waypoint(new Translation2d(2.0, 4), new Rotation2d(0)),
+                                new Path.Waypoint(new Translation2d(1.0, 4), new Rotation2d(0)));
 
                 Command followCommand2 = pathBuilder.build(startingGoFoward);
 
