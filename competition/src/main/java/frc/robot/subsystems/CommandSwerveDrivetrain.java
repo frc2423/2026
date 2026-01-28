@@ -153,7 +153,8 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
             SwerveModuleConstants<?, ?, ?>... modules) {
-        super(drivetrainConstants, odometryUpdateFrequency, MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
+        super(drivetrainConstants, odometryUpdateFrequency,
+                MapleSimSwerveDrivetrain.regulateModuleConstantsForSimulation(modules));
         if (Utils.isSimulation()) {
             startSimThread();
         }
@@ -256,28 +257,29 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         }
     }
 
-private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
-private void startSimThread() {
-    mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
-            Seconds.of(kSimLoopPeriod),
-            // TODO: modify the following constants according to your robot
-            Pounds.of(115), // robot weight
-            Inches.of(30), // bumper length
-            Inches.of(30), // bumper width
-            DCMotor.getKrakenX60(1), // drive motor type
-            DCMotor.getFalcon500(1), // steer motor type
-            1.2, // wheel COF
-            getModuleLocations(),
-            getPigeon2(),
-            getModules(),
-            TunerConstants.FrontLeft,
-            TunerConstants.FrontRight,
-            TunerConstants.BackLeft,
-            TunerConstants.BackRight);
-    /* Run simulation at a faster rate so PID gains behave more reasonably */
-    m_simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
-    m_simNotifier.startPeriodic(kSimLoopPeriod);
-}
+    private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
+
+    private void startSimThread() {
+        mapleSimSwerveDrivetrain = new MapleSimSwerveDrivetrain(
+                Seconds.of(kSimLoopPeriod),
+                // TODO: modify the following constants according to your robot
+                Pounds.of(115), // robot weight
+                Inches.of(30), // bumper length
+                Inches.of(30), // bumper width
+                DCMotor.getKrakenX60(1), // drive motor type
+                DCMotor.getFalcon500(1), // steer motor type
+                1.2, // wheel COF
+                getModuleLocations(),
+                getPigeon2(),
+                getModules(),
+                TunerConstants.FrontLeft,
+                TunerConstants.FrontRight,
+                TunerConstants.BackLeft,
+                TunerConstants.BackRight);
+        /* Run simulation at a faster rate so PID gains behave more reasonably */
+        m_simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
+        m_simNotifier.startPeriodic(kSimLoopPeriod);
+    }
 
     /**
      * Adds a vision measurement to the Kalman Filter. This will correct the
