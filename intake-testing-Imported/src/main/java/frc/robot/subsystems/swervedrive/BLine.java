@@ -74,8 +74,8 @@ public class BLine {
                 Path startingGoFoward = new Path(
                                 // new Path.Waypoint(new Translation2d(0, 0), new Rotation2d(0)),
                                 // new Path.Waypoint(new Translation2d(1.0, 4), new Rotation2d(0)),
-                                new Path.Waypoint(new Translation2d(3, 0.5), new Rotation2d(0)),
-                                new Path.Waypoint(new Translation2d(1, 0.5), new Rotation2d(0)));
+                                // new Path.Waypoint(new Translation2d(3, 0.5), new Rotation2d(0)),
+                                new Path.Waypoint(new Translation2d(2, 1), new Rotation2d(0)));
 
                 // startingGoFoward.setElement(0,
                 // new Path.Waypoint(new Translation2d(swerve.getPose().getX(),
@@ -89,7 +89,7 @@ public class BLine {
 
         private Command followCommand2() {
                 Path startingGoFoward = new Path(
-                                new Path.Waypoint(new Translation2d(3, 0.5), new Rotation2d(0)));
+                                new Path.Waypoint(new Translation2d(3, 1), new Rotation2d(0)));
 
                 Command followCommand2 = pathBuilder.build(startingGoFoward);
 
