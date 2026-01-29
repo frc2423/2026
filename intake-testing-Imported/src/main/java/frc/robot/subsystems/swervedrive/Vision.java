@@ -251,6 +251,9 @@ public class Vision {
   @Deprecated(since = "2024", forRemoval = true)
   private boolean filterPose(Optional<EstimatedRobotPose> pose) {
     if (pose.isPresent()) {
+      return true;
+    }
+    if (pose.isPresent()) {
       double bestTargetAmbiguity = 1; // 1 is max ambiguity
       for (PhotonTrackedTarget target : pose.get().targetsUsed) {
         double ambiguity = target.getPoseAmbiguity();
