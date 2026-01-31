@@ -52,7 +52,7 @@ public class BLine {
         };
 
         private Command goFowardGoBackIntake() {
-                var deadline1 = Commands.deadline(followCommand1(), intake.spin());
+                var deadline1 = Commands.deadline(followCommand1(), intake.intake());
 
                 var auto2 = Commands.sequence(deadline1, Commands.runOnce(() -> swerve.drive(new ChassisSpeeds())),
                                 Commands.waitSeconds(2), intake.stop(), followCommand2());
@@ -61,7 +61,7 @@ public class BLine {
         };
 
         private Command fancyDoubleIntake() {
-                var deadline1 = Commands.deadline(followCommand1(), intake.spin());
+                var deadline1 = Commands.deadline(followCommand1(), intake.intake());
 
                 var auto2 = Commands.sequence(deadline1, Commands.runOnce(() -> swerve.drive(new ChassisSpeeds())),
                                 Commands.waitSeconds(2), followCommand2(), followCommand3(), intake.stop());
@@ -75,7 +75,7 @@ public class BLine {
                                 // new Path.Waypoint(new Translation2d(0, 0), new Rotation2d(0)),
                                 // new Path.Waypoint(new Translation2d(1.0, 4), new Rotation2d(0)),
                                 // new Path.Waypoint(new Translation2d(3, 0.5), new Rotation2d(0)),
-                                new Path.Waypoint(new Translation2d(2, 1), new Rotation2d(0)));
+                                new Path.Waypoint(new Translation2d(2, 1), new Rotation2d(Math.PI)));
 
                 // startingGoFoward.setElement(0,
                 // new Path.Waypoint(new Translation2d(swerve.getPose().getX(),
@@ -89,7 +89,7 @@ public class BLine {
 
         private Command followCommand2() {
                 Path startingGoFoward = new Path(
-                                new Path.Waypoint(new Translation2d(3, 1), new Rotation2d(0)));
+                                new Path.Waypoint(new Translation2d(3, 1), new Rotation2d(Math.PI)));
 
                 Command followCommand2 = pathBuilder.build(startingGoFoward);
 

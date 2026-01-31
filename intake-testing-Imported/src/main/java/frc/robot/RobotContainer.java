@@ -176,7 +176,7 @@ public class RobotContainer {
         }
 
         public void configureBindings() {
-                new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(intake.spin())
+                new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(intake.intake())
                                 .onFalse(intake.stop());
                 new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(intake.outtake())
                                 .onFalse(intake.stop());
