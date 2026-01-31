@@ -7,7 +7,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoScoral 11/20 right"
+            "name": "AutoScoral 9/22 right"
           }
         },
         {
@@ -17,7 +17,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "IJ to HP RED"
+                  "pathName": "EF to HP"
                 }
               },
               {
@@ -54,7 +54,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "HP to 6 RIght"
+                  "pathName": "HP to CD Right"
                 }
               },
               {
@@ -69,7 +69,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoScoral left far"
+            "name": "AutoScoral 8/17 right"
           }
         },
         {
@@ -79,7 +79,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "KL Right to HP"
+                  "pathName": "CD to HP"
                 }
               },
               {
@@ -116,7 +116,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "HP to 6 Left"
+                  "pathName": "HP to CD Left"
                 }
               },
               {
@@ -131,7 +131,7 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoScoral 6/19 left"
+            "name": "AutoScoral right far"
           }
         }
       ]

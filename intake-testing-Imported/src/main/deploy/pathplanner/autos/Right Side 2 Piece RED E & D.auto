@@ -7,11 +7,11 @@
         {
           "type": "named",
           "data": {
-            "name": "AutoScoral 22 Left"
+            "name": "AutoScoral right near"
           }
         },
         {
-          "type": "sequential",
+          "type": "parallel",
           "data": {
             "commands": [
               {
@@ -36,38 +36,19 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "AutoScoral right far"
+          }
+        },
+        {
           "type": "parallel",
           "data": {
             "commands": [
               {
                 "type": "path",
                 "data": {
-                  "pathName": "HP to 17 Left"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": null
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoScoral 17 Left"
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "CD to Human Player BLUE"
+                  "pathName": "FE Human Player"
                 }
               },
               {
@@ -83,31 +64,6 @@
           "type": "named",
           "data": {
             "name": "Intake Coral From Human Player"
-          }
-        },
-        {
-          "type": "parallel",
-          "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "HP to 17 Right"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": null
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "AutoScoral 17 Right"
           }
         }
       ]
