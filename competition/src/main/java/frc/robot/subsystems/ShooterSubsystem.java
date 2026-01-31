@@ -19,12 +19,14 @@ import frc.robot.NTHelper;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private SparkFlex motor = new SparkFlex(10, MotorType.kBrushless);
+    private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
+    
+    public SparkFlex motor;
+
+    public ShooterSubsystem (int motorId) {
+        motor = new SparkFlex(motorId, MotorType.kBrushless);
         SparkFlexConfig motorConfig = new SparkFlexConfig();
 
-    private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
-
-    public ShooterSubsystem (){
         SparkFlexConfig config = new SparkFlexConfig();
         // config.closedLoop.p(.002).i(0).d(.04).outputRange(-1,1 );
         config.closedLoop.p(0.001).i(0).d(0).outputRange(-1,1 );

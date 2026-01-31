@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    private SparkFlex motor = new SparkFlex(23, MotorType.kBrushless);
+    private SparkFlex motor = new SparkFlex(2, MotorType.kBrushless);
     SparkFlexConfig motorConfig = new SparkFlexConfig();
 
     public IntakeSubsystem() {

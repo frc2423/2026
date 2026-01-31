@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.IntakeSubsystem;
-
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -43,6 +43,10 @@ public class RobotContainer {
     public final IntakeSubsystem intake = new IntakeSubsystem();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    
+    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(5);
+
+    public final ShooterSubsystem shooterRight = new ShooterSubsystem(7);
 
     public RobotContainer() {
         configureBindings();
@@ -87,10 +91,14 @@ public class RobotContainer {
         driver.start().and(driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
-        driver.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
         
-        driver.button(10).whileTrue(intake.spin()).onFalse(intake.stop());
-        driver.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
+        driver.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
+        driver.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
+        driver.leftBumper().and(driver.rightBumper()).whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin())).onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
+        
+        driver.x().whileTrue(intake.spin()).onFalse(intake.stop());
+        driver.y().whileTrue(intake.outtake()).onFalse(intake.stop());
         // driver.x().whileTrue(intake.intakeIn()).onFalse(intake.intakeStop());
         // driver.y().whileTrue(intake.intakeOut()).onFalse(intake.intakeStop());
 
