@@ -328,18 +328,23 @@ public class SwerveSubsystem extends SubsystemBase {
       Translation2d closeNeutral[] = {new Translation2d(6,0.5), new Translation2d(6,7.5)};
       Translation2d farNeutral[] = {new Translation2d(10.5,0.5), new Translation2d(10.5,7.5)};
       Translation2d far[] = {new Translation2d(13,0.5), new Translation2d(13,7.5)};
-      if (getPose().getX() <= 4.3) { //close zone (robot's allience zone)
+      if (getPose().getX() <= 4.3) { //robot starting in close zone (robot's allience zone)
         Translation2d nextPoint = close[0]; //default closest point to the first in the list
-        double closestDistance = 100000000;
         for(int i = 1; i < close.length; i++) { //check if any other point is shorter
           if (getPose().getTranslation().getDistance(close[i]) < getPose().getTranslation().getDistance(nextPoint)) {
             nextPoint = close[i];
           }
-          
+          // ADD NEXT POINT TO B-LINE
+          Translation2d previousPoint = nextPoint;
+          for(int j = 0; j < closeNeutral.length; j++) { //find the point in closestNeutral that corresponds to this one
+            if (previousPoint.getY() == closeNeutral[j].getY()) {
+              nextPoint = closeNeutral[j];
+          }
+          // ADD NEXT POINT TO B-LINE
         }
-      } else if (getPose().getX() > 4.3 && getPose().getX() <= 12) { //neutral zone
-        
-      } else if (getPose().getX() > 12) { //far zone (opponent's allience zone)
+      } else if (getPose().getX() > 4.3 && getPose().getX() <= 12) { //robot starting in neutral zone
+      
+      } else if (getPose().getX() > 12) { //robot starting in far zone (opponent's allience zone)
 
       }
       
