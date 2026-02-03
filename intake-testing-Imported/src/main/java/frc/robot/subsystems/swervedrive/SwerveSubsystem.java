@@ -311,6 +311,37 @@ public class SwerveSubsystem extends SubsystemBase {
     Translation2d relativeTrl = speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
     return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerveDrive.getOdometryHeading());
   }
+
+  /**
+   * finds the next point in line based on an inputed point
+   * @param points
+   * @return
+   */
+  private Translation2d findClosestPoint(Translation2d[] points, Translation2d currentPoint) {
+    Translation2d nextPoint = points[0];
+     for(int i = 1; i < points.length; i++) { //check if any other point is shorter
+          if (getPose().getTranslation().getDistance(points[i]) < getPose().getTranslation().getDistance(nextPoint)) {
+            nextPoint = points[i];
+          }
+        }
+    return nextPoint;
+  }
+
+ /**
+   * finds the next point in line based on an inputed point
+   * @param points
+   * @return
+   */
+  private int findIndexOfClosestGroup(Translation2d groups[][]) {
+    int closestIndex = 0; //defaults first group as closest
+     for(int i = 1; i < groups.length; i++) { //check if any other group is closer
+          if (Math.abs(getPose().getX() - groups[i][0].getX()) < Math.abs(getPose().getX() - groups[closestIndex][0].getX())) {
+            closestIndex = i;
+          }
+        }
+    return closestIndex;
+  }
+
   /**
    * 
    * @param targetPose2d
@@ -323,30 +354,29 @@ public class SwerveSubsystem extends SubsystemBase {
       // Translation2d closeNeutral[] = {new Translation2d(6,0.5), new Translation2d(6,2.4), new Translation2d(6,5.6), new Translation2d(6,7.5)};
       // Translation2d farNeutral[] = {new Translation2d(10.5,0.5), new Translation2d(10.5,2.4), new Translation2d(10.5,5.6), new Translation2d(10.5,7.5)};
       // Translation2d far[] = {new Translation2d(13,0.5), new Translation2d(13,2.4), new Translation2d(13,5.6), new Translation2d(13,7.5)};
-      // just trenches V
+      
+      // just trenches 
       Translation2d close[] = {new Translation2d(3.5,0.5), new Translation2d(3.5,7.5)};
       Translation2d closeNeutral[] = {new Translation2d(6,0.5), new Translation2d(6,7.5)};
       Translation2d farNeutral[] = {new Translation2d(10.5,0.5), new Translation2d(10.5,7.5)};
       Translation2d far[] = {new Translation2d(13,0.5), new Translation2d(13,7.5)};
-      if (getPose().getX() <= 4.3) { //robot starting in close zone (robot's allience zone)
-        Translation2d nextPoint = close[0]; //default closest point to the first in the list
-        for(int i = 1; i < close.length; i++) { //check if any other point is shorter
-          if (getPose().getTranslation().getDistance(close[i]) < getPose().getTranslation().getDistance(nextPoint)) {
-            nextPoint = close[i];
-          }
-          // ADD NEXT POINT TO B-LINE
-          Translation2d previousPoint = nextPoint;
-          for(int j = 0; j < closeNeutral.length; j++) { //find the point in closestNeutral that corresponds to this one
-            if (previousPoint.getY() == closeNeutral[j].getY()) {
-              nextPoint = closeNeutral[j];
-          }
-          // ADD NEXT POINT TO B-LINE
+      Translation2d groups[][] = {close,closeNeutral,farNeutral,far};
+      if (getPose().getX() < targetPose2d.getX()) {
+        Translation2d previousPoint = getPose().getTranslation();
+        Translation2d nextPoint = findClosestPoint(groups[findIndexOfClosestGroup(groups)], getPose().getTranslation());
+        for(int i = findIndexOfClosestGroup(groups)+1; nextPoint.getX() < targetPose2d.getX(); i++) {
+          nextPoint = findClosestPoint(groups[i], previousPoint);
+          // fix intiialization and iteration of previous point and next point
         }
-      } else if (getPose().getX() > 4.3 && getPose().getX() <= 12) { //robot starting in neutral zone
-      
-      } else if (getPose().getX() > 12) { //robot starting in far zone (opponent's allience zone)
-
       }
+
+      // if (getPose().getX() <= 4.3) { //robot starting in close zone (robot's allience zone)
+        
+      // } else if (getPose().getX() > 4.3 && getPose().getX() <= 12) { //robot starting in neutral zone
+      
+      // } else if (getPose().getX() > 12) { //robot starting in far zone (opponent's allience zone)
+
+      // }
       
       return
       
