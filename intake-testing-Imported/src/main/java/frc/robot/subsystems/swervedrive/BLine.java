@@ -44,6 +44,9 @@ public class BLine {
                         case "fancyDoubleIntake":
                                 return fancyDoubleIntake();
 
+                        case "goToPose":
+                                return goToPose();
+
                         default:
                                 break;
                 }
@@ -87,6 +90,16 @@ public class BLine {
                 return followCommand;
         }
 
+        private Command goToPose() {
+                Path testPoseProfeciency = new Path(
+                        new Path.Waypoint(new Translation2d(1,4), new Rotation2d(0))
+                );
+
+                Command goToTargetPose = pathBuilder.build(testPoseProfeciency);
+
+                return goToTargetPose;
+        }
+        
         private Command followCommand2() {
                 Path startingGoFoward = new Path(
                                 new Path.Waypoint(new Translation2d(3, 1), new Rotation2d(Math.PI)));

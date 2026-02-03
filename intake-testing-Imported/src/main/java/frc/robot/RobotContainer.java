@@ -137,6 +137,7 @@ public class RobotContainer {
 
                 m_chooser.addOption("goFowardGoBackIntake", "goFowardGoBackIntake");
                 m_chooser.addOption("fancyDoubleIntake", "fancyDoubleIntake");
+                m_chooser.addOption("goToPose","goToPose");
         }
 
         private Command getTeleopDriveCommand() {
@@ -180,6 +181,7 @@ public class RobotContainer {
                                 .onFalse(intake.stop());
                 new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(intake.outtake())
                                 .onFalse(intake.stop());
+
                 // configureDriverBindings();
 
         }
