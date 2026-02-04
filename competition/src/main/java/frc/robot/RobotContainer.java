@@ -10,6 +10,7 @@ import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
 public class RobotContainer {
@@ -38,15 +40,14 @@ public class RobotContainer {
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController driver = new CommandXboxController(0);
+    private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     public final IntakeSubsystem intake = new IntakeSubsystem();
-
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    
     public final ShooterSubsystem shooterLeft = new ShooterSubsystem(5);
-
     public final ShooterSubsystem shooterRight = new ShooterSubsystem(7);
+    public final BLine bline = new BLine(drivetrain);
 
     public RobotContainer() {
         configureBindings();
@@ -58,12 +59,14 @@ public class RobotContainer {
         drivetrain.setDefaultCommand(
                 // Drivetrain will execute this command periodically
                 drivetrain.applyRequest(() -> {
-                    double x = xSpeedLimiter.calculate(driver.getLeftY() * MaxSpeed);
-                    double y = ySpeedLimiter.calculate(driver.getLeftX() * MaxSpeed);
+                    double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
+                    double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
                     return drive.withVelocityX(x) // Drive forward with negative Y (forward)
                             .withVelocityY(y) // Drive left with negative X (left)
-                            .withRotationalRate(-driver.getRightX() * MaxAngularRate); // Drive counterclockwise with
-                                                                                       // negative X (left)
+                            .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
+                                                                                                 // counterclockwise
+                                                                                                 // with
+                    // negative X (left)
                 }));
 
         // Idle while the robot is disabled. This ensures the configured
@@ -79,28 +82,33 @@ public class RobotContainer {
         // point.withModuleDirection(new Rotation2d(0))
         // ));
 
-        driver.a().whileTrue(
-                drivetrain.applyRequest(() -> drive.withVelocityX(xSpeedLimiter.calculate(-.5)).withDeadband(0)));
-        driver.b().whileTrue(drivetrain.applyRequest(() -> drive.withVelocityX(xSpeedLimiter.calculate(.5)).withDeadband(0)));
+        // driverController.a().whileTrue(
+        //         drivetrain.applyRequest(() -> drive.withVelocityX(xSpeedLimiter.calculate(-.5)).withDeadband(0)));
+        // driverController.b().whileTrue(
+        //         drivetrain.applyRequest(() -> drive.withVelocityX(xSpeedLimiter.calculate(.5)).withDeadband(0)));
 
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
-        driver.back().and(driver.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driver.back().and(driver.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driver.start().and(driver.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driver.start().and(driver.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+        driverController.back().and(driverController.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+        driverController.start().and(driverController.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+        driverController.start().and(driverController.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
         // reset the field-centric heading on left bumper press
-        driver.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-        
-        driver.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
-        driver.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
-        driver.leftBumper().and(driver.rightBumper()).whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin())).onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
-        
-        driver.x().whileTrue(intake.spin()).onFalse(intake.stop());
-        driver.y().whileTrue(intake.outtake()).onFalse(intake.stop());
+        driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+
+        driverController.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
+        driverController.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
+        driverController.leftBumper().and(driverController.rightBumper())
+                .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
+                .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
+
+        driverController.x().whileTrue(intake.spin()).onFalse(intake.stop());
+        driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
         // driver.x().whileTrue(intake.intakeIn()).onFalse(intake.intakeStop());
         // driver.y().whileTrue(intake.intakeOut()).onFalse(intake.intakeStop());
+
+        driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

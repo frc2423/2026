@@ -119,7 +119,7 @@ public class MapleSimSwerveDrivetrain {
                         Meters.of(moduleConstants[0].WheelRadius),
                         KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
                         wheelCOF));
-        mapleSimDrive = new SwerveDriveSimulation(simulationConfig, new Pose2d(1, 1, Rotation2d.kZero));
+        mapleSimDrive = new SwerveDriveSimulation(simulationConfig, new Pose2d(0, 0, Rotation2d.kZero));
 
         SwerveModuleSimulation[] moduleSimulations = mapleSimDrive.getModules();
         for (int i = 0; i < this.simModules.length; i++)
@@ -155,6 +155,10 @@ public class MapleSimSwerveDrivetrain {
         fuelPoses.accept(SimulatedArena.getInstance()
                 .getGamePiecesArrayByType("Fuel"));
 
+    }
+
+    public void setSimulatedPose(Pose2d pose) {
+        mapleSimDrive.setSimulationWorldPose(pose);
     }
 
     /**
