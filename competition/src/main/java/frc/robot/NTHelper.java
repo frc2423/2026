@@ -6,9 +6,11 @@ import java.util.Map;
 import java.util.function.Consumer;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.NetworkTableEvent.Kind;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 
@@ -16,6 +18,7 @@ public class NTHelper {
 
     private static Map<String, StructPublisher<Pose2d>> pose2dPublishers = new HashMap<>();
     private static Map<String, StructPublisher<Pose3d>> pose3dPublishers = new HashMap<>();
+    private static Map<String, StructArrayPublisher<Translation2d>> translationArrayPublishers = new HashMap<>();
 
     public static void setPersistent(String key) {
         getEntry(key).setPersistent();
@@ -25,9 +28,9 @@ public class NTHelper {
      * Adds an entry listener to network tables
      * 
      * @param key
-     *            String for network tables key
+     *                 String for network tables key
      * @param listener
-     *            Function to be called when value changes
+     *                 Function to be called when value changes
      */
     public static void listen(String key, Consumer<NetworkTableEvent> listener) {
         var entry = NTHelper.getEntry(key);
@@ -52,6 +55,15 @@ public class NTHelper {
         pose3dPublishers.get(key).set(pose);
     }
 
+    public static void setTranslationArray(String key, Translation2d[] translations) {
+        if (!translationArrayPublishers.containsKey(key)) {
+            StructArrayPublisher<Translation2d> publisher = NetworkTableInstance.getDefault()
+                    .getStructArrayTopic(key, Translation2d.struct).publish();
+            translationArrayPublishers.put(key, publisher);
+        }
+        translationArrayPublishers.get(key).set(translations);
+    }
+
     /**
      * Get current value from network tables
      * 
@@ -67,9 +79,9 @@ public class NTHelper {
      * Get current value from network tables
      * 
      * @param key
-     *            Key to get value of
+     *                     Key to get value of
      * @param defaultValue
-     *            default value if key in network tables is null
+     *                     default value if key in network tables is null
      * @return current value of key
      */
     public static double getDouble(String key, double defaultValue) {
@@ -80,9 +92,9 @@ public class NTHelper {
      * Sets the current value to network tables
      * 
      * @param key
-     *            key to set
+     *              key to set
      * @param value
-     *            new value for key
+     *              new value for key
      */
     public static void setDouble(String key, double value) {
         getEntry(key).setDouble(value);
@@ -92,9 +104,9 @@ public class NTHelper {
      * Get current value from network tables
      * 
      * @param key
-     *            Key to get value of
+     *                     Key to get value of
      * @param defaultValue
-     *            default value if key in network tables is null
+     *                     default value if key in network tables is null
      * @return current value of key
      */
     public static String getString(String key, String defaultValue) {
@@ -105,9 +117,9 @@ public class NTHelper {
      * Sets the current value to network tables
      * 
      * @param key
-     *            key to set
+     *              key to set
      * @param value
-     *            new value for key
+     *              new value for key
      */
     public static void setString(String key, String value) {
         getEntry(key).setString(value);
@@ -117,9 +129,9 @@ public class NTHelper {
      * Sets the current value to network tables
      * 
      * @param key
-     *            key to set
+     *              key to set
      * @param value
-     *            new value for key
+     *              new value for key
      */
     public static void setBoolean(String key, Boolean value) {
         getEntry(key).setBoolean(value);
@@ -129,9 +141,9 @@ public class NTHelper {
      * Get current value from network tables
      * 
      * @param key
-     *            Key to get value of
+     *                     Key to get value of
      * @param defaultValue
-     *            default value if key in network tables is null
+     *                     default value if key in network tables is null
      * @return current value of key
      */
     public static boolean getBoolean(String key, Boolean defaultValue) {
@@ -142,9 +154,9 @@ public class NTHelper {
      * Sets the current value to network tables
      * 
      * @param key
-     *            key to set
+     *              key to set
      * @param value
-     *            new value for key
+     *              new value for key
      */
     public static void setStringArray(String key, String[] value) {
         getEntry(key).setStringArray(value);
@@ -166,9 +178,9 @@ public class NTHelper {
      * Sets the current value to network tables
      * 
      * @param key
-     *            key to set
+     *              key to set
      * @param value
-     *            new value for key
+     *              new value for key
      */
     public static void setDoubleArray(String key, double[] value) {
         getEntry(key).setDoubleArray(value);

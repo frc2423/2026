@@ -59,7 +59,7 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 public class MapleSimSwerveDrivetrain {
     private final Pigeon2SimState pigeonSim;
     private final SimSwerveModule[] simModules;
-    public final SwerveDriveSimulation mapleSimDrive;
+    private final SwerveDriveSimulation mapleSimDrive;
 
     StructArrayPublisher<Pose3d> fuelPoses = NetworkTableInstance.getDefault()
             .getStructArrayTopic("/sim/fuel", Pose3d.struct)
@@ -155,6 +155,14 @@ public class MapleSimSwerveDrivetrain {
         fuelPoses.accept(SimulatedArena.getInstance()
                 .getGamePiecesArrayByType("Fuel"));
 
+    }
+
+    public void setSimulatedPose(Pose2d pose) {
+        mapleSimDrive.setSimulationWorldPose(pose);
+    }
+
+    public Pose2d getSimulatedPose() {
+        return mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
     /**

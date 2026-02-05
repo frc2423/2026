@@ -327,9 +327,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void resetPose(Pose2d pose) {
-        if (this.mapleSimSwerveDrivetrain != null)
-            mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-        Timer.delay(0.05); // Wait for simulation to update
+        if (this.mapleSimSwerveDrivetrain != null) {
+            mapleSimSwerveDrivetrain.setSimulatedPose(pose);
+            Timer.delay(0.05); // Wait for simulation to update
+        }
         super.resetPose(pose);
+    }
+
+    public Pose2d getPose() {
+        return getState().Pose;
+    }
+
+    public Pose2d getSimulatedPose() {
+        return mapleSimSwerveDrivetrain.getSimulatedPose();
     }
 }
