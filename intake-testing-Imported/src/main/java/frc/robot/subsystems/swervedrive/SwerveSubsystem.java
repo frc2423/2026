@@ -178,7 +178,7 @@ public class SwerveSubsystem extends SubsystemBase {
     swerveDrive = new SwerveDrive(driveCfg,
         controllerCfg,
         Constants.MAX_SPEED,
-        new Pose2d(new Translation2d(Meter.of(2), Meter.of(0)),
+        new Pose2d(new Translation2d(Meter.of(1), Meter.of(0)),
             Rotation2d.fromDegrees(0)));
   }
 

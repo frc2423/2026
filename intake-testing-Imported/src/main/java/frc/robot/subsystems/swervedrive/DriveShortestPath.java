@@ -1,9 +1,16 @@
 package frc.robot.subsystems.swervedrive;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.lib.BLine.*;
 
 public class DriveShortestPath {
     private final SwerveSubsystem swerve;
@@ -83,35 +90,60 @@ public class DriveShortestPath {
         return closestIndex;
     }
 
-  /**
-   * 
-   * @param targetPose2d
-   *  assuming not currently on bump or in trench
-   * @return
-   */
-  public Command driveShortestPath(Pose2d targetPose2d) {
-
-      Direction pathDirection = getDirection(getPose().getTranslation(), targetPose2d.getTranslation());
-      int closestGroupIndex = findIndexOfClosestGroup(groups, pathDirection);
-
-      if (pathDirection == Direction.FAR) {
-        Translation2d previousPoint = getPose().getTranslation();
-        Translation2d nextPoint = findClosestPoint(groups[closestGroupIndex], getPose().getTranslation());
-        for(int i = closestGroupIndex + 1; nextPoint.getX() < targetPose2d.getX(); i++) {
-          previousPoint = nextPoint;
-          nextPoint = findClosestPoint(groups[i], previousPoint);
-          // add point to bline
+    public Rotation2d getRotation(Direction pathDirection) {
+        Rotation2d rotation;
+        if (pathDirection == Direction.CLOSE) {
+            rotation = new Rotation2d(Math.PI);
+        } else {
+            rotation = new Rotation2d(0);
         }
-      } else {
-        Translation2d previousPoint = getPose().getTranslation();
-        Translation2d nextPoint = findClosestPoint(groups[closestGroupIndex], getPose().getTranslation());
-        for(int i = closestGroupIndex - 1; nextPoint.getX() > targetPose2d.getX(); i--) {
-          previousPoint = nextPoint;
-          nextPoint = findClosestPoint(groups[i], previousPoint);
-          // add point to bline
-        }
-      }
-      return Commands.none();
-  }
+        return rotation;
+    }
+
+    /**
+     * 
+     * @param targetPose2d
+     *                     assuming not currently on bump or in trench
+     * @return
+     */
+    public Command driveShortestPath(Pose2d targetPose2d) {
+
+        Supplier<Command> someCommand = () -> {
+
+            Direction pathDirection = getDirection(getPose().getTranslation(), targetPose2d.getTranslation());
+            int closestGroupIndex = findIndexOfClosestGroup(groups, pathDirection);
+
+            List<Path.PathElement> waypoints = new ArrayList<>();
+
+            if (pathDirection == Direction.FAR) {
+                Translation2d previousPoint = getPose().getTranslation();
+                Translation2d nextPoint = findClosestPoint(groups[closestGroupIndex], getPose().getTranslation());
+                for (int i = closestGroupIndex + 1; nextPoint.getX() < targetPose2d.getX() && i < groups.length; i++) {
+                    previousPoint = nextPoint;
+                    nextPoint = findClosestPoint(groups[i], previousPoint);
+                    waypoints.add(new Path.Waypoint(nextPoint, getRotation(pathDirection)));
+                }
+                nextPoint = targetPose2d.getTranslation();
+                waypoints.add(new Path.Waypoint(nextPoint, getRotation(pathDirection)));
+
+            } else {
+                Translation2d previousPoint = getPose().getTranslation();
+                Translation2d nextPoint = findClosestPoint(groups[closestGroupIndex], getPose().getTranslation());
+                for (int i = closestGroupIndex - 1; nextPoint.getX() > targetPose2d.getX() && i < groups.length; i--) {
+                    previousPoint = nextPoint;
+                    nextPoint = findClosestPoint(groups[i], previousPoint);
+                    waypoints.add(new Path.Waypoint(nextPoint, getRotation(pathDirection)));
+                }
+                previousPoint = nextPoint;
+                nextPoint = targetPose2d.getTranslation();
+                waypoints.add(new Path.Waypoint(nextPoint, getRotation(pathDirection)));
+            }
+
+            FollowPath followPath = bline.pathBuilder.build(new Path(waypoints.toArray(new Path.Waypoint[0])));
+            return followPath;
+        };
+
+        return Commands.defer(someCommand, Set.of(swerve));
+    }
 
 }

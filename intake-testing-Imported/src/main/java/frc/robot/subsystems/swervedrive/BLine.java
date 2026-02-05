@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.NTHelper;
 import frc.robot.lib.BLine.*;
 import swervelib.SwerveDrive;
 
@@ -34,6 +35,23 @@ public class BLine {
                                 new PIDController(3.0, 0.0, 0.0),
                                 new PIDController(2.0, 0.0, 0.0)).withDefaultShouldFlip();
                 // .withPoseReset(swerve::resetOdometry);
+
+                FollowPath.setDoubleLoggingConsumer(pair -> {
+                        // NTHelper.setDouble("somekey", 0);
+                        NTHelper.setDouble("/bline/double/" + pair.getFirst(), pair.getSecond());
+                });
+
+                FollowPath.setBooleanLoggingConsumer(pair -> {
+                NTHelper.setBoolean("/bline/boolean/" +  pair.getFirst(), pair.getSecond());
+                });
+
+                FollowPath.setPoseLoggingConsumer(pair -> {
+                        NTHelper.setPose("/bline/pose/" + pair.getFirst(), pair.getSecond());
+                });
+
+                FollowPath.setTranslationListLoggingConsumer(pair -> {
+                        NTHelper.setTranslationArray("/bline/translationList/" + pair.getFirst(), pair.getSecond());
+                });
         }
 
         public Command getAutoCommandFromName(String name) {
