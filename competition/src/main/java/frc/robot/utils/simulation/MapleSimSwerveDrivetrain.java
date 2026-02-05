@@ -59,7 +59,7 @@ import org.ironmaple.simulation.seasonspecific.rebuilt2026.Arena2026Rebuilt;
 public class MapleSimSwerveDrivetrain {
     private final Pigeon2SimState pigeonSim;
     private final SimSwerveModule[] simModules;
-    public final SwerveDriveSimulation mapleSimDrive;
+    private final SwerveDriveSimulation mapleSimDrive;
 
     StructArrayPublisher<Pose3d> fuelPoses = NetworkTableInstance.getDefault()
             .getStructArrayTopic("/sim/fuel", Pose3d.struct)
@@ -119,7 +119,7 @@ public class MapleSimSwerveDrivetrain {
                         Meters.of(moduleConstants[0].WheelRadius),
                         KilogramSquareMeters.of(moduleConstants[0].SteerInertia),
                         wheelCOF));
-        mapleSimDrive = new SwerveDriveSimulation(simulationConfig, new Pose2d(0, 0, Rotation2d.kZero));
+        mapleSimDrive = new SwerveDriveSimulation(simulationConfig, new Pose2d(1, 1, Rotation2d.kZero));
 
         SwerveModuleSimulation[] moduleSimulations = mapleSimDrive.getModules();
         for (int i = 0; i < this.simModules.length; i++)
@@ -159,6 +159,10 @@ public class MapleSimSwerveDrivetrain {
 
     public void setSimulatedPose(Pose2d pose) {
         mapleSimDrive.setSimulationWorldPose(pose);
+    }
+
+    public Pose2d getSimulatedPose() {
+        return mapleSimDrive.getSimulatedDriveTrainPose();
     }
 
     /**

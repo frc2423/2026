@@ -281,8 +281,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         /* Run simulation at a faster rate so PID gains behave more reasonably */
         m_simNotifier = new Notifier(mapleSimSwerveDrivetrain::update);
         m_simNotifier.startPeriodic(kSimLoopPeriod);
-        mapleSimSwerveDrivetrain.setSimulatedPose(new Pose2d(1, 1, Rotation2d.kZero));
-        resetPose(new Pose2d(1, 1, Rotation2d.kZero));
     }
 
     /**
@@ -329,9 +327,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void resetPose(Pose2d pose) {
-        if (this.mapleSimSwerveDrivetrain != null)
-            mapleSimSwerveDrivetrain.mapleSimDrive.setSimulationWorldPose(pose);
-        Timer.delay(0.05); // Wait for simulation to update
+        if (this.mapleSimSwerveDrivetrain != null) {
+            mapleSimSwerveDrivetrain.setSimulatedPose(pose);
+            Timer.delay(0.05); // Wait for simulation to update
+        }
         super.resetPose(pose);
+    }
+
+    public Pose2d getPose() {
+        return getState().Pose;
+    }
+
+    public Pose2d getSimulatedPose() {
+        return mapleSimSwerveDrivetrain.getSimulatedPose();
     }
 }

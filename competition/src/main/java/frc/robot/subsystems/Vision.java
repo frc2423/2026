@@ -158,7 +158,10 @@ public class Vision {
        * Therefore, we must ensure that the actual robot pose is provided in the
        * simulator when updating the vision simulation during the simulation.
        */
-      visionSim.update(swerveDrive.getState().Pose);
+      Pose2d simPose = swerveDrive.getSimulatedPose();
+      visionSim.update(simPose);
+      swerveDrive.addVisionMeasurement(simPose, Utils.currentTimeToFPGATime(Utils.getCurrentTimeSeconds()));
+      return;
     }
     for (Cameras camera : Cameras.values()) {
       Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
@@ -244,7 +247,7 @@ public class Vision {
       return false;
     }
     // if (pose.isPresent()) {
-    //   return true;
+    // return true;
     // }
     if (pose.isPresent()) {
       double bestTargetAmbiguity = 1; // 1 is max ambiguity
@@ -271,7 +274,7 @@ public class Vision {
       if (pose.get().estimatedPose.getY() < 0 || pose.get().estimatedPose.getY() > fieldLayout.getFieldWidth()) {
         return false;
       }
-      if (Math.abs(pose.get().estimatedPose.getZ()) > 1.5/*0.32*/) {
+      if (Math.abs(pose.get().estimatedPose.getZ()) > 1.5/* 0.32 */) {
         return false;
       }
 

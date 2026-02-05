@@ -32,8 +32,6 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
 
     private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
     private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
@@ -41,7 +39,6 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverController = new CommandXboxController(0);
-    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     public final IntakeSubsystem intake = new IntakeSubsystem();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
@@ -75,18 +72,6 @@ public class RobotContainer {
         RobotModeTriggers.disabled().whileTrue(
                 drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-        // driver.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        // driver.b().whileTrue(drivetrain.applyRequest(() ->
-        // // point.withModuleDirection(new Rotation2d(-driver.getLeftY(),
-        // -driver.getLeftX()))
-        // point.withModuleDirection(new Rotation2d(0))
-        // ));
-
-        // driverController.a().whileTrue(
-        //         drivetrain.applyRequest(() -> drive.withVelocityX(xSpeedLimiter.calculate(-.5)).withDeadband(0)));
-        // driverController.b().whileTrue(
-        //         drivetrain.applyRequest(() -> drive.withVelocityX(xSpeedLimiter.calculate(.5)).withDeadband(0)));
-
         // Run SysId routines when holding back/start and X/Y.
         // Note that each routine should be run exactly once in a single log.
         driverController.back().and(driverController.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
@@ -105,8 +90,6 @@ public class RobotContainer {
 
         driverController.x().whileTrue(intake.spin()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
-        // driver.x().whileTrue(intake.intakeIn()).onFalse(intake.intakeStop());
-        // driver.y().whileTrue(intake.intakeOut()).onFalse(intake.intakeStop());
 
         driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
