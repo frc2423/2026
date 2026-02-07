@@ -1,3 +1,6 @@
+package frc.robot;
+
+
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import org.photonvision.PhotonCamera;
@@ -8,8 +11,7 @@ public class GamePieceVision {
   private final PhotonCamera camera;
   private final Transform2d robotToCamera; // robot->camera transform in robot frame
 
-  // Measure these on your robot:
-  private final double cameraHeightMeters;
+  private final double cameraHeightMeters; // dont have values yet bc no specific spot
   private final double cameraPitchRad; // +pitch up
 
   public GamePieceVision(
@@ -25,8 +27,8 @@ public class GamePieceVision {
 
   /** Returns null if we can't estimate a sane point. */
   public Translation2d estimateFieldPiecePoint(Pose2d fieldToRobot, PhotonTrackedTarget t) {
-    // For a floor object, targetHeight ~ 0 (meters). If your piece sits higher, use that.
-    double targetHeightMeters = 0.0;
+
+    double targetHeightMeters = 0.0762; // radius of fuel in meters
 
     double targetPitchRad = Units.degreesToRadians(t.getPitch());
     double targetYawRad   = Units.degreesToRadians(t.getYaw());
