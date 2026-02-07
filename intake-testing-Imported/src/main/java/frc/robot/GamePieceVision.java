@@ -1,8 +1,12 @@
+package frc.robot;
+
 import edu.wpi.first.math.geometry.*;
 import edu.wpi.first.math.util.Units;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonUtils;
 import org.photonvision.targeting.PhotonTrackedTarget;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class GamePieceVision {
   private final PhotonCamera camera;
@@ -40,8 +44,10 @@ public class GamePieceVision {
     }
 
     // Camera-relative translation (x forward, y left in WPILib/Photon conventions)
-    Translation2d cameraToTarget =
-        PhotonUtils.estimateTargetTranslation2d(rangeMeters, new Rotation2d(targetYawRad));
+Translation2d cameraToTarget = new Translation2d(
+    rangeMeters * Math.cos(targetYawRad), // forward
+    rangeMeters * Math.sin(targetYawRad)  // left
+);
 
     // field->camera pose
     Pose2d fieldToCamera = fieldToRobot.transformBy(robotToCamera);
