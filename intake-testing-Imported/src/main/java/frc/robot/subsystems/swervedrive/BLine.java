@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.NTHelper;
 import frc.robot.lib.BLine.*;
 import swervelib.SwerveDrive;
 
@@ -24,7 +25,7 @@ public class BLine {
                 this.intake = intake;
 
                 Path.setDefaultGlobalConstraints(new Path.DefaultGlobalConstraints(
-                                4.5, 12.0, 540, 860, 0.03, 2.0, 0.2));
+                                4.5, 12.0, 540, 860, 0.03, 2.0, 0.2)); //540, 860,
                 pathBuilder = new FollowPath.Builder(
                                 swerve,
                                 swerve::getPose,
@@ -32,8 +33,31 @@ public class BLine {
                                 swerve::drive,
                                 new PIDController(5.0, 0.0, 0.0),
                                 new PIDController(3.0, 0.0, 0.0),
-                                new PIDController(2.0, 0.0, 0.0)).withDefaultShouldFlip();
+                                new PIDController(2.0, 0.0, 0.0)); // .withDefaultShouldFlip();
                 // .withPoseReset(swerve::resetOdometry);
+
+                FollowPath.setDoubleLoggingConsumer(pair -> {
+                        // NTHelper.setDouble("somekey", 0);
+                        NTHelper.setDouble("/bline/double/" + pair.getFirst(), pair.getSecond());
+                });
+
+                FollowPath.setBooleanLoggingConsumer(pair -> {
+                        NTHelper.setBoolean("/bline/boolean/" + pair.getFirst(), pair.getSecond());
+                });
+
+                FollowPath.setPoseLoggingConsumer(pair -> {
+                        NTHelper.setPose("/bline/pose/" + pair.getFirst(), pair.getSecond());
+                });
+
+                FollowPath.setTranslationListLoggingConsumer(pair -> {
+                        Translation2d[] blineTranslations = pair.getSecond();
+                        Translation2d[] translations = new Translation2d[pair.getSecond().length + 1];
+                        translations[0] = swerve.getPose().getTranslation();
+                        for (int i = 0; i < blineTranslations.length; i++) {
+                                translations[i + 1] = blineTranslations[i];
+                        }
+                        NTHelper.setTranslationArray("/bline/translationList/" + pair.getFirst(), translations);
+                });
         }
 
         public Command getAutoCommandFromName(String name) {
