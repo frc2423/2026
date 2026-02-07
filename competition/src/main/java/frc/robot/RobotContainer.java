@@ -4,7 +4,9 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.RotationsPerSecond;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -17,11 +19,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
@@ -33,6 +35,10 @@ public class RobotContainer {
             .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
+    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
+    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
+
+
     private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
     private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
@@ -42,6 +48,8 @@ public class RobotContainer {
 
     public final IntakeSubsystem intake = new IntakeSubsystem();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+    private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(10,0,0);
+    private Rotation2d lastHeading = new Rotation2d();
     public final ShooterSubsystem shooterLeft = new ShooterSubsystem(5);
     public final ShooterSubsystem shooterRight = new ShooterSubsystem(7);
     public final BLine bline = new BLine(drivetrain);
@@ -58,11 +66,33 @@ public class RobotContainer {
                 drivetrain.applyRequest(() -> {
                     double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
                     double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
-                    return drive.withVelocityX(x) // Drive forward with negative Y (forward)
-                            .withVelocityY(y) // Drive left with negative X (left)
-                            .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
-                                                                                                 // counterclockwise
-                                                                                                 // with
+                    Rotation2d rotation = new Rotation2d(
+                            Math.atan2(driverController.getLeftY(), driverController.getLeftX()));
+
+                    double lx = driverController.getLeftX();
+                    double ly = driverController.getLeftY();
+                    double mag = Math.hypot(lx, ly);
+
+                    Rotation2d targetHeading;
+                    if (mag > 0.15) {
+                        targetHeading = new Rotation2d(Math.atan2(lx, ly));
+                        lastHeading = targetHeading;
+                    } else {
+                        targetHeading = lastHeading;
+                    }
+
+                    
+
+                    return driveFacing
+                            .withVelocityX(x)
+                            .withVelocityY(y)
+                            .withTargetDirection(targetHeading);
+
+                    // return drive.withVelocityX(x) // Drive forward with negative Y (forward)
+                    // .withVelocityY(y) // Drive left with negative X (left)
+                    // .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
+                    // counterclockwise
+                    // with
                     // negative X (left)
                 }));
 
