@@ -184,10 +184,10 @@ public class RobotContainer {
                 //                 .onFalse(intake.stop());
                 // new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(intake.outtake())
                 //                 .onFalse(intake.stop());
-                // new JoystickButton(driverXbox, XboxController.Button.kA.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(2,6.5,new Rotation2d(Math.PI))));
-                new JoystickButton(driverXbox, XboxController.Button.kB.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(6.2,2,new Rotation2d(Math.PI))));
-                // new JoystickButton(driverXbox, XboxController.Button.kX.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(14.5,7,new Rotation2d(Math.PI))));
-                // new JoystickButton(driverXbox, XboxController.Button.kY.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(13,1.5,new Rotation2d(Math.PI))));
+                new JoystickButton(driverXbox, XboxController.Button.kA.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(6.2,2,new Rotation2d(Math.PI))));
+                new JoystickButton(driverXbox, XboxController.Button.kB.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(13,1.5,new Rotation2d(Math.PI))));
+                new JoystickButton(driverXbox, XboxController.Button.kX.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(2,6.5,new Rotation2d(Math.PI))));
+                new JoystickButton(driverXbox, XboxController.Button.kY.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(8,7,new Rotation2d(Math.PI))));
                 // configureDriverBindings();
 
         }

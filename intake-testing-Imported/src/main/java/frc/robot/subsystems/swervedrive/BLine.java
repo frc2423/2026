@@ -25,7 +25,7 @@ public class BLine {
                 this.intake = intake;
 
                 Path.setDefaultGlobalConstraints(new Path.DefaultGlobalConstraints(
-                                4.5, 12.0, 540, 860, 0.03, 2.0, 0.2));
+                                4.5, 12.0, 540, 860, 0.03, 2.0, 0.2)); //540, 860,
                 pathBuilder = new FollowPath.Builder(
                                 swerve,
                                 swerve::getPose,
@@ -33,7 +33,7 @@ public class BLine {
                                 swerve::drive,
                                 new PIDController(5.0, 0.0, 0.0),
                                 new PIDController(3.0, 0.0, 0.0),
-                                new PIDController(2.0, 0.0, 0.0)).withDefaultShouldFlip();
+                                new PIDController(2.0, 0.0, 0.0)); // .withDefaultShouldFlip();
                 // .withPoseReset(swerve::resetOdometry);
 
                 FollowPath.setDoubleLoggingConsumer(pair -> {
@@ -42,7 +42,7 @@ public class BLine {
                 });
 
                 FollowPath.setBooleanLoggingConsumer(pair -> {
-                NTHelper.setBoolean("/bline/boolean/" +  pair.getFirst(), pair.getSecond());
+                        NTHelper.setBoolean("/bline/boolean/" + pair.getFirst(), pair.getSecond());
                 });
 
                 FollowPath.setPoseLoggingConsumer(pair -> {
@@ -50,7 +50,13 @@ public class BLine {
                 });
 
                 FollowPath.setTranslationListLoggingConsumer(pair -> {
-                        NTHelper.setTranslationArray("/bline/translationList/" + pair.getFirst(), pair.getSecond());
+                        Translation2d[] blineTranslations = pair.getSecond();
+                        Translation2d[] translations = new Translation2d[pair.getSecond().length + 1];
+                        translations[0] = swerve.getPose().getTranslation();
+                        for (int i = 0; i < blineTranslations.length; i++) {
+                                translations[i + 1] = blineTranslations[i];
+                        }
+                        NTHelper.setTranslationArray("/bline/translationList/" + pair.getFirst(), translations);
                 });
         }
 
