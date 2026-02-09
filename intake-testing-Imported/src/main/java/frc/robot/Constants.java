@@ -128,4 +128,18 @@ public final class Constants {
     public static double inchToSetPoint(double inches) {
         return ((10 / 9.0) * inches) - (80 / 9.0);
     }
+
+    public final class HeatmapConstants {
+
+  public static final double FIELD_LENGTH_METERS = 16.54;
+  public static final double FIELD_WIDTH_METERS  = 8.27;
+
+  public static final double CELL_SIZE_METERS = 0.5;
+
+  public static final double DECAY_FACTOR = 0.98;
+  public static final double MIN_HEAT = 3.0;
+
+  private HeatmapConstants() {}
+}
+
 }
