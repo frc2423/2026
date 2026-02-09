@@ -11,6 +11,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -26,6 +27,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.swervedrive.BLine;
+import frc.robot.subsystems.swervedrive.DriveShortestPath;
 import frc.robot.subsystems.swervedrive.IntakeSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import frc.robot.subsystems.swervedrive.Vision;
@@ -175,11 +177,17 @@ public class RobotContainer {
                 return bline.getAutoCommandFromName(m_chooser.getSelected());
         }
 
+        DriveShortestPath driveShortestPath = new DriveShortestPath(drivebase, bline);
+
         public void configureBindings() {
-                new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(intake.intake())
-                                .onFalse(intake.stop());
-                new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(intake.outtake())
-                                .onFalse(intake.stop());
+                // new JoystickButton(driverXbox, XboxController.Button.kA.value).onTrue(intake.intake())
+                //                 .onFalse(intake.stop());
+                // new JoystickButton(driverXbox, XboxController.Button.kB.value).onTrue(intake.outtake())
+                //                 .onFalse(intake.stop());
+                new JoystickButton(driverXbox, XboxController.Button.kA.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(6.2,2,new Rotation2d(Math.PI))));
+                new JoystickButton(driverXbox, XboxController.Button.kB.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(13,1.5,new Rotation2d(Math.PI))));
+                new JoystickButton(driverXbox, XboxController.Button.kX.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(2,6.5,new Rotation2d(Math.PI))));
+                new JoystickButton(driverXbox, XboxController.Button.kY.value).whileTrue(driveShortestPath.driveShortestPath(new Pose2d(8,7,new Rotation2d(Math.PI))));
                 // configureDriverBindings();
 
         }
