@@ -10,12 +10,12 @@ import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class IntakeSubsystem extends SubsystemBase {
+public class TwindexerSubsystem extends SubsystemBase {
 
-    private SparkFlex motor = new SparkFlex(22, MotorType.kBrushless);
+    private SparkFlex motor = new SparkFlex(23, MotorType.kBrushless);
     SparkFlexConfig motorConfig = new SparkFlexConfig();
 
-    public IntakeSubsystem() {
+    public TwindexerSubsystem() {
         setCurrentLimit(80, 80);
     }
 
@@ -24,7 +24,7 @@ public class IntakeSubsystem extends SubsystemBase {
         motor.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
-    public Command intake() {
+    public Command spin() {
         return run(() -> {
             motor.set(-.5);
         });
