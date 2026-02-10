@@ -24,15 +24,15 @@ public class TwindexerSubsystem extends SubsystemBase {
         motor.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
-    public Command spin() {
+    public Command spindex() {
         return run(() -> {
-            motor.set(-.5);
+            motor.set(.75);
         });
     }
 
-    public Command outtake() {
+    public Command spindexBack() {
         return run(() -> {
-            motor.set(.5);
+            motor.set(-.75);
         });
     }
 

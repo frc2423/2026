@@ -12,6 +12,7 @@ import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Revolutions;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -46,11 +47,11 @@ public class ArmSubsystem extends SubsystemBase {
         SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
                 .withControlMode(ControlMode.CLOSED_LOOP)
                 // Feedback Constants (PID Constants)
-                .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+                .withClosedLoopController(160, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
                 .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
                 // Feedforward Constants
-                .withFeedforward(new ArmFeedforward(0, 0, 0))
-                .withSimFeedforward(new ArmFeedforward(0, 0, 0))
+                // .withFeedforward(new ArmFeedforward(0, 0, 0))
+                // .withSimFeedforward(new ArmFeedforward(0, 0, 0))
                 // Telemetry name and verbosity level
                 .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
                 .withIdleMode(MotorMode.BRAKE)
@@ -62,7 +63,8 @@ public class ArmSubsystem extends SubsystemBase {
         if (Robot.isReal()) {
             smcConfig.withExternalEncoder(armMotor.getAbsoluteEncoder())
                     .withExternalEncoderInverted(true)
-                    .withExternalEncoderGearing(30)
+                    .withExternalEncoderGearing(1)
+                    .withExternalEncoderZeroOffset(Revolutions.of(0.395))
                     .withUseExternalFeedbackEncoder(true)
                     .withOpenLoopRampRate(Seconds.of(0.25));
             // Motor properties to prevent over currenting.
@@ -75,11 +77,11 @@ public class ArmSubsystem extends SubsystemBase {
 
         ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
                 // Soft limit is applied to the SmartMotorControllers PID
-                .withSoftLimits(Degrees.of(-5), Degrees.of(105))
+                .withSoftLimits(Degrees.of(80), Degrees.of(190))
                 // Hard limit is applied to the simulation.
-                .withHardLimit(Degrees.of(-10), Degrees.of(110))
+                .withHardLimit(Degrees.of(70), Degrees.of(200))
                 // Starting position is where your arm starts
-                .withStartingPosition(Degrees.of(90))
+                .withStartingPosition(Degrees.of(180))
                 // Length and mass of your arm for sim.
                 .withLength(Feet.of(1))
                 .withMass(Pounds.of(2))

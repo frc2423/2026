@@ -29,6 +29,7 @@ import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.TwindexerSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
@@ -56,12 +57,13 @@ public class RobotContainer {
     public final IntakeSubsystem intake = new IntakeSubsystem();
     @Logged
     public final ArmSubsystem arm = new ArmSubsystem();
+    public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
             .withHeadingPID(10, 0, 0);
     private Rotation2d lastHeading = new Rotation2d();
-    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(5);
-    public final ShooterSubsystem shooterRight = new ShooterSubsystem(7);
+    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35);
+    public final ShooterSubsystem shooterRight = new ShooterSubsystem(37);
     public final BLine bline = new BLine(drivetrain);
 
     public RobotContainer() {
@@ -92,14 +94,14 @@ public class RobotContainer {
                         targetHeading = lastHeading;
                     }
 
-                    return driveFacing
-                            .withVelocityX(x)
-                            .withVelocityY(y)
-                            .withTargetDirection(targetHeading);
+                    // return driveFacing
+                    //         .withVelocityX(x)
+                    //         .withVelocityY(y)
+                    //         .withTargetDirection(targetHeading);
 
-                    // return drive.withVelocityX(x) // Drive forward with negative Y (forward)
-                    // .withVelocityY(y) // Drive left with negative X (left)
-                    // .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
+                    return drive.withVelocityX(x) // Drive forward with negative Y (forward)
+                    .withVelocityY(y) // Drive left with negative X (left)
+                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
                     // counterclockwise
                     // with
                     // negative X (left)
@@ -121,17 +123,20 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driverController.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
-        driverController.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
-        driverController.leftBumper().and(driverController.rightBumper())
-                .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
-                .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
+        // driverController.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
+        // driverController.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
+        // driverController.leftBumper().and(driverController.rightBumper())
+        //         .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
+        //         .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
+
+        driverController.leftTrigger().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
+        driverController.rightTrigger().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
         driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
-        driverController.leftBumper().whileTrue(arm.setAngle(Degrees.of(90)));
-        driverController.rightBumper().whileTrue(arm.setAngle(Degrees.of(10)));
+        driverController.leftBumper().whileTrue(arm.setAngle(Degrees.of(180)));
+        driverController.rightBumper().whileTrue(arm.setAngle(Degrees.of(108)));
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
