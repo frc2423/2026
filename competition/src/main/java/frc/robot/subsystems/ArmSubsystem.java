@@ -8,163 +8,119 @@ import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.DegreesPerSecond;
 import static edu.wpi.first.units.Units.DegreesPerSecondPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
+import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Degrees;
+import static edu.wpi.first.units.Units.Feet;
+import static edu.wpi.first.units.Units.Pounds;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import static edu.wpi.first.units.Units.Feet;
-import static edu.wpi.first.units.Units.Pounds;
-import static edu.wpi.first.units.Units.Second;
-import static edu.wpi.first.units.Units.Seconds;
-import static edu.wpi.first.units.Units.Volts;
+import com.thethriftybot.devices.ThriftyNova;
+
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
 import edu.wpi.first.units.measure.Angle;
-
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import yams.gearing.GearBox;
-import yams.gearing.MechanismGearing;
+import frc.robot.Robot;
 
 import yams.motorcontrollers.SmartMotorController;
-import yams.mechanisms.SmartMechanism;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
+import yams.motorcontrollers.local.NovaWrapper;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    private SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
-            .withControlMode(ControlMode.CLOSED_LOOP)
-            // Feedback Constants (PID Constants)
-            .withClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-            .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-            // Feedforward Constants
-            .withFeedforward(new ArmFeedforward(0, 0, 0))
-            .withSimFeedforward(new ArmFeedforward(0, 0, 0))
-            // Telemetry name and verbosity level
-            .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
-            // Gearing from the motor rotor to final shaft.
-            // In this example GearBox.fromReductionStages(3,4) is the same as
-            // GearBox.fromStages("3:1","4:1") which corresponds to the gearbox attached to
-            // your motor.
-            // You could also use .withGearing(12) which does the same thing.
-            .withGearing(new MechanismGearing(GearBox.fromReductionStages(3, 4)))
+    private final SparkMax armMotor = Robot.isReal() ? new SparkMax(21, MotorType.kBrushless) : null;
+    private final ThriftyNova armMotorSim = Robot.isSimulation() ? new ThriftyNova(21) : null;
+
+    private final Arm arm;
+
+    public ArmSubsystem() {
+        SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
+                .withControlMode(ControlMode.CLOSED_LOOP)
+                // Feedback Constants (PID Constants)
+                .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+                .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+                // Feedforward Constants
+                .withFeedforward(new ArmFeedforward(0, 0, 0))
+                .withSimFeedforward(new ArmFeedforward(0, 0, 0))
+                // Telemetry name and verbosity level
+                .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
+                .withIdleMode(MotorMode.BRAKE)
+                .withStatorCurrentLimit(Amps.of(40))
+                .withClosedLoopRampRate(Seconds.of(0.25))
+                // Not sure what this should be
+                .withGearing(30);
+
+        if (Robot.isReal()) {
+            smcConfig.withExternalEncoder(armMotor.getAbsoluteEncoder())
+                    .withExternalEncoderInverted(true)
+                    .withExternalEncoderGearing(30)
+                    .withUseExternalFeedbackEncoder(true)
+                    .withOpenLoopRampRate(Seconds.of(0.25));
             // Motor properties to prevent over currenting.
-            .withMotorInverted(false)
-            .withIdleMode(MotorMode.BRAKE)
-            .withStatorCurrentLimit(Amps.of(40))
-            .withClosedLoopRampRate(Seconds.of(0.25))
-            .withOpenLoopRampRate(Seconds.of(0.25));
+            // .withMotorInverted(true)
+        }
 
-    private SparkMax spark = new SparkMax(4, MotorType.kBrushless);
+        SmartMotorController sparkSmartMotorController = Robot.isReal()
+                ? new SparkWrapper(armMotor, DCMotor.getNEO(1), smcConfig)
+                : new NovaWrapper(armMotorSim, DCMotor.getNEO(1), smcConfig);
 
-    private SmartMotorController sparkSmartMotorController = new SparkWrapper(spark, DCMotor.getNEO(1), smcConfig);
+        ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
+                // Soft limit is applied to the SmartMotorControllers PID
+                .withSoftLimits(Degrees.of(-5), Degrees.of(105))
+                // Hard limit is applied to the simulation.
+                .withHardLimit(Degrees.of(-10), Degrees.of(110))
+                // Starting position is where your arm starts
+                .withStartingPosition(Degrees.of(90))
+                // Length and mass of your arm for sim.
+                .withLength(Feet.of(1))
+                .withMass(Pounds.of(2))
+                // Telemetry name and verbosity for the arm.
+                .withTelemetry("Arm", TelemetryVerbosity.HIGH);
 
-    private ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
-            // Soft limit is applied to the SmartMotorControllers PID
-            .withSoftLimits(Degrees.of(-20), Degrees.of(10))
-            // Hard limit is applied to the simulation.
-            .withHardLimit(Degrees.of(-30), Degrees.of(40))
-            // Starting position is where your arm starts
-            .withStartingPosition(Degrees.of(-5))
-            // Length and mass of your arm for sim.
-            .withLength(Feet.of(3))
-            .withMass(Pounds.of(1))
-            // Telemetry name and verbosity for the arm.
-            .withTelemetry("Arm", TelemetryVerbosity.HIGH);
+        arm = new Arm(armCfg);
+    }
 
-    // Arm Mechanism
-    private Arm arm = new Arm(armCfg);
-
-    /**
-     * Set the angle of the arm, does not stop when the arm reaches the setpoint.
-     * 
-     * @param angle Angle to go to.
-     * @return A command.
-     */
     public Command setAngle(Angle angle) {
-        return arm.run(angle);
+        // return arm.run(angle);
+        return arm.setAngle(angle);
     }
 
-    /**
-     * Set the angle of the arm, ends the command but does not stop the arm when the
-     * arm reaches the setpoint.
-     * 
-     * @param angle Angle to go to.
-     * @return A Command
-     */
-    public Command setAngleAndStop(Angle angle) {
-        return arm.runTo(angle, Angle.ofRelativeUnits(5, Degrees));
-    }
-
-    /**
-     * Set arm closed loop controller to go to the specified mechanism position.
-     * 
-     * @param angle Angle to go to.
-     */
-    public void setAngleSetpoint(Angle angle) {
-        arm.setMechanismPositionSetpoint(angle);
-    }
-
-    /**
-     * Move the arm up and down.
-     * 
-     * @param dutycycle [-1, 1] speed to set the arm too.
-     */
     public Command set(double dutycycle) {
         return arm.set(dutycycle);
     }
 
-    /**
-     * Run sysId on the {@link Arm}
-     */
-    public Command sysId() {
-        return arm.sysId(Volts.of(7), Volts.of(2).per(Second), Seconds.of(4));
-    }
-
-    /** Creates a new ExampleSubsystem. */
-    public ArmSubsystem() {
-    }
-
-    /**
-     * Example command factory method.
-     *
-     * @return a command
-     */
-    public Command exampleMethodCommand() {
-        // Inline construction of command goes here.
-        // Subsystem::RunOnce implicitly requires `this` subsystem.
-        return runOnce(
-                () -> {
-                    /* one-time action goes here */
-                });
-    }
-
-    /**
-     * An example method querying a boolean state of the subsystem (for example, a
-     * digital sensor).
-     *
-     * @return value of some boolean subsystem state, such as a digital sensor.
-     */
-    public boolean exampleCondition() {
-        // Query some boolean state, such as a digital sensor.
-        return false;
-    }
-
     @Override
     public void periodic() {
-        // This method will be called once per scheduler run
         arm.updateTelemetry();
     }
 
     @Override
     public void simulationPeriodic() {
-        // This method will be called once per scheduler run during simulation
         arm.simIterate();
+    }
+
+    @Logged
+    public double getAngle() {
+        return arm.getAngle().in(Degrees);
+    }
+
+    @Logged
+    public double getVoltage() {
+        return arm.getMotor().getVoltage().in(Volts);
+    }
+
+    @Logged
+    public double getSetpoint() {
+        Angle angle = arm.getMechanismSetpoint().orElse(Degrees.of(0));
+        return angle.in(Degrees);
     }
 }

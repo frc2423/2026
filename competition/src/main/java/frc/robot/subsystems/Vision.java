@@ -467,7 +467,7 @@ public class Vision {
     // Units.inchesToMeters(6)), // front floor
     // VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
-    FRONT_LEFT_CAM("left_cam",
+    FRONT_LEFT_CAM("april_tag_cam",
         new Rotation3d(0, Math.toRadians(25), Math.toRadians(-180)),
         new Translation3d(Units.inchesToMeters(10.875),
             Units.inchesToMeters(3.375),

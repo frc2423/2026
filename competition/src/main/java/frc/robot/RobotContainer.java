@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -11,18 +12,23 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
@@ -35,9 +41,10 @@ public class RobotContainer {
             .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
 
-    // private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    // private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-
+    // private final SwerveRequest.SwerveDriveBrake brake = new
+    // SwerveRequest.SwerveDriveBrake();
+    // private final SwerveRequest.PointWheelsAt point = new
+    // SwerveRequest.PointWheelsAt();
 
     private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
     private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
@@ -47,8 +54,11 @@ public class RobotContainer {
     private final CommandXboxController driverController = new CommandXboxController(0);
 
     public final IntakeSubsystem intake = new IntakeSubsystem();
+    @Logged
+    public final ArmSubsystem arm = new ArmSubsystem();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle().withHeadingPID(10,0,0);
+    private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
+            .withHeadingPID(10, 0, 0);
     private Rotation2d lastHeading = new Rotation2d();
     public final ShooterSubsystem shooterLeft = new ShooterSubsystem(5);
     public final ShooterSubsystem shooterRight = new ShooterSubsystem(7);
@@ -56,6 +66,7 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        SmartDashboard.putData("armSubsystem", arm);
     }
 
     private void configureBindings() {
@@ -80,8 +91,6 @@ public class RobotContainer {
                     } else {
                         targetHeading = lastHeading;
                     }
-
-                    
 
                     return driveFacing
                             .withVelocityX(x)
@@ -118,10 +127,12 @@ public class RobotContainer {
                 .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
                 .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
 
-        driverController.x().whileTrue(intake.spin()).onFalse(intake.stop());
+        driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
-        driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
+        driverController.leftBumper().whileTrue(arm.setAngle(Degrees.of(90)));
+        driverController.rightBumper().whileTrue(arm.setAngle(Degrees.of(10)));
+        // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
