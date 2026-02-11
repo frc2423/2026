@@ -15,11 +15,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.NTHelper;
+import frc.robot.RobotContainer;
 
 
 public class ShooterSubsystem extends SubsystemBase {
 
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
+    private double shootSpeed = 8;
+      public static final DAS das = new DAS();
     
     public SparkFlex motor;
 
@@ -52,6 +55,22 @@ public class ShooterSubsystem extends SubsystemBase {
             motor.stopMotor();
         });
     } 
+
+    public Command rev() {
+        return run (()-> {
+            motor.set(shootSpeed);
+
+        });
+    }
+
+     private Command revSpeedFromDAS() {
+        return Commands.run(() -> {
+            double distance = drivebase.getDistanceToSpeaker(); // not real
+            DAS.MotorSettings as = das.calculateAS(distance);
+            // motor.setPidSpeed(as.getVelocity());
+        }, motor).until(() -> shooter.isRevatSpeed()).withTimeout(4);
+    
+    }
     
     @Override
     public void initSendable(SendableBuilder builder) {

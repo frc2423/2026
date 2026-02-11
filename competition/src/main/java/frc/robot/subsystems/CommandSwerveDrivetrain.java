@@ -13,6 +13,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -23,10 +24,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.NTHelper;
 import frc.robot.QuackNav;
+import frc.robot.generated.FieldConstants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.simulation.MapleSimSwerveDrivetrain;
+import frc.robot.generated.*;
 
 /**
  * Class that extends the Phoenix 6 SwerveDrivetrain class and implements
@@ -341,4 +345,18 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     public Pose2d getSimulatedPose() {
         return mapleSimSwerveDrivetrain.getSimulatedPose();
     }
+
+    public double getDistanceBetweenPoses(Pose2d a, Pose2d b) {
+    double y = a.getY() - b.getY();
+    double x = a.getX() - b.getX();
+    return Math.sqrt(Math.pow(y, 2) + Math.pow(x, 2));
+  }
+
+  public double getDistanceToSpeaker() {
+    // Pose2d = Pose2d.kZero.getTranslation().getDistance()
+    getDistanceBetweenPoses(this.getPose(), new Pose2d(FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
+
+  }
+
+
 }
