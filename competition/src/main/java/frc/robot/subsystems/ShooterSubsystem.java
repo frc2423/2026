@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import java.util.function.Supplier;
+
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkMax;
@@ -10,19 +12,21 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.NTHelper;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.*;
 
 
 public class ShooterSubsystem extends SubsystemBase {
 
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
     private double shootSpeed = 8;
-      public static final DAS das = new DAS();
+    private CommandSwerveDrivetrain drivebase;
     
     public SparkFlex motor;
 
@@ -56,22 +60,26 @@ public class ShooterSubsystem extends SubsystemBase {
         });
     } 
 
+    public Command spinWithSetpoint(Supplier<Double> setpoint){
+
+        double setpointYAY = setpoint.get();
+
+         return run(()->{
+            double voltage = feedforward.calculate(setpointYAY);
+            motor.getClosedLoopController().setReference(setpointYAY, ControlType.kVelocity, ClosedLoopSlot.kSlot0, voltage);
+        });
+
+    }
+
+    
+
     public Command rev() {
         return run (()-> {
             motor.set(shootSpeed);
 
         });
     }
-
-     private Command revSpeedFromDAS() {
-        return Commands.run(() -> {
-            double distance = drivebase.getDistanceToSpeaker(); // not real
-            DAS.MotorSettings as = das.calculateAS(distance);
-            // motor.setPidSpeed(as.getVelocity());
-        }, motor).until(() -> shooter.isRevatSpeed()).withTimeout(4);
-    
-    }
-    
+ 
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("current", () -> motor.getOutputCurrent(), null);

@@ -28,6 +28,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterCommands;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
@@ -48,6 +49,8 @@ public class RobotContainer {
 
     private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
     private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
+    
+    public final double feederSpeed = 10;
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
@@ -62,6 +65,8 @@ public class RobotContainer {
     private Rotation2d lastHeading = new Rotation2d();
     public final ShooterSubsystem shooterLeft = new ShooterSubsystem(5);
     public final ShooterSubsystem shooterRight = new ShooterSubsystem(7);
+    public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
+
     public final BLine bline = new BLine(drivetrain);
 
     public RobotContainer() {
@@ -121,17 +126,20 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        driverController.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
-        driverController.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
-        driverController.leftBumper().and(driverController.rightBumper())
-                .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
-                .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
+        // driverController.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
+        // driverController.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
+        // driverController.leftBumper().and(driverController.rightBumper())
+                // .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
+                // .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
 
         driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
-        driverController.leftBumper().whileTrue(arm.setAngle(Degrees.of(90)));
-        driverController.rightBumper().whileTrue(arm.setAngle(Degrees.of(10)));
+        // driverController.leftBumper().whileTrue(arm.setAngle(Degrees.of(90)));
+        // driverController.rightBumper().whileTrue(arm.setAngle(Degrees.of(10)));
+
+        driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
+        driverController.rightBumper().whileTrue(shooter.spinFeeder(feederSpeed));
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
