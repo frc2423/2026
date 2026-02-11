@@ -13,6 +13,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Revolutions;
+import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -47,7 +48,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
                 .withControlMode(ControlMode.CLOSED_LOOP)
                 // Feedback Constants (PID Constants)
-                .withClosedLoopController(160, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+                .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
                 .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
                 // Feedforward Constants
                 // .withFeedforward(new ArmFeedforward(0, 0, 0))
@@ -64,7 +65,7 @@ public class ArmSubsystem extends SubsystemBase {
             smcConfig.withExternalEncoder(armMotor.getAbsoluteEncoder())
                     .withExternalEncoderInverted(true)
                     .withExternalEncoderGearing(1)
-                    .withExternalEncoderZeroOffset(Revolutions.of(0.395))
+                    .withExternalEncoderZeroOffset(Revolutions.of(0.235))
                     .withUseExternalFeedbackEncoder(true)
                     .withOpenLoopRampRate(Seconds.of(0.25));
             // Motor properties to prevent over currenting.
@@ -92,8 +93,14 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public Command setAngle(Angle angle) {
+        return arm.set(() -> {
+            double armAngle = arm.getAngle().in(Rotations);
+            double setAngle = angle.in(Rotations);
+            System.out.println("angle error: " + setAngle + ", " + armAngle + ", " + (setAngle - armAngle));
+            return (setAngle - armAngle);
+        });
         // return arm.run(angle);
-        return arm.setAngle(angle);
+        // return arm.setAngle(angle);
     }
 
     public Command set(double dutycycle) {
@@ -101,6 +108,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     @Override
+
     public void periodic() {
         arm.updateTelemetry();
     }

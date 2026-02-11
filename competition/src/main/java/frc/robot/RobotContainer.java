@@ -30,6 +30,7 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.TwindexerSubsystem;
+import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
@@ -65,6 +66,7 @@ public class RobotContainer {
     public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35);
     public final ShooterSubsystem shooterRight = new ShooterSubsystem(37);
     public final BLine bline = new BLine(drivetrain);
+    public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
 
     public RobotContainer() {
         configureBindings();
@@ -135,8 +137,9 @@ public class RobotContainer {
         driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
-        driverController.leftBumper().whileTrue(arm.setAngle(Degrees.of(180)));
-        driverController.rightBumper().whileTrue(arm.setAngle(Degrees.of(108)));
+        driverController.leftBumper().onTrue(arm.setAngle(Degrees.of(180)));
+        driverController.rightBumper().onTrue(arm.setAngle(Degrees.of(110)));
+
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
