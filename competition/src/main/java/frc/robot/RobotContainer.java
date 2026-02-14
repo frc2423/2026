@@ -27,6 +27,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterCommands;
 import frc.robot.subsystems.ArmSubsystem;
@@ -68,8 +69,8 @@ public class RobotContainer {
     private Rotation2d lastHeading = new Rotation2d();
     public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35);
     public final ShooterSubsystem shooterRight = new ShooterSubsystem(37);
-     public final ShooterSubsystem feederLeft = new ShooterSubsystem(34);
-    public final ShooterSubsystem feederRight = new ShooterSubsystem(36);
+     public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
+    public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
     public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
 
     public final BLine bline = new BLine(drivetrain);
@@ -146,7 +147,7 @@ public class RobotContainer {
 
         driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
         driverController.rightBumper().whileTrue(shooter.spinFeeder(feederSpeed));
-        driverController.leftTrigger(0.25).whileTrue(feederLeft.spinWithSetpoint(() -> 200.0).alongWith(feederRight.spinWithSetpoint(() -> 200.0)));
+        driverController.leftTrigger(0.25).whileTrue(feederLeft.spin(0.5).alongWith(feederRight.spin(0.5)));
         driverController.leftBumper().whileTrue(shooterLeft.spinWithSetpoint(() -> -200.0).alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
