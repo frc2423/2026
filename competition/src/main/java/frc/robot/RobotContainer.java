@@ -54,6 +54,7 @@ public class RobotContainer {
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     public final IntakeSubsystem intake = new IntakeSubsystem();
     @Logged
@@ -124,6 +125,7 @@ public class RobotContainer {
 
         // reset the field-centric heading on left bumper press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+        operatorController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
         // driverController.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
         // driverController.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
@@ -131,20 +133,24 @@ public class RobotContainer {
         //         .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
         //         .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
 
-        driverController.leftTrigger().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
-        driverController.rightTrigger().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
+        operatorController.povDown().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
+        operatorController.povUp().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
         driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
+        operatorController.x().whileTrue(intake.intake()).onFalse(intake.stop());
+        operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
         Command armDownCommand = Commands.sequence(
             arm.setAngle(Degrees.of(10)).until(() -> arm.isNear(Degrees.of(10),Degrees.of(15))),
             arm.set(-0.08)
         );
-
-        driverController.leftBumper().onTrue(armDownCommand);
-        driverController.rightBumper().onTrue(arm.setAngle(Degrees.of(100)));
-
+            
+        driverController.a().onTrue(armDownCommand);
+        driverController.b().onTrue(arm.setAngle(Degrees.of(100)));
+        operatorController.a().onTrue(armDownCommand);
+        operatorController.b().onTrue(arm.setAngle(Degrees.of(100)));
+        
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
