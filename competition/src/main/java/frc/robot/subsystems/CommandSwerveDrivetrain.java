@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.NTHelper;
 import frc.robot.QuackNav;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
@@ -257,6 +258,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
         vision.updatePoseEstimation(this, questNav);
         vision.logCameras();
+        log();
     }
 
     private MapleSimSwerveDrivetrain mapleSimSwerveDrivetrain = null;
@@ -340,5 +342,10 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     public Pose2d getSimulatedPose() {
         return mapleSimSwerveDrivetrain.getSimulatedPose();
+    }
+
+    public void log() {
+        NTHelper.setDouble("/bline/velocityX", getState().Speeds.vxMetersPerSecond);
+        NTHelper.setDouble("/bline/velocityY", getState().Speeds.vyMetersPerSecond);
     }
 }

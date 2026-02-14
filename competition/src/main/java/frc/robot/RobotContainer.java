@@ -37,7 +37,7 @@ public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
     private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second
                                                                                       // max angular velocity
-
+                                                                                  
     /* Setting up bindings for necessary control of the swerve drive platform */
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
             .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10% deadband
@@ -47,6 +47,8 @@ public class RobotContainer {
     // SwerveRequest.SwerveDriveBrake();
     // private final SwerveRequest.PointWheelsAt point = new
     // SwerveRequest.PointWheelsAt();
+
+    static Pose2d[] targetPoses = {new Pose2d(7.8, 7.3,Rotation2d.fromDegrees(-160)), new Pose2d(7.8,0.75,Rotation2d.fromDegrees(160))};
 
     private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
     private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
@@ -131,8 +133,8 @@ public class RobotContainer {
         //         .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
         //         .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
 
-        driverController.leftTrigger().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
-        driverController.rightTrigger().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
+        //driverController.leftTrigger().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
+        //driverController.rightTrigger().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
         driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
@@ -144,8 +146,10 @@ public class RobotContainer {
 
         driverController.leftBumper().onTrue(armDownCommand);
         driverController.rightBumper().onTrue(arm.setAngle(Degrees.of(100)));
-
-        // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
+        
+        //rev shooter in parallel 
+        driverController.leftTrigger().whileTrue(Commands.parallel(bline.goToNearestPose(targetPoses))); 
+        //driverController.leftBumper().whileTrue(null); //shooter subsystem passing shot
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
