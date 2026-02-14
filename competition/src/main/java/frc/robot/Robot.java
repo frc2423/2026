@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+
+import org.littletonrobotics.urcl.URCL;
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
   
@@ -20,6 +23,7 @@ public class Robot extends TimedRobot {
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
     Epilogue.bind(this);
+    URCL.start();
     m_robotContainer = new RobotContainer();
   }
 

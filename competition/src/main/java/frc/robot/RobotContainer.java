@@ -30,6 +30,8 @@ import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterCommands;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.TwindexerSubsystem;
+import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
@@ -59,6 +61,7 @@ public class RobotContainer {
     public final IntakeSubsystem intake = new IntakeSubsystem();
     @Logged
     public final ArmSubsystem arm = new ArmSubsystem();
+    public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
             .withHeadingPID(10, 0, 0);
@@ -70,6 +73,7 @@ public class RobotContainer {
     public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
 
     public final BLine bline = new BLine(drivetrain);
+    public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
 
     public RobotContainer() {
         configureBindings();
@@ -99,14 +103,14 @@ public class RobotContainer {
                         targetHeading = lastHeading;
                     }
 
-                    return driveFacing
-                            .withVelocityX(x)
-                            .withVelocityY(y)
-                            .withTargetDirection(targetHeading);
+                    // return driveFacing
+                    //         .withVelocityX(x)
+                    //         .withVelocityY(y)
+                    //         .withTargetDirection(targetHeading);
 
-                    // return drive.withVelocityX(x) // Drive forward with negative Y (forward)
-                    // .withVelocityY(y) // Drive left with negative X (left)
-                    // .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
+                    return drive.withVelocityX(x) // Drive forward with negative Y (forward)
+                    .withVelocityY(y) // Drive left with negative X (left)
+                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
                     // counterclockwise
                     // with
                     // negative X (left)
@@ -142,8 +146,8 @@ public class RobotContainer {
 
         driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
         driverController.rightBumper().whileTrue(shooter.spinFeeder(feederSpeed));
-        driverController.leftTrigger(0.25).whileTrue(feederLeft.spinWithSetpoint(() -> 3.0).alongWith(feederRight.spinWithSetpoint(() -> 3.0)));
-        driverController.leftBumper().whileTrue(shooterLeft.spinWithSetpoint(() -> 3.0).alongWith(shooterRight.spinWithSetpoint(() -> 3.0)));
+        driverController.leftTrigger(0.25).whileTrue(feederLeft.spinWithSetpoint(() -> 200.0).alongWith(feederRight.spinWithSetpoint(() -> 200.0)));
+        driverController.leftBumper().whileTrue(shooterLeft.spinWithSetpoint(() -> -200.0).alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);

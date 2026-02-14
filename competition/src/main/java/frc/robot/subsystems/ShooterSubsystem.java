@@ -40,6 +40,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
+        setDefaultCommand(spinWithSetpoint(() -> 0.0));
+
         NTHelper.setDouble("/shooter/speed", 0);
     }
 

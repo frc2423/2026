@@ -27,6 +27,7 @@ public class ShooterCommands extends SubsystemBase {
         this.motorR = motorR;
         this.motorL = motorL;
         this.swerve = swerve;
+        
     }
 
      public double getDistanceBetweenPoses(Pose2d a, Pose2d b) {
