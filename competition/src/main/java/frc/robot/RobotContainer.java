@@ -63,8 +63,10 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
             .withHeadingPID(10, 0, 0);
     private Rotation2d lastHeading = new Rotation2d();
-    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(5);
-    public final ShooterSubsystem shooterRight = new ShooterSubsystem(7);
+    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35);
+    public final ShooterSubsystem shooterRight = new ShooterSubsystem(37);
+     public final ShooterSubsystem feederLeft = new ShooterSubsystem(34);
+    public final ShooterSubsystem feederRight = new ShooterSubsystem(36);
     public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
 
     public final BLine bline = new BLine(drivetrain);
@@ -140,6 +142,8 @@ public class RobotContainer {
 
         driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
         driverController.rightBumper().whileTrue(shooter.spinFeeder(feederSpeed));
+        driverController.leftTrigger(0.25).whileTrue(feederLeft.spinWithSetpoint(() -> 3.0).alongWith(feederRight.spinWithSetpoint(() -> 3.0)));
+        driverController.leftBumper().whileTrue(shooterLeft.spinWithSetpoint(() -> 3.0).alongWith(shooterRight.spinWithSetpoint(() -> 3.0)));
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 
         drivetrain.registerTelemetry(logger::telemeterize);
