@@ -137,8 +137,13 @@ public class RobotContainer {
         driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
-        driverController.leftBumper().onTrue(arm.setAngle(Degrees.of(180)));
-        driverController.rightBumper().onTrue(arm.setAngle(Degrees.of(110)));
+        Command armDownCommand = Commands.sequence(
+            arm.setAngle(Degrees.of(10)).until(() -> arm.isNear(Degrees.of(10),Degrees.of(15))),
+            arm.set(-0.08)
+        );
+
+        driverController.leftBumper().onTrue(armDownCommand);
+        driverController.rightBumper().onTrue(arm.setAngle(Degrees.of(100)));
 
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
 

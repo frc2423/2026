@@ -12,12 +12,11 @@ import static edu.wpi.first.units.Units.Volts;
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Feet;
 import static edu.wpi.first.units.Units.Pounds;
+import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Revolutions;
-import static edu.wpi.first.units.Units.Rotations;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.thethriftybot.devices.ThriftyNova;
 
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
@@ -34,25 +33,23 @@ import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.MotorMode;
 import yams.motorcontrollers.SmartMotorControllerConfig.TelemetryVerbosity;
-import yams.motorcontrollers.local.NovaWrapper;
 import yams.motorcontrollers.local.SparkWrapper;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    private final SparkMax armMotor = Robot.isReal() ? new SparkMax(21, MotorType.kBrushless) : null;
-    private final ThriftyNova armMotorSim = Robot.isSimulation() ? new ThriftyNova(21) : null;
+    private final SparkMax armMotor = new SparkMax(21, MotorType.kBrushless);
 
     private final Arm arm;
+
+    private Angle offset = Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
 
     public ArmSubsystem() {
         SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
                 .withControlMode(ControlMode.CLOSED_LOOP)
                 // Feedback Constants (PID Constants)
                 .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-                .withSimClosedLoopController(50, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+                .withSimClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
                 // Feedforward Constants
-                // .withFeedforward(new ArmFeedforward(0, 0, 0))
-                // .withSimFeedforward(new ArmFeedforward(0, 0, 0))
                 // Telemetry name and verbosity level
                 .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
                 .withIdleMode(MotorMode.BRAKE)
@@ -65,24 +62,20 @@ public class ArmSubsystem extends SubsystemBase {
             smcConfig.withExternalEncoder(armMotor.getAbsoluteEncoder())
                     .withExternalEncoderInverted(true)
                     .withExternalEncoderGearing(1)
-                    .withExternalEncoderZeroOffset(Revolutions.of(0.235))
+                    .withExternalEncoderZeroOffset(offset)
                     .withUseExternalFeedbackEncoder(true)
                     .withOpenLoopRampRate(Seconds.of(0.25));
-            // Motor properties to prevent over currenting.
-            // .withMotorInverted(true)
         }
 
-        SmartMotorController sparkSmartMotorController = Robot.isReal()
-                ? new SparkWrapper(armMotor, DCMotor.getNEO(1), smcConfig)
-                : new NovaWrapper(armMotorSim, DCMotor.getNEO(1), smcConfig);
-
+        SmartMotorController sparkSmartMotorController = new SparkWrapper(armMotor, DCMotor.getNEO(1), smcConfig);
+     
         ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
                 // Soft limit is applied to the SmartMotorControllers PID
-                .withSoftLimits(Degrees.of(80), Degrees.of(190))
+                .withSoftLimits(Degrees.of(-10), Degrees.of(100))
                 // Hard limit is applied to the simulation.
-                .withHardLimit(Degrees.of(70), Degrees.of(200))
+                .withHardLimit(Degrees.of(-20), Degrees.of(110))
                 // Starting position is where your arm starts
-                .withStartingPosition(Degrees.of(180))
+                .withStartingPosition(Degrees.of(90))
                 // Length and mass of your arm for sim.
                 .withLength(Feet.of(1))
                 .withMass(Pounds.of(2))
@@ -92,12 +85,14 @@ public class ArmSubsystem extends SubsystemBase {
         arm = new Arm(armCfg);
     }
 
+    ArmFeedforward feedforward = new ArmFeedforward(0, .05, .2);
+
     public Command setAngle(Angle angle) {
+        
         return arm.set(() -> {
-            double armAngle = arm.getAngle().in(Rotations);
-            double setAngle = angle.in(Rotations);
-            System.out.println("angle error: " + setAngle + ", " + armAngle + ", " + (setAngle - armAngle));
-            return (setAngle - armAngle);
+            double armAngle = arm.getAngle().in(Radians);
+            double setAngle = angle.in(Radians);
+            return feedforward.calculate(armAngle, setAngle - armAngle);
         });
         // return arm.run(angle);
         // return arm.setAngle(angle);
@@ -132,5 +127,9 @@ public class ArmSubsystem extends SubsystemBase {
     public double getSetpoint() {
         Angle angle = arm.getMechanismSetpoint().orElse(Degrees.of(0));
         return angle.in(Degrees);
+    }
+
+    public boolean isNear(Angle angle, Angle tolerance) {
+        return arm.getAngle().isNear(angle, tolerance);
     }
 }
