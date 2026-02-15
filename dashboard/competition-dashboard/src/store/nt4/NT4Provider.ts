@@ -1,5 +1,5 @@
 import StructDecoder from './StructDecoder';
-import SourceProvider from './source-provider';
+import SourceProvider from './SourceProvider';
 import { NT4_Client, NT4_Topic } from './client/NT4';
 import { getRobotAddress } from './client/utils';
 
