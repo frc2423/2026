@@ -5,10 +5,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.NetworkTableEvent.Kind;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableEvent;
 
@@ -16,6 +18,7 @@ public class NTHelper {
 
     private static Map<String, StructPublisher<Pose2d>> pose2dPublishers = new HashMap<>();
     private static Map<String, StructPublisher<Pose3d>> pose3dPublishers = new HashMap<>();
+    private static Map<String, StructArrayPublisher<Translation2d>> translationArrayPublishers = new HashMap<>();
 
     public static void setPersistent(String key) {
         getEntry(key).setPersistent();
@@ -50,6 +53,15 @@ public class NTHelper {
             pose3dPublishers.put(key, publisher);
         }
         pose3dPublishers.get(key).set(pose);
+    }
+  
+    public static void setTranslationArray(String key, Translation2d[] translations) {
+        if (!translationArrayPublishers.containsKey(key)) {
+            StructArrayPublisher<Translation2d> publisher = NetworkTableInstance.getDefault()
+                    .getStructArrayTopic(key, Translation2d.struct).publish();
+            translationArrayPublishers.put(key, publisher);
+        }
+        translationArrayPublishers.get(key).set(translations);
     }
 
     /**
