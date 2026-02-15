@@ -1,35 +1,92 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import {
+  useNTValue,
+  useNTConnection,
+  useRobotConnection,
+} from "./nt3/useNetworktables";
+import {
+  BooleanBox,
+  Canvas,
+  CanvasMjpgStream,
+} from "@frc-web-components/react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  // Monitor connection status
+  const isConnected = useNTConnection();
+  const isRobotConnected = useRobotConnection();
+
+  // Get/Set a number value
+  const [someNumber, setSomeNumber] = useNTValue<number>(
+    "/SmartDashboard/someNumber",
+    0
+  );
+
+  const [isRedAlliance] = useNTValue<boolean>("/FMSInfo/IsRedAlliance", false);
+  const [streams] = useNTValue<string[]>(
+    "/CameraPublisher/USB Camera 0/streams",
+    []
+  );
+  const [quality, setQuality] = useState(50);
+  const [fps, setFps] = useState(60);
 
   return (
-    <>
+    <div>
+      <div>WebSocket Connected: {isConnected ? "Yes" : "No"}</div>
+      <div>Robot Connected: {isRobotConnected ? "Yes" : "No"}</div>
+      <div>Alliance: {isRedAlliance ? "Red" : "Blue"}</div>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+        <BooleanBox
+          label="Alliance"
+          value={isRedAlliance}
+          trueColor="red"
+          falseColor="blue"
+        />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+      <div>
+        Some number: {someNumber}
+        <button onClick={() => setSomeNumber((someNumber ?? 0) + 1)}>
+          Increment
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
+        <button onClick={() => setSomeNumber((someNumber ?? 0) - 1)}>
+          Decrement
+        </button>
+        <button onClick={() => setSomeNumber(0)}>Reset</button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      <div>
+        <Canvas>
+          <CanvasMjpgStream
+            srcs={streams}
+            resolutionWidth={320}
+            resolutionHeight={160}
+            fps={fps}
+            quality={quality}
+          />
+        </Canvas>
+      </div>
+      <div>
+        <span>
+          Quality: {quality}
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={quality}
+            onChange={(e) => setQuality(parseInt(e.target.value))}
+          />
+        </span>
+        <span>
+          FPS: {fps}
+          <input
+            type="range"
+            min="1"
+            max="60"
+            value={fps}
+            onChange={(e) => setFps(parseInt(e.target.value))}
+          />
+        </span>
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
