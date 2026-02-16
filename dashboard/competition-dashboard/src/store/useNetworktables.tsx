@@ -5,9 +5,10 @@ import useNt4Store from './useNt4Store';
  */
 export function useNTConnection() {
     const isConnected = useNt4Store(state => state.isConnected);
+    const address = useNt4Store(state => state.address);
     const connect = useNt4Store(state => state.connect);
     const disconnect = useNt4Store(state => state.disconnect);
-    return { isConnected, connect, disconnect };
+    return { isConnected, address,connect, disconnect };
 }
 
 
