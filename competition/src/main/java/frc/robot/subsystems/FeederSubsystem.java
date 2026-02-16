@@ -11,6 +11,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -25,8 +26,7 @@ import frc.robot.subsystems.*;
 public class FeederSubsystem extends SubsystemBase {
 
     private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
-    private double shootSpeed = 8;
-    private CommandSwerveDrivetrain drivebase;
+    private double shootSpeed = 1;
     private boolean isInverted;
     
     public SparkFlex motor;
@@ -34,15 +34,15 @@ public class FeederSubsystem extends SubsystemBase {
     public FeederSubsystem (int motorId, boolean isInverted) {
         motor = new SparkFlex(motorId, MotorType.kBrushless);
         this.isInverted = isInverted;
-        SparkFlexConfig motorConfig = new SparkFlexConfig();
 
         SparkFlexConfig config = new SparkFlexConfig();
         // config.closedLoop.p(.002).i(0).d(.04).outputRange(-1,1 );
+        config.inverted(isInverted);
         config.closedLoop.p(0.001).i(0).d(0).outputRange(-1,1 );
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-        setDefaultCommand(spinWithSetpoint(() -> 0.0));
+        setDefaultCommand(stop());
 
         NTHelper.setDouble("/shooter/speed", 0);
     }
@@ -50,14 +50,14 @@ public class FeederSubsystem extends SubsystemBase {
 
     public Command spin(){
         return run(()->{
-            motor.set((isInverted) ? -1 : 1);
+            motor.set(1);
         });
     }
 
-    public Command spin(double value) {
+    public Command spin(Supplier<Double> value) {
         return run(() -> {
 
-            motor.set((isInverted) ? -value : value);
+            motor.set(value.get());
 
         });
     }
@@ -79,10 +79,16 @@ public class FeederSubsystem extends SubsystemBase {
 
     }
  
+    @Logged
+    public double getVelocity() {
+        return motor.getEncoder().getVelocity();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.addDoubleProperty("current", () -> motor.getOutputCurrent(), null);
         builder.addDoubleProperty("encoderspeed", () -> motor.getEncoder().getVelocity(), null);
+        builder.addDoubleProperty("motorSpeed", () -> motor.get(), null);
 
     }
    

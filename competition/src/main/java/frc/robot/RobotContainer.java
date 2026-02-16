@@ -52,14 +52,16 @@ public class RobotContainer {
 
     private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
     private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
-    
+
     public final double feederSpeed = 10;
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
 
     private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController operatorController = new CommandXboxController(1);
 
     public final IntakeSubsystem intake = new IntakeSubsystem();
+
     @Logged
     public final ArmSubsystem arm = new ArmSubsystem();
     public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
@@ -67,9 +69,13 @@ public class RobotContainer {
     private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
             .withHeadingPID(10, 0, 0);
     private Rotation2d lastHeading = new Rotation2d();
-    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35);
-    public final ShooterSubsystem shooterRight = new ShooterSubsystem(37);
-     public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
+    @Logged
+    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35, true);
+    @Logged
+    public final ShooterSubsystem shooterRight = new ShooterSubsystem(37, false);
+    @Logged
+    public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
+    @Logged
     public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
     public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
 
@@ -79,6 +85,8 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         SmartDashboard.putData("armSubsystem", arm);
+        NTHelper.setDouble("/tuning/FeederSpeed", 0);
+        NTHelper.setDouble("/tuning/ShooterSpeed", 0);
     }
 
     private void configureBindings() {
@@ -105,13 +113,13 @@ public class RobotContainer {
                     }
 
                     // return driveFacing
-                    //         .withVelocityX(x)
-                    //         .withVelocityY(y)
-                    //         .withTargetDirection(targetHeading);
+                    // .withVelocityX(x)
+                    // .withVelocityY(y)
+                    // .withTargetDirection(targetHeading);
 
                     return drive.withVelocityX(x) // Drive forward with negative Y (forward)
-                    .withVelocityY(y) // Drive left with negative X (left)
-                    .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
+                            .withVelocityY(y) // Drive left with negative X (left)
+                            .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
                     // counterclockwise
                     // with
                     // negative X (left)
@@ -133,23 +141,27 @@ public class RobotContainer {
         // reset the field-centric heading on left bumper press
         driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // driverController.leftBumper().whileTrue(shooterLeft.spin()).onFalse(shooterLeft.stop());
-        // driverController.rightBumper().whileTrue(shooterRight.spin()).onFalse(shooterRight.stop());
-        // driverController.leftBumper().and(driverController.rightBumper())
-                // .whileTrue((shooterRight.spin()).alongWith(shooterLeft.spin()))
-                // .onFalse(shooterLeft.stop().alongWith(shooterRight.stop()));
-
         driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
         driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
-        // driverController.leftBumper().whileTrue(arm.setAngle(Degrees.of(90)));
-        // driverController.rightBumper().whileTrue(arm.setAngle(Degrees.of(10)));
+        driverController.b().whileTrue(arm.setAngle(Degrees.of(90)));
+        driverController.a().whileTrue(arm.setAngle(Degrees.of(10)));
 
         driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
         driverController.rightBumper().whileTrue(shooter.spinFeeder(feederSpeed));
-        driverController.leftTrigger(0.25).whileTrue(feederLeft.spin(0.5).alongWith(feederRight.spin(0.5)));
-        driverController.leftBumper().whileTrue(shooterLeft.spinWithSetpoint(() -> -200.0).alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
-        // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1, Rotation2d.kZero)));
+        driverController.leftTrigger(0.25).whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
+        driverController.leftBumper().whileTrue(shooterLeft.spinWithSetpoint(() ->
+        -200.0).alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
+        driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1,
+        Rotation2d.kZero)));
+
+        operatorController.leftBumper().whileTrue(Commands.parallel(
+                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), 
+                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0))));
+
+         operatorController.rightBumper().whileTrue(Commands.parallel(
+                shooterLeft.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
+                 shooterRight.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
