@@ -78,7 +78,7 @@ public class RobotContainer {
     public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
     @Logged
     public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
-
+    @Logged
     public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
     public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
 
