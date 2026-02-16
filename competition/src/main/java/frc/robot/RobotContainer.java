@@ -90,6 +90,7 @@ public class RobotContainer {
         SmartDashboard.putData("armSubsystem", arm);
         NTHelper.setDouble("/tuning/FeederSpeed", 1);
         NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
+        NTHelper.setBoolean("/tuning/snakeMode", false);
     }
 
     private void configureBindings() {
@@ -100,8 +101,6 @@ public class RobotContainer {
                 drivetrain.applyRequest(() -> {
                     double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
                     double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
-                    Rotation2d rotation = new Rotation2d(
-                            Math.atan2(driverController.getLeftY(), driverController.getLeftX()));
 
                     double lx = driverController.getLeftX();
                     double ly = driverController.getLeftY();
@@ -115,17 +114,18 @@ public class RobotContainer {
                         targetHeading = lastHeading;
                     }
 
-                    // return driveFacing
-                    // .withVelocityX(x)
-                    // .withVelocityY(y)
-                    // .withTargetDirection(targetHeading);
+                    boolean snakeMode = NTHelper.getBoolean("/tuning/snakeMode", false);
 
-                    return drive.withVelocityX(x) // Drive forward with negative Y (forward)
-                            .withVelocityY(y) // Drive left with negative X (left)
-                            .withRotationalRate(-driverController.getRightX() * MaxAngularRate); // Drive
-                    // counterclockwise
-                    // with
-                    // negative X (left)
+                    if (snakeMode) {
+                        return driveFacing
+                        .withVelocityX(-x)
+                        .withVelocityY(-y)
+                        .withTargetDirection(targetHeading.plus(Rotation2d.k180deg));
+                    }
+
+                    return drive.withVelocityX(-x)
+                            .withVelocityY(-y)
+                            .withRotationalRate(-driverController.getRightX() * MaxAngularRate);
                 }));
 
         // Idle while the robot is disabled. This ensures the configured
@@ -153,24 +153,24 @@ public class RobotContainer {
         driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
         driverController.rightBumper().whileTrue(shooter.spinFeeder(feederSpeed));
         driverController.leftTrigger(0.25).whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
-        driverController.leftBumper().whileTrue(shooterLeft.spinWithSetpoint(() ->
-        -200.0).alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
+        driverController.leftBumper().whileTrue(
+                shooterLeft.spinWithSetpoint(() -> -200.0).alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
         driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1,
-        Rotation2d.kZero)));
+                Rotation2d.kZero)));
 
         Command feeders = Commands.parallel(
-                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), 
+                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
                 feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)));
 
         Command feedersAndTwindexer = Commands.parallel(
-            feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), 
-            feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), twindexer.spindex());
+                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
+                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), twindexer.spindex());
 
         operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(feedersAndTwindexer));
 
-         operatorController.rightBumper().whileTrue(Commands.parallel(
+        operatorController.rightBumper().whileTrue(Commands.parallel(
                 shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
-                 shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
+                shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }
