@@ -24,9 +24,9 @@ public class IntakeSubsystem extends SubsystemBase {
         motor.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
-    public Command spin() {
+    public Command intake() {
         return run(() -> {
-            motor.set(-.5);
+            motor.set(-.75);
         });
     }
 
