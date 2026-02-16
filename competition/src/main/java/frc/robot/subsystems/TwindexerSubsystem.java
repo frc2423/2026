@@ -22,6 +22,8 @@ public class TwindexerSubsystem extends SubsystemBase {
     public TwindexerSubsystem() {
         setCurrentLimit(80, 80);
         motorConfig.idleMode(IdleMode.kCoast);
+
+        setDefaultCommand(stop());
     }
 
     private void setCurrentLimit(int stallLimit, int freeLimit) {
@@ -31,13 +33,13 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     public Command spindex() {
         return run(() -> {
-            motor.set(speedLimiter.calculate(0.75));
+            motor.set(speedLimiter.calculate(0.5));
         });
     }
 
     public Command spindexBack() {
         return run(() -> {
-            motor.set(speedLimiter.calculate(-0.75));
+            motor.set(speedLimiter.calculate(-0.5));
         });
     }
 

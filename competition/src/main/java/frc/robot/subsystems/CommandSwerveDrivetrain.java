@@ -13,8 +13,10 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.numbers.N1;
@@ -33,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NTHelper;
 import frc.robot.QuackNav;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
+import frc.robot.subsystems.Vision.Cameras;
 import frc.robot.utils.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.generated.*;
 
@@ -246,6 +249,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
 
     @Override
     public void periodic() {
+        Transform3d cameraTransform = vision.getTransform3d();
+        Pose3d robotPose = new Pose3d(getPose());
+        robotPose = robotPose.transformBy(cameraTransform);
+        NTHelper.setPose3d("/photonvision/Camera Pose", robotPose);
+
+        //NTHelper.setPose3d("/photonvision/Camera Pose", pose3d.transformBy(Cameras.FRONT_LEFT_CAM.getTransform3d()));
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply

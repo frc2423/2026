@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.BooleanSupplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -64,7 +66,6 @@ public class RobotContainer {
 
     @Logged
     public final ArmSubsystem arm = new ArmSubsystem();
-    public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
     private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
             .withHeadingPID(10, 0, 0);
@@ -77,6 +78,8 @@ public class RobotContainer {
     public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
     @Logged
     public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
+
+    public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
     public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
 
     public final BLine bline = new BLine(drivetrain);
@@ -85,8 +88,8 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         SmartDashboard.putData("armSubsystem", arm);
-        NTHelper.setDouble("/tuning/FeederSpeed", 0);
-        NTHelper.setDouble("/tuning/ShooterSpeed", 0);
+        NTHelper.setDouble("/tuning/FeederSpeed", 1);
+        NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
     }
 
     private void configureBindings() {
@@ -155,13 +158,19 @@ public class RobotContainer {
         driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1,
         Rotation2d.kZero)));
 
-        operatorController.leftBumper().whileTrue(Commands.parallel(
+        Command feeders = Commands.parallel(
                 feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), 
-                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0))));
+                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)));
+
+        Command feedersAndTwindexer = Commands.parallel(
+            feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), 
+            feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)), twindexer.spindex());
+
+        operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(feedersAndTwindexer));
 
          operatorController.rightBumper().whileTrue(Commands.parallel(
-                shooterLeft.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
-                 shooterRight.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
+                shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
+                 shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
 
         drivetrain.registerTelemetry(logger::telemeterize);
     }

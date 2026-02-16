@@ -39,13 +39,18 @@ public class FeederSubsystem extends SubsystemBase {
         // config.closedLoop.p(.002).i(0).d(.04).outputRange(-1,1 );
         config.inverted(isInverted);
         config.closedLoop.p(0.001).i(0).d(0).outputRange(-1,1 );
+        config.smartCurrentLimit(80,80);
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
         setDefaultCommand(stop());
 
-        NTHelper.setDouble("/shooter/speed", 0);
+        NTHelper.setDouble("/shooter/speed", 1);
+
+        
     }
+
+    
 
 
     public Command spin(){
@@ -60,6 +65,10 @@ public class FeederSubsystem extends SubsystemBase {
             motor.set(value.get());
 
         });
+    }
+
+    public boolean isRevved() {
+        return getVelocity() > 2000;
     }
 
     public Command stop(){
@@ -78,7 +87,13 @@ public class FeederSubsystem extends SubsystemBase {
         });
 
     }
+
+
  
+    @Logged
+    public double getMotorSpeed() {
+        return motor.get();
+    }
     @Logged
     public double getVelocity() {
         return motor.getEncoder().getVelocity();

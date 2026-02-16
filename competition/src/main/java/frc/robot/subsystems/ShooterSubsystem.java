@@ -38,13 +38,13 @@ public class ShooterSubsystem extends SubsystemBase {
         // config.encoder.countsPerRevolution(1);
         config.idleMode(IdleMode.kCoast);
         // config.closedLoop.p(.002).i(0).d(.04).outputRange(-1,1 );
-        config.closedLoop.p(0.001).i(0).d(0).outputRange(-1, 1);
+        config.closedLoop.p(0.003).i(0).d(0).outputRange(-1, 0);
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
         setDefaultCommand(stop());
 
-        NTHelper.setDouble("/shooter/speed", 0);
+        NTHelper.setDouble("/shooter/speed", 2800);
     }
 
     public Command spin() {
