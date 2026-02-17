@@ -18,24 +18,24 @@ public class DriveShortestPath {
     private final BLine bline;
 
     // points including bumps
-    private static final Translation2d close[] = { new Translation2d(3.5, 0.5), new Translation2d(3.5, 2.4),
-            new Translation2d(3.5, 5.6), new Translation2d(3.5, 7.5) };
-    private static final Translation2d closeNeutral[] = { new Translation2d(6, 0.5), new Translation2d(6, 2.4),
-            new Translation2d(6, 5.6), new Translation2d(6, 7.5) };
-    private static final Translation2d farNeutral[] = { new Translation2d(10.5, 0.5), new Translation2d(10.5, 2.4),
-            new Translation2d(10.5, 5.6), new Translation2d(10.5, 7.5) };
-    private static final Translation2d far[] = { new Translation2d(13, 0.5), new Translation2d(13, 2.4),
-            new Translation2d(13, 5.6), new Translation2d(13, 7.5) };
+    private static final Translation2d close[] = { new Translation2d(3.5, 0.75), new Translation2d(3.5, 2.4),
+            new Translation2d(3.5, 5.6), new Translation2d(3.5, 7.25) };
+    private static final Translation2d closeNeutral[] = { new Translation2d(6, 0.75), new Translation2d(6, 2.4),
+            new Translation2d(6, 5.6), new Translation2d(6, 7.25) };
+    private static final Translation2d farNeutral[] = { new Translation2d(10.5, 0.75), new Translation2d(10.5, 2.4),
+            new Translation2d(10.5, 5.6), new Translation2d(10.5, 7.25) };
+    private static final Translation2d far[] = { new Translation2d(13, 0.75), new Translation2d(13, 2.4),
+            new Translation2d(13, 5.6), new Translation2d(13, 7.25) };
 
     // just trenches
-    private static final Translation2d closeTrenches[] = { new Translation2d(3.5, 0.5),
-    new Translation2d(3.5, 7.5) };
+    private static final Translation2d closeTrenches[] = { new Translation2d(3.5, 0.75),
+    new Translation2d(3.5, 7.25) };
     private static final Translation2d closeNeutralTrenches[] = { new Translation2d(6,
-    0.5), new Translation2d(6, 7.5) };
+    0.75), new Translation2d(6, 7.25) };
     private static final Translation2d farNeutralTrenches[] = { new Translation2d(10.5,
-    0.5), new Translation2d(10.5, 7.5) };
-    private static final Translation2d farTrenches[] = { new Translation2d(13, 0.5), new
-    Translation2d(13, 7.5) };
+    0.75), new Translation2d(10.5, 7.25) };
+    private static final Translation2d farTrenches[] = { new Translation2d(13, 0.75), new
+    Translation2d(13, 7.25) };
 
     private static final Translation2d groups[][] = { close, closeNeutral, farNeutral, far };
 
@@ -139,17 +139,19 @@ public class DriveShortestPath {
 
             List<Path.PathElement> waypoints = new ArrayList<>();
 
-            if (pathDirection == Direction.FAR) {
+            if (closestGroupIndex < 0) {
+                // don't do anything
+            } else if (pathDirection == Direction.FAR) {
                 Translation2d previousPoint = getPose().getTranslation();
                 Translation2d nextPoint = findClosestPoint(groups[closestGroupIndex], getPose().getTranslation());
                 Rotation2d rotationTarget = getRotation(pathDirection);
                 int i;
                 for (i = closestGroupIndex + 1; nextPoint.getX() < targetPose2d.getX() && i < groups.length; i++) {
-                    if (getPose().getRotation().getDegrees() > 0 && getPose().getRotation().getDegrees() < 180) {
-                        rotationTarget = new Rotation2d(45);
-                    } else {
-                        rotationTarget = new Rotation2d(315);
-                    }
+                    // if (getPose().getRotation().getDegrees() > 0 && getPose().getRotation().getDegrees() < 180) {
+                    //     rotationTarget = new Rotation2d(45);
+                    // } else {
+                    //     rotationTarget = new Rotation2d(315);
+                    // }
                     waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, rotationTarget, false));
                     previousPoint = nextPoint;
                     nextPoint = findClosestPoint(groups[i], previousPoint);
@@ -164,11 +166,11 @@ public class DriveShortestPath {
                 Rotation2d rotationTarget = getRotation(pathDirection);
                 int i;
                 for (i = closestGroupIndex - 1; nextPoint.getX() > targetPose2d.getX() && i >= 0; i--) {
-                    if (getPose().getRotation().getDegrees() > 0 && getPose().getRotation().getDegrees() < 180) {
-                        rotationTarget = new Rotation2d(135);
-                    } else {
-                        rotationTarget = new Rotation2d(225);
-                    }
+                    // if (getPose().getRotation().getDegrees() > 0 && getPose().getRotation().getDegrees() < 180) {
+                    //     rotationTarget = new Rotation2d(135);
+                    // } else {
+                    //     rotationTarget = new Rotation2d(225);
+                    // }
                     waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, rotationTarget, false));
                     previousPoint = nextPoint;
                     nextPoint = findClosestPoint(groups[i], previousPoint);

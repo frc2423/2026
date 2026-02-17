@@ -35,13 +35,13 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     public Command spindex() {
         return run(() -> {
-            motor.set(speedLimiter.calculate(0.3));
+            motor.set(speedLimiter.calculate(0.5));
         });
     }
 
     public Command spindexBack() {
         return run(() -> {
-            motor.set(speedLimiter.calculate(-0.3));
+            motor.set(speedLimiter.calculate(-0.5));
         });
     }
 

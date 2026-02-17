@@ -192,7 +192,7 @@ public class RobotContainer {
                 shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
                 shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
 
-        operatorController.a().whileTrue(twindexer.spindexBack());
+        operatorController.a().whileTrue(Commands.parallel(twindexer.spindexBack(), feederLeft.spin(() -> -0.5), feederRight.spin(() -> -0.5)));
 
     }
 
