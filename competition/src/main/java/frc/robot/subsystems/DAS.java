@@ -34,7 +34,7 @@ public class DAS {
     private void initializeMap() {
         // Example values, replace these with your actual mappings
         //distanceMap.put(/*distance*/1.23, new MotorSettings(/*angle*/321, -5200));
-        distanceMap.put(/*distance*/1.32, new MotorSettings(/*angle*/321.5, -5200));
+        distanceMap.put(/*distance*/1.32, new MotorSettings(/*angle*/321.5, 2500));
 
 
 
