@@ -47,7 +47,7 @@ public class AutoCommands {
                 intake.stop(),
                 driveShortestPath.driveShortestPath(new Pose2d(2.5, 3, new Rotation2d().fromDegrees(-135))),
                 shooter.prepareToShoot(),
-                shooter.spinFeeder(feederSpeed));
+                shooter.spinFeeder(() -> feederSpeed));
     }
 
     public Command getAuto() {
