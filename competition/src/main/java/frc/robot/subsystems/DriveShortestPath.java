@@ -198,8 +198,7 @@ public class DriveShortestPath {
                 // getRotation(pathDirection), false));
             }
 
-            var nextPoint = targetPose2d.getTranslation();
-            waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, getRotation(pathDirection), false));
+            waypoints.add(new Path.Waypoint(targetPose2d));
 
             FollowPath followPath = bline.pathBuilder.build(new Path(waypoints.toArray(new Path.Waypoint[0])));
             return followPath;

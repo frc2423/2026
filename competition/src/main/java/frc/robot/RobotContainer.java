@@ -26,6 +26,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.AutoCommands;
 import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -89,6 +90,7 @@ public class RobotContainer {
     public final BLine bline = new BLine(drivetrain);
     public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
     public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
+    public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter);
 
     public RobotContainer() {
         configureBindings();
@@ -202,17 +204,16 @@ public class RobotContainer {
                 driveShortestPath.driveShortestPath(new Pose2d(14.6, 1.6, new Rotation2d(Math.PI))));
         shortestPathController.b().whileTrue(
                 driveShortestPath.driveShortestPath(new Pose2d(9, 2, new Rotation2d(Math.PI))));
-        
-        
-        //         shortestPathController.x().whileTrue(
-        //         driveShortestPath.driveShortestPath(new Pose2d(2, 6.5, new Rotation2d(Math.PI))));
+
+        // shortestPathController.x().whileTrue(
+        // driveShortestPath.driveShortestPath(new Pose2d(2, 6.5, new
+        // Rotation2d(Math.PI))));
         // shortestPathController.y().whileTrue(
-        //         driveShortestPath.driveShortestPath(new Pose2d(8, 7, new Rotation2d(Math.PI))));
+        // driveShortestPath.driveShortestPath(new Pose2d(8, 7, new
+        // Rotation2d(Math.PI))));
 
         // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1,
         // Rotation2d.kZero)));
-
-
 
     }
 
@@ -231,6 +232,6 @@ public class RobotContainer {
 
     // TODO: Add autos
     public Command getAutonomousCommand() {
-        return Commands.print("No autonomous command configured");
+        return auto.getAuto();
     }
 }
