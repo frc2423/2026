@@ -16,6 +16,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -24,6 +25,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.AutoCommands;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.DriveShortestPath;
@@ -86,6 +88,10 @@ public class RobotContainer {
         public final BLine bline = new BLine(drivetrain);
         public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
         public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
+
+        // @Logged
+        public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter);
+
 
         public RobotContainer() {
                 configureBindings();
@@ -214,6 +220,6 @@ public class RobotContainer {
 
         // TODO: Add autos
         public Command getAutonomousCommand() {
-                return Commands.print("No autonomous command configured");
+                return auto.getAuto();
         }
 }
