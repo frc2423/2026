@@ -164,6 +164,7 @@ public class RobotContainer {
                 driverController.leftBumper().whileTrue(
                                 shooterLeft.spinWithSetpoint(() -> -200.0)
                                                 .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
+                
         }
 
         private void configureOperatorControllerBindings() {
