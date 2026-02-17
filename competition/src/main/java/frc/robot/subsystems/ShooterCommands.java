@@ -88,8 +88,8 @@ public class ShooterCommands extends SubsystemBase {
               : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
 
       return driveFacing
-          .withVelocityX(x)
-          .withVelocityY(y)
+          .withVelocityX(-x)
+          .withVelocityY(-y)
           .withTargetDirection(targetHeading);
     });
   }
@@ -105,7 +105,7 @@ public class ShooterCommands extends SubsystemBase {
     Command feedersAndTwindexer = Commands.parallel(
         feederL.spin(() -> setpoint.get()),
         feederR.spin(() -> setpoint.get()),
-        twinDexer.spindex());
+        Commands.repeatingSequence(twinDexer.spindex().until(() -> twinDexer.isJammed()).andThen(twinDexer.spindexBack()).withTimeout(0.5)));
     // Command command = Commands.parallel(shooterL.spinWithSetpoint(() -> setpoint),
     //     shooterR.spinWithSetpoint(() -> setpoint));
 

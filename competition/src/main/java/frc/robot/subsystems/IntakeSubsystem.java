@@ -16,7 +16,7 @@ public class IntakeSubsystem extends SubsystemBase {
     SparkFlexConfig motorConfig = new SparkFlexConfig();
 
     public IntakeSubsystem() {
-        setCurrentLimit(80, 80);
+        setCurrentLimit(100, 100);
     }
 
     private void setCurrentLimit(int stallLimit, int freeLimit) {
