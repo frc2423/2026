@@ -151,8 +151,8 @@ public class RobotContainer {
                 driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
                 // Intake commands
-                driverController.x().whileTrue(intake.intake()).onFalse(intake.stop());
-                driverController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
+                driverController.button(9).whileTrue(intake.intake()).onFalse(intake.stop());
+                driverController.button(10).whileTrue(intake.outtake()).onFalse(intake.stop());
                 driverController.b().whileTrue(arm.setAngle(Degrees.of(90)));
                 driverController.a().whileTrue(arm.setAngle(Degrees.of(10)));
 
