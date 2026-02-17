@@ -81,7 +81,9 @@ public class RobotContainer {
         public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
         @Logged
         public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
-        public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, drivetrain);
+
+        @Logged
+        public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight, twindexer, drivetrain);
 
         public final BLine bline = new BLine(drivetrain);
         public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
@@ -93,6 +95,7 @@ public class RobotContainer {
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
                 NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
                 NTHelper.setBoolean("/tuning/snakeMode", false);
+
         }
 
         private void configureBindings() {
@@ -158,7 +161,9 @@ public class RobotContainer {
 
                 // Shooting and passing commands
                 driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
-                driverController.rightBumper().whileTrue(shooter.spinFeeder(feederSpeed));
+                driverController.rightBumper().whileTrue(shooter.spinFeeder(() -> {
+                    return NTHelper.getDouble("/tuning/FeederSpeed", 0);    
+                }));
                 driverController.leftTrigger(0.25)
                                 .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
                 driverController.leftBumper().whileTrue(
@@ -178,6 +183,8 @@ public class RobotContainer {
                 operatorController.rightBumper().whileTrue(Commands.parallel(
                                 shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
                                 shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
+
+                operatorController.a().whileTrue(twindexer.spindexBack());
 
         }
 
