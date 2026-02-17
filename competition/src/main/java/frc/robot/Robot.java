@@ -7,17 +7,17 @@ package frc.robot;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.epilogue.Epilogue;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-
 
 import org.littletonrobotics.urcl.URCL;
 
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
-  
-  @Logged(name="robotContainer")
+
+  @Logged(name = "robotContainer")
   private final RobotContainer m_robotContainer;
 
   public Robot() {
@@ -25,6 +25,8 @@ public class Robot extends TimedRobot {
     Epilogue.bind(this);
     URCL.start();
     m_robotContainer = new RobotContainer();
+    DriverStation.silenceJoystickConnectionWarning(true);
+
   }
 
   @Override
