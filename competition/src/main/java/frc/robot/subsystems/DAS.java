@@ -30,14 +30,9 @@ public class DAS {
         initializeMap();
     }
 
-    // TODO: Add correct speed for various distances to hub
     private void initializeMap() {
-        // Example values, replace these with your actual mappings
-        //distanceMap.put(/*distance*/1.23, new MotorSettings(/*angle*/321, -5200));
-        distanceMap.put(/*distance*/1.32, new MotorSettings(/*angle*/321.5, 2500));
-
-
-
+        distanceMap.put(1.3, new MotorSettings(0, 2500));
+        distanceMap.put(2.2, new MotorSettings(0, 3200));
     }
 
     public MotorSettings calculateAS(double distance) {

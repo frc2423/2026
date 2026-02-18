@@ -198,7 +198,6 @@ public class RobotContainer {
 
     private final CommandXboxController shortestPathController = new CommandXboxController(2);
 
-    // TODO: This don't seem to be working correctly
     private void configureShortestPathBindings() {
         shortestPathController.a().whileTrue(
                 driveShortestPath.driveShortestPath(new Pose2d(14.6, 1.6, new Rotation2d(Math.PI))));
@@ -230,7 +229,6 @@ public class RobotContainer {
                 .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
     }
 
-    // TODO: Add autos
     public Command getAutonomousCommand() {
         return auto.getAuto();
     }

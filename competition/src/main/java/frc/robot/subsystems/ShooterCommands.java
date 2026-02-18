@@ -67,7 +67,6 @@ public class ShooterCommands extends SubsystemBase {
 
   }
 
-  // TODO: Works for the blue alliance but not red
   public Rotation2d getLookAngle(Pose2d targetPose) {
     Pose2d currentPose = swerve.getPose();
     double distance = getDistanceBetweenPoses(currentPose, targetPose);
@@ -99,15 +98,13 @@ public class ShooterCommands extends SubsystemBase {
     return command;
   }
 
-  // TODO: Make this use feeders and twindexer, not shooter
   public Command spinFeeder(Supplier<Double> setpoint) {
 
     Command feedersAndTwindexer = Commands.parallel(
         feederL.spin(() -> setpoint.get()),
         feederR.spin(() -> setpoint.get()),
-        Commands.repeatingSequence(twinDexer.spindex().until(() -> twinDexer.isJammed()).andThen(twinDexer.spindexBack()).withTimeout(0.5)));
-    // Command command = Commands.parallel(shooterL.spinWithSetpoint(() -> setpoint),
-    //     shooterR.spinWithSetpoint(() -> setpoint));
+        Commands.repeatingSequence(
+            twinDexer.spindex().until(() -> twinDexer.isJammed()).andThen(twinDexer.spindexBack()).withTimeout(0.5)));
 
     return feedersAndTwindexer;
 
