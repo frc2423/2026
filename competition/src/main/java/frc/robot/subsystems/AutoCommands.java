@@ -50,6 +50,11 @@ public class AutoCommands {
                 shooter.spinFeeder(() -> feederSpeed));
     }
 
+    public Command shoot() {
+        return Commands.sequence(shooter.prepareToShoot(),
+        shooter.spinFeeder(() -> feederSpeed));
+    }
+
     public Command getAuto() {
         if (m_chooser.getSelected().equals("Center Piece Auto")) {
             return centerAuto();
