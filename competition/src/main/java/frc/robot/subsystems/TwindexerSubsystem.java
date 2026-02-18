@@ -8,10 +8,12 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class TwindexerSubsystem extends SubsystemBase {
 
@@ -20,8 +22,10 @@ public class TwindexerSubsystem extends SubsystemBase {
     private final SlewRateLimiter speedLimiter = new SlewRateLimiter(2);
 
     public TwindexerSubsystem() {
-        setCurrentLimit(80, 80);
+        setCurrentLimit(100, 80);
         motorConfig.idleMode(IdleMode.kCoast);
+
+        setDefaultCommand(stop());
     }
 
     private void setCurrentLimit(int stallLimit, int freeLimit) {
@@ -31,13 +35,13 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     public Command spindex() {
         return run(() -> {
-            motor.set(speedLimiter.calculate(0.75));
+            motor.set(speedLimiter.calculate(0.5));
         });
     }
 
     public Command spindexBack() {
         return run(() -> {
-            motor.set(speedLimiter.calculate(-0.75));
+            motor.set(speedLimiter.calculate(-0.5));
         });
     }
 
@@ -45,6 +49,21 @@ public class TwindexerSubsystem extends SubsystemBase {
         return run(() -> {
             motor.set(speedLimiter.calculate(0));
         });
+    }
+
+    @Logged
+    public boolean isJammed() {
+        return motor.getOutputCurrent() > 90 && motor.getEncoder().getVelocity() < 100;
+    }
+
+    @Logged
+    public double getVelocity() {
+        return motor.getEncoder().getVelocity();
+    }
+
+    @Logged
+    public double getOutputCurrent() {
+        return motor.getOutputCurrent();
     }
 
     @Override

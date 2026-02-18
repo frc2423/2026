@@ -16,7 +16,7 @@ public class BLine {
     CommandSwerveDrivetrain swerve;
     FollowPath.Builder pathBuilder;
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+    private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     public BLine(CommandSwerveDrivetrain swerve) {
@@ -32,7 +32,7 @@ public class BLine {
                 () -> swerve.getState().Pose,
                 () -> swerve.getState().Speeds,
                 (chassisSpeeds) -> {
-                    FieldCentric swerveRequest = drive
+                    SwerveRequest.RobotCentric swerveRequest = drive
                             .withVelocityX(chassisSpeeds.vxMetersPerSecond)
                             .withVelocityY(chassisSpeeds.vyMetersPerSecond)
                             .withRotationalRate(

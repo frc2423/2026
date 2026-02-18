@@ -331,6 +331,10 @@ public class Vision {
 
   }
 
+  public Transform3d getTransform3d() {
+    return Cameras.FRONT_LEFT_CAM.getTransform3d();
+  }
+
   public Integer findClosestTagID(Pose2d currentPose) {
     int[] AprilTagIDs = { 6, 7, 8, 9, 10, 11, 17, 18, 19, 20, 21, 22 };
     List<Pose2d> poseList = new ArrayList<Pose2d>();
@@ -468,10 +472,10 @@ public class Vision {
     // VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
     FRONT_LEFT_CAM("april_tag_cam",
-        new Rotation3d(0, Math.toRadians(25), Math.toRadians(-180)),
-        new Translation3d(Units.inchesToMeters(10.875),
-            Units.inchesToMeters(3.375),
-            Units.inchesToMeters(5)),
+        new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-180)),
+        new Translation3d(Units.inchesToMeters(-12.560),
+            Units.inchesToMeters(  -8.75),
+            Units.inchesToMeters(19.919)),
         VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1));
 
     /**
@@ -579,6 +583,10 @@ public class Vision {
         cameraSim = new PhotonCameraSim(camera, cameraProp);
         cameraSim.enableDrawWireframe(true);
       }
+    }
+
+    public Transform3d getTransform3d() {
+      return robotToCamTransform;
     }
 
     public double getEstPoseX() {
