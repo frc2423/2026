@@ -90,7 +90,7 @@ public class RobotContainer {
     public final BLine bline = new BLine(drivetrain);
     public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
     public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
-    public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter);
+    public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain);
 
     public RobotContainer() {
         configureBindings();

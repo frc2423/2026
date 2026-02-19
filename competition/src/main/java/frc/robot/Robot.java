@@ -26,7 +26,6 @@ public class Robot extends TimedRobot {
     URCL.start();
     m_robotContainer = new RobotContainer();
     DriverStation.silenceJoystickConnectionWarning(true);
-
   }
 
   @Override

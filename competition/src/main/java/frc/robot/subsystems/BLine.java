@@ -23,7 +23,7 @@ public class BLine {
         this.swerve = swerve;
 
         Path.setDefaultGlobalConstraints(new Path.DefaultGlobalConstraints(
-                4.5, 12.0,
+                4.4, 20,
                 540, 860,
                 0.03, 2.0,
                 .2));
@@ -41,7 +41,7 @@ public class BLine {
                 },
                 new PIDController(5.0, 0.0, 0.0),
                 new PIDController(3.0, 0.0, 0.0),
-                new PIDController(0.0, 0.0, 0.0)); // .withDefaultShouldFlip();
+                new PIDController(3.0, 0.0, 0.0)); // .withDefaultShouldFlip();
 
         FollowPath.setDoubleLoggingConsumer(pair -> {
             NTHelper.setDouble("/bline/double/" + pair.getFirst(), pair.getSecond());

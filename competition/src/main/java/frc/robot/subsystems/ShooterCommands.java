@@ -74,6 +74,9 @@ public class ShooterCommands extends SubsystemBase {
       return currentPose.getRotation();
     }
     double angleRads = Math.atan2(targetPose.getY() - currentPose.getY(), targetPose.getX() - currentPose.getX());
+    if (!PoseTransformUtils.isRedAlliance()) {
+      angleRads += Math.PI;
+    }
     return new Rotation2d(angleRads);
   }
 
