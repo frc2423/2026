@@ -34,6 +34,7 @@ import frc.robot.subsystems.ShooterCommands;
 import frc.robot.subsystems.TwindexerSubsystem;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.PassingCommands;
 
 public class RobotContainer {
     private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -86,10 +87,9 @@ public class RobotContainer {
     public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
 
     @Logged
-    public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight,
-            twindexer, drivetrain);
-
+    public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight, twindexer, drivetrain);       
     public final BLine bline = new BLine(drivetrain);
+    public final PassingCommands passingCommands = new PassingCommands(drivetrain, bline, intake, arm, shooter, driverController);
     public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
     public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
     public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain, bline);
@@ -179,7 +179,7 @@ public class RobotContainer {
                 shooterLeft.spinWithSetpoint(() -> -200.0)
                         .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
 
-                        
+
         // driverController.leftTrigger().whileTrue(Commands.parallel(bline.goToNearestPose(targetPoses))); 
 
 
@@ -192,11 +192,13 @@ public class RobotContainer {
                 feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
                 twindexer.spindex());
 
-        operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(feedersAndTwindexer));
-
-        operatorController.rightBumper().whileTrue(Commands.parallel(
+        operatorController.rightBumper().whileTrue(Commands.waitSeconds(.5).andThen(feedersAndTwindexer));
+        operatorController.rightTrigger().whileTrue(Commands.parallel(
                 shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
                 shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
+
+        operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
+        operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
 
         operatorController.a().whileTrue(Commands.parallel(twindexer.spindexBack(), feederLeft.spin(() -> -0.5), feederRight.spin(() -> -0.5)));
 

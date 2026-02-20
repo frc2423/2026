@@ -5,6 +5,7 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.None;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -80,14 +81,22 @@ public class ShooterCommands extends SubsystemBase {
     return new Rotation2d(angleRads);
   }
 
-  public Command acuallyLookAngle() {
+  public Command actuallyLookAngle() {
+    return actuallyLookAngle(new Pose2d((PoseTransformUtils.isRedAlliance())
+              ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+              : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
+  }
+
+  public Command actuallyLookAngle(Pose2d targetPose) {
+    return actuallyLookAngle(() -> targetPose);
+
+  }
+
+  public Command actuallyLookAngle(Supplier<Pose2d> targetPoseSupplier) {
     return swerve.applyRequest(() -> {
       double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
       double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
-      Rotation2d targetHeading = getLookAngle(
-          new Pose2d((PoseTransformUtils.isRedAlliance())
-              ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
-              : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
+      Rotation2d targetHeading = getLookAngle(targetPoseSupplier.get());
 
       return driveFacing
           .withVelocityX(-x)
@@ -97,7 +106,7 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public Command prepareToShoot() {
-    Command command = Commands.parallel(acuallyLookAngle(), revSpeedFromDAS());
+    Command command = Commands.parallel(actuallyLookAngle(), revSpeedFromDAS());
     return command;
   }
 
@@ -113,7 +122,7 @@ public class ShooterCommands extends SubsystemBase {
 
   }
 
-  private Command revSpeedFromDAS() {
+  public Command revSpeedFromDAS() {
     Command left = shooterR.spinWithSetpoint(() -> {
       double distance = this.getDistanceToHub(); // not real
       DAS.MotorSettings as = das.calculateAS(distance);

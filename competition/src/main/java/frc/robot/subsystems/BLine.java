@@ -40,7 +40,7 @@ public class BLine {
                             .withVelocityX(chassisSpeeds.vxMetersPerSecond)
                             .withVelocityY(chassisSpeeds.vyMetersPerSecond)
                             .withRotationalRate(
-                                     chassisSpeeds.omegaRadiansPerSecond);
+                                    chassisSpeeds.omegaRadiansPerSecond);
                     swerve.setControl(swerveRequest);
                 },
                 new PIDController(5.0, 0.0, 0.0),
@@ -76,20 +76,20 @@ public class BLine {
     }
 
     public Command goToNearestPose(Pose2d[] targetPoses) {
-        
+
         return Commands.defer(() -> {
             double shortestDistance = 1000;
             Pose2d poseChosen = targetPoses[0];
-    
-            for (Pose2d pose: targetPoses) {
+
+            for (Pose2d pose : targetPoses) {
                 double distance = swerve.getPose().getTranslation().getDistance(pose.getTranslation());
                 if (distance < shortestDistance) {
                     shortestDistance = distance;
                     poseChosen = pose;
                 }
-    
+
             }
-            
+
             return goToPose(poseChosen);
         }, Set.of(swerve));
 
