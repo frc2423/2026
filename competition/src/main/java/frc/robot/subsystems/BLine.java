@@ -23,7 +23,7 @@ public class BLine {
         this.swerve = swerve;
 
         Path.setDefaultGlobalConstraints(new Path.DefaultGlobalConstraints(
-                4.4, 20,
+                4.4, 12.0,
                 540, 860,
                 0.03, 2.0,
                 .2));
