@@ -10,34 +10,30 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.generated.PoseTransformUtils;
 import frc.robot.lib.BLine.*;
-import frc.robot.lib.BLine.Path.RotationTarget;
+import frc.robot.lib.BLine.Path.PathConstraints;
 
 public class DriveShortestPath {
     private final CommandSwerveDrivetrain swerve;
     private final BLine bline;
 
-    // points including bumps
-    private static final Translation2d close[] = { new Translation2d(3.5, 0.75), new Translation2d(3.5, 2.4),
-            new Translation2d(3.5, 5.6), new Translation2d(3.5, 7.25) };
-    private static final Translation2d closeNeutral[] = { new Translation2d(6, 0.75), new Translation2d(6, 2.4),
-            new Translation2d(6, 5.6), new Translation2d(6, 7.25) };
-    private static final Translation2d farNeutral[] = { new Translation2d(10.5, 0.75), new Translation2d(10.5, 2.4),
-            new Translation2d(10.5, 5.6), new Translation2d(10.5, 7.25) };
-    private static final Translation2d far[] = { new Translation2d(13, 0.75), new Translation2d(13, 2.4),
-            new Translation2d(13, 5.6), new Translation2d(13, 7.25) };
+    private final static double closeX = 3.0;
+    private final static double closeNeutralX = 6.5;
+    private final static double farNeutralX = 10;
+    private final static double farX = 14;
+    private final static double groupXs[] = { closeX, closeNeutralX, farNeutralX, farX };
 
-    // just trenches
-    private static final Translation2d closeTrenches[] = { new Translation2d(3.5, 0.75),
-    new Translation2d(3.5, 7.25) };
-    private static final Translation2d closeNeutralTrenches[] = { new Translation2d(6,
-    0.75), new Translation2d(6, 7.25) };
-    private static final Translation2d farNeutralTrenches[] = { new Translation2d(10.5,
-    0.75), new Translation2d(10.5, 7.25) };
-    private static final Translation2d farTrenches[] = { new Translation2d(13, 0.75), new
-    Translation2d(13, 7.25) };
+    private final static double leftTrenchY = 7.25;
+    private final static double leftBumpY = 5.6;
+    private final static double rightBumpY = 3.5;
+    private final static double rightTrenchY = .75;
+ 
+    private final static double trenchOnlyYs[] = { leftTrenchY, rightTrenchY };
+    private final static double ys[] = { leftTrenchY, leftBumpY, rightBumpY, rightTrenchY };
 
-    private static final Translation2d groups[][] = { close, closeNeutral, farNeutral, far };
+    private static final Translation2d groupsTrenchAndBumps[][] = generateGroup(groupXs, ys);
+    private static final Translation2d groupsTrenchOnly[][] = generateGroup(groupXs, trenchOnlyYs);
 
     enum Direction {
         CLOSE,
@@ -51,6 +47,19 @@ public class DriveShortestPath {
 
     private Pose2d getPose() {
         return swerve.getPose();
+    }
+
+    private static final Translation2d[][] generateGroup(double[] xs, double[] ys) {
+        Translation2d groups[][] = new Translation2d[xs.length][ys.length];
+
+        for (int xIndex = 0; xIndex < xs.length; xIndex++) {
+            Translation2d group[] = new Translation2d[ys.length];
+            for (int yIndex = 0; yIndex < ys.length; yIndex++) {
+                group[yIndex] = new Translation2d(xs[xIndex], ys[yIndex]);
+            }
+            groups[xIndex] = group;
+        }
+        return groups;
     }
 
     /**
@@ -113,8 +122,16 @@ public class DriveShortestPath {
         return rotation;
     }
 
+    public Rotation2d getClosestRotation() {
+        Rotation2d closestRotation2d = new Rotation2d(0);
+        if (getPose().getRotation().getDegrees() > 90 & getPose().getRotation().getDegrees() < 270) {
+            closestRotation2d = new Rotation2d(Math.PI);
+        }
+        return closestRotation2d;
+    }
+
     public Command driveShortestPath(Pose2d targetPose2d) {
-        return driveShortestPath(targetPose2d,false);
+        return driveShortestPath(targetPose2d, false, false);
     }
 
     /**
@@ -123,86 +140,69 @@ public class DriveShortestPath {
      *                     assuming not currently on bump or in trench
      * @return
      */
-    public Command driveShortestPath(Pose2d targetPose2d, boolean goesOverBumps) {
-
+    public Command driveShortestPath(Pose2d inputTargetPose2d, boolean goesOverBumps, boolean flipForRedAlliance) {
+        Translation2d groups[][] = goesOverBumps ? groupsTrenchAndBumps : groupsTrenchOnly;
+        Pose2d targetPose2d = (PoseTransformUtils.isRedAlliance()) ? FlippingUtil.flipFieldPose(inputTargetPose2d) : inputTargetPose2d;
         Supplier<Command> someCommand = () -> {
-
+            
+            
+            
             Direction pathDirection = getDirection(getPose().getTranslation(), targetPose2d.getTranslation());
             int closestGroupIndex = findIndexOfClosestGroup(groups, pathDirection);
             double handoffRadius = 0.2;
-            if (!goesOverBumps) {
-                groups[0] = closeTrenches;
-                groups[1] = closeNeutralTrenches;
-                groups[2] = farNeutralTrenches;
-                groups[3] = farTrenches;
-            }
 
             List<Path.PathElement> waypoints = new ArrayList<>();
+            // waypoints.add(new Path.RotationTarget(Rotation2d.k180deg, .5, false));
 
             if (closestGroupIndex < 0) {
                 // don't do anything
             } else if (pathDirection == Direction.FAR) {
                 Translation2d previousPoint = getPose().getTranslation();
                 Translation2d nextPoint = findClosestPoint(groups[closestGroupIndex], getPose().getTranslation());
-                Rotation2d rotationTarget = getRotation(pathDirection);
+                Rotation2d rotationTarget = getClosestRotation();
                 int i;
                 for (i = closestGroupIndex + 1; nextPoint.getX() < targetPose2d.getX() && i < groups.length; i++) {
-                    // if (getPose().getRotation().getDegrees() > 0 && getPose().getRotation().getDegrees() < 180) {
-                    //     rotationTarget = new Rotation2d(45);
+                    // if (getPose().getRotation().getDegrees() > 0 &&
+                    // getPose().getRotation().getDegrees() < 180) {
+                    // rotationTarget = new Rotation2d(45);
                     // } else {
-                    //     rotationTarget = new Rotation2d(315);
+                    // rotationTarget = new Rotation2d(315);
                     // }
                     waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, rotationTarget, false));
                     previousPoint = nextPoint;
                     nextPoint = findClosestPoint(groups[i], previousPoint);
                 }
                 if (i >= groups.length) {
-                    waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, getRotation(pathDirection), false));
+                    waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, getClosestRotation(), false));
                 }
 
             } else if (closestGroupIndex >= 0) {
                 Translation2d previousPoint = getPose().getTranslation();
                 Translation2d nextPoint = findClosestPoint(groups[closestGroupIndex], getPose().getTranslation());
-                Rotation2d rotationTarget = getRotation(pathDirection);
+                Rotation2d rotationTarget = getClosestRotation();
                 int i;
                 for (i = closestGroupIndex - 1; nextPoint.getX() > targetPose2d.getX() && i >= 0; i--) {
-                    // if (getPose().getRotation().getDegrees() > 0 && getPose().getRotation().getDegrees() < 180) {
-                    //     rotationTarget = new Rotation2d(135);
+                    // if (getPose().getRotation().getDegrees() > 0 &&
+                    // getPose().getRotation().getDegrees() < 180) {
+                    // rotationTarget = new Rotation2d(135);
                     // } else {
-                    //     rotationTarget = new Rotation2d(225);
+                    // rotationTarget = new Rotation2d(225);
                     // }
                     waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, rotationTarget, false));
                     previousPoint = nextPoint;
                     nextPoint = findClosestPoint(groups[i], previousPoint);
                 }
                 if (i < 0) {
-                    waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, getRotation(pathDirection), false));
+                    waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, getClosestRotation(), false));
                 }
-
-                // Translation2d previousPoint;
-                // Translation2d nextPoint = getPose().getTranslation();
-                // Rotation2d rotationTarget = getRotation(pathDirection);
-                // for (int i = closestGroupIndex ; nextPoint.getX() > targetPose2d.getX() && i
-                // >= 0; i--) {
-                // if (getPose().getRotation().getDegrees() > 0 &&
-                // getPose().getRotation().getDegrees() < 180) {
-                // rotationTarget = new Rotation2d(135);
-                // } else {
-                // rotationTarget = new Rotation2d(225);
-                // }
-                // previousPoint = nextPoint;
-                // nextPoint = findClosestPoint(groups[i], previousPoint);
-                // waypoints.add(new Path.Waypoint(nextPoint, handoffRadius, rotationTarget,
-                // false));
-                // }
-                // nextPoint = targetPose2d.getTranslation();
-                // waypoints.add(new Path.Waypoint(nextPoint, handoffRadius,
-                // getRotation(pathDirection), false));
             }
 
             waypoints.add(new Path.Waypoint(targetPose2d));
-
-            FollowPath followPath = bline.pathBuilder.build(new Path(waypoints.toArray(new Path.Waypoint[0])));
+            
+            PathConstraints pathConstraints = new PathConstraints()
+                .setMaxVelocityMetersPerSec(2)
+                .setMaxAccelerationMetersPerSec2(12);
+            FollowPath followPath = bline.pathBuilder.build(new Path(pathConstraints,waypoints.toArray(new Path.PathElement[0])));
             return followPath;
         };
 
