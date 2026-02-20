@@ -107,7 +107,10 @@ public class ShooterCommands extends SubsystemBase {
         feederL.spin(() -> setpoint.get()),
         feederR.spin(() -> setpoint.get()),
         Commands.repeatingSequence(
-            twinDexer.spindex().until(() -> twinDexer.isJammed()).andThen(twinDexer.spindexBack()).withTimeout(0.5)));
+            twinDexer.spindex(),
+            Commands.waitUntil(() -> twinDexer.isJammed()),
+            twinDexer.spindexBack(),
+            Commands.waitSeconds(0.5)));
 
     return feedersAndTwindexer;
 

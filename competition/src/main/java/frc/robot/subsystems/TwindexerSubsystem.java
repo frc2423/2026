@@ -20,6 +20,7 @@ public class TwindexerSubsystem extends SubsystemBase {
     private SparkFlex motor = new SparkFlex(23, MotorType.kBrushless);
     SparkFlexConfig motorConfig = new SparkFlexConfig();
     private final SlewRateLimiter speedLimiter = new SlewRateLimiter(2);
+    private double percentSpeed = 0;
 
     public TwindexerSubsystem() {
         setCurrentLimit(100, 80);
@@ -36,20 +37,24 @@ public class TwindexerSubsystem extends SubsystemBase {
     
     public Command motorSetSpeed(double speed) {
         return runOnce(() -> {
-            motor.set(speed);
+            percentSpeed = speed;
         });
     }
 
     public Command spindex() {
-        return motorSetSpeed(speedLimiter.calculate(0.5));
+        return motorSetSpeed(.5);
     }
 
     public Command spindexBack() {
-        return motorSetSpeed(speedLimiter.calculate(-0.5));
+        return motorSetSpeed(-.5);
     }
 
     public Command stop() {
-        return motorSetSpeed(speedLimiter.calculate(0));
+        return motorSetSpeed(0);
+    }
+
+    public void periodic() {
+        speedLimiter.calculate(percentSpeed);
     }
 
     @Logged

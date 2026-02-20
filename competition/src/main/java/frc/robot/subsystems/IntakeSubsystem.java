@@ -14,6 +14,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private SparkFlex motor = new SparkFlex(22, MotorType.kBrushless);
     SparkFlexConfig motorConfig = new SparkFlexConfig();
+    private double percentSpeed = 0;
 
     public IntakeSubsystem() {
         setCurrentLimit(100, 100);
@@ -25,21 +26,32 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command intake() {
-        return setMotorSpeed(-1);
+        return runOnce(() -> {
+            percentSpeed = 1;
+        });
     }
 
     public Command outtake() {
-        return setMotorSpeed(1);
+        return runOnce(() -> {
+            percentSpeed = -1;
+        });
     }
 
     public Command stop() {
-        return setMotorSpeed(0);
+        return runOnce(() -> {
+            percentSpeed = 0;
+        });
     }
 
     public Command setMotorSpeed(double speed) {
         return runOnce(()-> {
-            motor.set(speed);
+            percentSpeed = speed;
         });
+    }
+
+    @Override
+    public void periodic() {
+        motor.set(percentSpeed);
     }
 
     @Override

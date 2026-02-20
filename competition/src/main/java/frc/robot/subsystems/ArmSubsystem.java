@@ -88,7 +88,7 @@ public class ArmSubsystem extends SubsystemBase {
         arm = new Arm(armCfg);
     }
 
-    ArmFeedforward feedforward = new ArmFeedforward(0, .05, .2);
+    ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
 
     public Command setAngle(Angle angle) {
         return runOnce(() -> {
@@ -143,6 +143,11 @@ public class ArmSubsystem extends SubsystemBase {
     public double getSetpoint() {
         Angle angle = arm.getMechanismSetpoint().orElse(Degrees.of(0));
         return angle.in(Degrees);
+    }
+
+    @Logged
+    public double getMotorPercent() {
+        return armMotor.get();
     }
 
     public boolean isNear(Angle angle, Angle tolerance) {
