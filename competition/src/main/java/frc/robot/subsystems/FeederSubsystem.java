@@ -54,17 +54,11 @@ public class FeederSubsystem extends SubsystemBase {
 
 
     public Command spin(){
-        return run(()->{
-            motor.set(1);
-        });
+        return setMotorSpeed(1);
     }
 
     public Command spin(Supplier<Double> value) {
-        return run(() -> {
-
-            motor.set(value.get());
-
-        });
+        return setMotorSpeed(value.get());
     }
 
     public boolean isRevved() {
@@ -72,10 +66,14 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public Command stop(){
-        return run (()->{
-            motor.stopMotor();
+        return setMotorSpeed(0);
+    }
+    
+    public Command setMotorSpeed(double speed) {
+        return runOnce(()-> {
+            motor.set(speed);
         });
-    } 
+    }
 
     public Command spinWithSetpoint(Supplier<Double> setpoint){
 
@@ -86,7 +84,7 @@ public class FeederSubsystem extends SubsystemBase {
             motor.getClosedLoopController().setReference(setpointYAY, ControlType.kVelocity, ClosedLoopSlot.kSlot0, voltage);
         });
 
-    }
+    }                                    
 
 
  

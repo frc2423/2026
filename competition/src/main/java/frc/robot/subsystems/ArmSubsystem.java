@@ -43,6 +43,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     private Angle offset = Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
 
+    private Angle setpointAngle;
+    private double motorPercent;
+
     public ArmSubsystem() {
         SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
                 .withControlMode(ControlMode.CLOSED_LOOP)
@@ -68,7 +71,7 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         SmartMotorController sparkSmartMotorController = new SparkWrapper(armMotor, DCMotor.getNEO(1), smcConfig);
-     
+
         ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
                 // Soft limit is applied to the SmartMotorControllers PID
                 .withSoftLimits(Degrees.of(-10), Degrees.of(100))
@@ -88,24 +91,37 @@ public class ArmSubsystem extends SubsystemBase {
     ArmFeedforward feedforward = new ArmFeedforward(0, .05, .2);
 
     public Command setAngle(Angle angle) {
-        
-        return runOnce(() -> {arm.set(() -> {
-            double armAngle = arm.getAngle().in(Radians);
-            double setAngle = angle.in(Radians);
-            return feedforward.calculate(armAngle, setAngle - armAngle);
-        });});
-        // return arm.run(angle);
-        // return arm.setAngle(angle);
+        return runOnce(() -> {
+            setpointAngle = angle;
+        });
     }
 
     public Command set(double dutycycle) {
-        return arm.set(dutycycle);
+        // return arm.set(dutycycle);
+        return runOnce(() -> {
+            motorPercent = dutycycle;
+            setpointAngle = null;
+        });
     }
 
     @Override
 
     public void periodic() {
         arm.updateTelemetry();
+
+        if (setpointAngle != null ) {
+            double armAngle = arm.getAngle().in(Radians);
+            double setAngle = setpointAngle.in(Radians);
+            double motorSpeed = feedforward.calculate(armAngle, setAngle - armAngle);
+            armMotor.set(motorSpeed);
+        }
+        else {
+            double motorSpeed = motorPercent;
+            armMotor.set(motorSpeed);
+        }
+
+        
+        
     }
 
     @Override

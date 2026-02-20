@@ -33,22 +33,23 @@ public class TwindexerSubsystem extends SubsystemBase {
         motor.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
-    public Command spindex() {
-        return run(() -> {
-            motor.set(speedLimiter.calculate(0.5));
+    
+    public Command motorSetSpeed(double speed) {
+        return runOnce(() -> {
+            motor.set(speed);
         });
+    }
+
+    public Command spindex() {
+        return motorSetSpeed(speedLimiter.calculate(0.5));
     }
 
     public Command spindexBack() {
-        return run(() -> {
-            motor.set(speedLimiter.calculate(-0.5));
-        });
+        return motorSetSpeed(speedLimiter.calculate(-0.5));
     }
 
     public Command stop() {
-        return run(() -> {
-            motor.set(speedLimiter.calculate(0));
-        });
+        return motorSetSpeed(speedLimiter.calculate(0));
     }
 
     @Logged

@@ -25,20 +25,20 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public Command intake() {
-        return run(() -> {
-            motor.set(-1);
-        });
+        return setMotorSpeed(-1);
     }
 
     public Command outtake() {
-        return run(() -> {
-            motor.set(1);
-        });
+        return setMotorSpeed(1);
     }
 
     public Command stop() {
-        return runOnce(() -> {
-            motor.stopMotor();
+        return setMotorSpeed(0);
+    }
+
+    public Command setMotorSpeed(double speed) {
+        return runOnce(()-> {
+            motor.set(speed);
         });
     }
 
