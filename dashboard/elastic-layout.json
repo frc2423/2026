@@ -1,0 +1,258 @@
+{
+  "version": 1.0,
+  "grid_size": 64,
+  "tabs": [
+    {
+      "name": "Teleoperated",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Left Shooter Velocity",
+            "x": 384.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterLeft/getVelocity",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 10.0,
+              "min_value": 0.0,
+              "max_value": 4000.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Right Shooter Velocity",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterRight/getVelocity",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 10.0,
+              "min_value": 0.0,
+              "max_value": 4000.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "FeederSpeed",
+            "x": 704.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/tuning/FeederSpeed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Shooter Velocity",
+            "x": 640.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/tuning/ShooterSpeed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Left Shooter Speed",
+            "x": 448.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterLeft/getMotorSpeed",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Left Feeder Velocity",
+            "x": 512.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/feederLeft/getVelocity",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Right Feeder Velocity",
+            "x": 768.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/feederRight/getVelocity",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Right Shooter Speed",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterRight/getMotorSpeed",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Left Feeder Speed",
+            "x": 512.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/feederLeft/getMotorSpeed",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Right Feeder Speed",
+            "x": 832.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/feederRight/getMotorSpeed",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "isJammed",
+            "x": 1152.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "Robot/robotContainer/twindexer/isJammed",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Indexer Output Current",
+            "x": 1152.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Number Bar",
+            "properties": {
+              "topic": "Robot/robotContainer/twindexer/getOutputCurrent",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 100.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "Indexer Velocity",
+            "x": 1344.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Number Bar",
+            "properties": {
+              "topic": "Robot/robotContainer/twindexer/getVelocity",
+              "period": 0.06,
+              "data_type": "double",
+              "min_value": 0.0,
+              "max_value": 2000.0,
+              "divisions": 5,
+              "inverted": false,
+              "orientation": "horizontal"
+            }
+          },
+          {
+            "title": "snakeMode",
+            "x": 128.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Toggle Switch",
+            "properties": {
+              "topic": "/tuning/snakeMode",
+              "period": 0.06,
+              "data_type": "boolean"
+            }
+          },
+          {
+            "title": "getDistanceToHub",
+            "x": 64.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooter/getDistanceToHub",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Autonomous",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "robotPose",
+            "x": 256.0,
+            "y": 320.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/Pose/robotPose",
+              "period": 0.06,
+              "data_type": "double[]",
+              "show_submit_button": false
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

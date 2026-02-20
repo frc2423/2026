@@ -1,0 +1,147 @@
+{
+  "hubs": [
+    {
+      "x": 54,
+      "y": 36,
+      "width": 1390,
+      "height": 720,
+      "state": {
+        "sidebar": {
+          "width": 307,
+          "expanded": [
+            "/swerveSubsystem",
+            "/SmartDashboard/Field",
+            "/SmartDashboard/Field/Robot",
+            "/DriveState/Pose/rotation",
+            "/bline/FollowPath",
+            "/swerveSubsystem/vision",
+            "/visionDebug",
+            "/sim/fuel",
+            "/bline/boolean",
+            "/bline/double",
+            "/bline/pose",
+            "/bline/translationList/FollowPath",
+            "/bline/translationList/FollowPath/robotTranslations",
+            "/bline/translationList/FollowPath/pathTranslations",
+            "/bline/translationList/FollowPath/robotTranslations/0",
+            "/bline/translationList/FollowPath/pathTranslations/0",
+            "/bline/translationList/FollowPath/robotTranslations/1",
+            "/bline/translationList/FollowPath/robotTranslations/2",
+            "/bline",
+            "/bline/pose/FollowPath",
+            "/Robot",
+            "/Robot/robotContainer",
+            "/SmartDashboard/armSubsystem",
+            "/SmartDashboard/Arm",
+            "/Tuning",
+            "/Tuning/Arm",
+            "/Tuning/Arm/ArmMotor/current",
+            "/Tuning/Arm/ArmMotor/closedloop/feedback",
+            "/Tuning/Arm/ArmMotor/closedloop/motionprofile",
+            "/Tuning/Arm/ArmMotor/closedloop/setpoint",
+            "/Tuning/Arm/ArmMotor",
+            "/Tuning/Arm/ArmMotor/mechanism/limit",
+            "/SmartDashboard",
+            "/SmartDashboard/Arm/mechanism",
+            "/CameraPublisher",
+            "/SmartDashboard/Mechanisms",
+            "/SmartDashboard/VisionSystemSim-Vision",
+            "/photonvision/Camera Pose",
+            "/DriveState"
+          ]
+        },
+        "tabs": {
+          "selected": 2,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "wuao3esiqvbrcfhh1f9u5oneoreraikq",
+              "renderer": "",
+              "controlsHeight": 0
+            },
+            {
+              "type": 3,
+              "title": "3D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/DriveState/Pose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "model": "Torrent"
+                    }
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/sim/robotPose",
+                    "logType": "Pose2d",
+                    "visible": false,
+                    "options": {
+                      "model": "2026 KitBot"
+                    }
+                  },
+                  {
+                    "type": "cone",
+                    "logKey": "NT:/photonvision/Camera Pose",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff0000",
+                      "position": "center"
+                    }
+                  }
+                ],
+                "game": "FRC:2026 Field"
+              },
+              "controllerUUID": "hso6q6m7mif4crwrhhyoascdj9l4bklg",
+              "renderer": {
+                "cameraIndex": -6,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  -9.742221199463671,
+                  1.5748000000000002,
+                  2.1523989915580763
+                ],
+                "cameraTarget": [
+                  0,
+                  0.5,
+                  0
+                ]
+              },
+              "controlsHeight": 222
+            },
+            {
+              "type": 2,
+              "title": "2D Field",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "NT:/DriveState/Pose",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "bumpers": ""
+                    }
+                  }
+                ],
+                "field": "FRC:2026 Field",
+                "orientation": 1,
+                "size": "large"
+              },
+              "controllerUUID": "3wsh3lqtpgx0vun6tscc9k0f3v02kx7k",
+              "renderer": null,
+              "controlsHeight": 200
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "26.0.0"
+}

@@ -89,11 +89,11 @@ public class ArmSubsystem extends SubsystemBase {
 
     public Command setAngle(Angle angle) {
         
-        return arm.set(() -> {
+        return runOnce(() -> {arm.set(() -> {
             double armAngle = arm.getAngle().in(Radians);
             double setAngle = angle.in(Radians);
             return feedforward.calculate(armAngle, setAngle - armAngle);
-        });
+        });});
         // return arm.run(angle);
         // return arm.setAngle(angle);
     }
