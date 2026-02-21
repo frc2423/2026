@@ -31,213 +31,217 @@ import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterCommands;
+import frc.robot.subsystems.PassingCommands;
 import frc.robot.subsystems.TwindexerSubsystem;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.PassingCommands;
 
 public class RobotContainer {
-    private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
-                                                                                  // speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
-                                                                                      // second
-                                                                                      // max angular velocity
-                                                                                  
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10%
-                                                                                         // deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
-                                                                     // motors
+        private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
+                                                                                      // speed
+        private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
+                                                                                          // second
+                                                                                          // max angular velocity
 
-    // private final SwerveRequest.SwerveDriveBrake brake = new
-    // SwerveRequest.SwerveDriveBrake();
-    // private final SwerveRequest.PointWheelsAt point = new
-    // SwerveRequest.PointWheelsAt();
+        /* Setting up bindings for necessary control of the swerve drive platform */
+        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+                        .withDeadband(MaxSpeed * 0.05).withRotationalDeadband(MaxAngularRate * 0.05) // Add a 10%
+                                                                                                     // deadband
+                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
+                                                                                 // motors
 
-    static Pose2d[] targetPoses = {new Pose2d(7.8, 7.3,Rotation2d.fromDegrees(-160)), new Pose2d(7.8,0.75,Rotation2d.fromDegrees(160))};
+        // private final SwerveRequest.SwerveDriveBrake brake = new
+        // SwerveRequest.SwerveDriveBrake();
+        // private final SwerveRequest.PointWheelsAt point = new
+        // SwerveRequest.PointWheelsAt();
 
-    private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
-    private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
+        private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
+        private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
-    public final double feederSpeed = 10;
+        public final double feederSpeed = 10;
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+        private final Telemetry logger = new Telemetry(MaxSpeed);
 
-    private final CommandXboxController driverController = new CommandXboxController(0);
-    private final CommandXboxController operatorController = new CommandXboxController(1);
+        private final CommandXboxController driverController = new CommandXboxController(0);
+        private final CommandXboxController operatorController = new CommandXboxController(1);
 
-    public final IntakeSubsystem intake = new IntakeSubsystem();
+        public final IntakeSubsystem intake = new IntakeSubsystem();
 
-    @Logged
-    public final ArmSubsystem arm = new ArmSubsystem();
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
-            .withHeadingPID(10, 0, 0);
-    private Rotation2d lastHeading = new Rotation2d();
-    @Logged
-    public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35, true);
-    @Logged
-    public final ShooterSubsystem shooterRight = new ShooterSubsystem(37, false);
-    @Logged
-    public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
-    @Logged
-    public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
-    @Logged
-    public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
+        @Logged
+        public final ArmSubsystem arm = new ArmSubsystem();
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
+                        .withHeadingPID(10, 0, 0);
+        private Rotation2d lastHeading = new Rotation2d();
+        @Logged
+        public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35, true);
+        @Logged
+        public final ShooterSubsystem shooterRight = new ShooterSubsystem(37, false);
+        @Logged
+        public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
+        @Logged
+        public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
+        @Logged
+        public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
 
-    @Logged
-    public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight, twindexer, drivetrain);       
-    public final BLine bline = new BLine(drivetrain);
-    public final PassingCommands passingCommands = new PassingCommands(drivetrain, bline, intake, arm, shooter, driverController);
-    public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
-    public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
-    public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain, bline);
+        public final BLine bline = new BLine(drivetrain);
 
-    public RobotContainer() {
-        configureBindings();
-        SmartDashboard.putData("armSubsystem", arm);
-        NTHelper.setDouble("/tuning/FeederSpeed", 1);
-        NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
-        NTHelper.setBoolean("/tuning/snakeMode", false);
+        @Logged
+        public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight,
+                        twindexer, drivetrain);
 
-    }
+        public final PassingCommands passingCommands = new PassingCommands(drivetrain, bline, intake, arm, shooter,
+                        driverController);
+        public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
+        public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
+        public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain, bline);
 
-    private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-        drivetrain.setDefaultCommand(
-                // Drivetrain will execute this command periodically
-                drivetrain.applyRequest(() -> {
-                    double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
-                    double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
+        public RobotContainer() {
+                configureBindings();
+                SmartDashboard.putData("armSubsystem", arm);
+                NTHelper.setDouble("/tuning/FeederSpeed", .7);
+                NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
+                NTHelper.setBoolean("/tuning/snakeMode", false);
 
-                    double lx = driverController.getLeftX();
-                    double ly = driverController.getLeftY();
-                    double mag = Math.hypot(lx, ly);
+        }
 
-                    Rotation2d targetHeading;
-                    if (mag > 0.15) {
-                        targetHeading = new Rotation2d(Math.atan2(lx, ly));
-                        lastHeading = targetHeading;
-                    } else {
-                        targetHeading = lastHeading;
-                    }
+        private void configureBindings() {
+                // Note that X is defined as forward according to WPILib convention,
+                // and Y is defined as to the left according to WPILib convention.
+                drivetrain.setDefaultCommand(
+                                // Drivetrain will execute this command periodically
+                                drivetrain.applyRequest(() -> {
+                                        double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
+                                        double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
 
-                    boolean snakeMode = NTHelper.getBoolean("/tuning/snakeMode", false);
+                                        double lx = driverController.getLeftX();
+                                        double ly = driverController.getLeftY();
+                                        double mag = Math.hypot(lx, ly);
 
-                    if (snakeMode) {
-                        return driveFacing
-                                .withVelocityX(-x)
-                                .withVelocityY(-y)
-                                .withTargetDirection(
-                                        targetHeading.plus(Rotation2d.k180deg));
-                    }
+                                        Rotation2d targetHeading;
+                                        if (mag > 0.15) {
+                                                targetHeading = new Rotation2d(Math.atan2(lx, ly));
+                                                lastHeading = targetHeading;
+                                        } else {
+                                                targetHeading = lastHeading;
+                                        }
 
-                    return drive.withVelocityX(-x)
-                            .withVelocityY(-y)
-                            .withRotationalRate(
-                                    -driverController.getRightX() * MaxAngularRate);
-                }));
+                                        boolean snakeMode = NTHelper.getBoolean("/tuning/snakeMode", false);
 
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+                                        if (snakeMode) {
+                                                return driveFacing
+                                                                .withVelocityX(-x)
+                                                                .withVelocityY(-y)
+                                                                .withTargetDirection(
+                                                                                targetHeading.plus(Rotation2d.k180deg));
+                                        }
 
-        configureDriveControllerBindings();
-        configureOperatorControllerBindings();
-        configureShortestPathBindings();
+                                        return drive.withVelocityX(-x)
+                                                        .withVelocityY(-y)
+                                                        .withRotationalRate(
+                                                                        -driverController.getRightX() * MaxAngularRate);
+                                }));
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+                // Idle while the robot is disabled. This ensures the configured
+                // neutral mode is applied to the drive motors while disabled.
+                final var idle = new SwerveRequest.Idle();
+                RobotModeTriggers.disabled().whileTrue(
+                                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-    }
+                configureDriveControllerBindings();
+                configureOperatorControllerBindings();
+                configureShortestPathBindings();
 
-    private void configureDriveControllerBindings() {
-        // reset the field-centric heading on left bumper press
-        driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+                drivetrain.registerTelemetry(logger::telemeterize);
 
-        // Intake commands
-        Command intakeDownCommand = arm.setAngle(Degrees.of(15))
-                .until(() -> arm.isNear(Degrees.of(15), Degrees.of(20))).andThen(arm.set(-.1));
+        }
 
-        driverController.button(9).whileTrue(intake.intake()).onFalse(intake.stop());
-        driverController.button(10).whileTrue(intake.outtake()).onFalse(intake.stop());
-        driverController.b().onTrue(arm.setAngle(Degrees.of(90)));
-        driverController.a()
-                .onTrue(intakeDownCommand);
+        private void configureDriveControllerBindings() {
+                // reset the field-centric heading on left bumper press
+                driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
-        // Shooting and passing commands
-        driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
-        driverController.rightBumper().whileTrue(shooter.spinFeeder(() -> {
-            return NTHelper.getDouble("/tuning/FeederSpeed", 0);
-        }));
-        driverController.leftTrigger(0.25)
-                .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
-        driverController.leftBumper().whileTrue(
-                shooterLeft.spinWithSetpoint(() -> -200.0)
-                        .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
+                // Intake commands
+                driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
+                driverController.button(10).whileTrue(intake.intake()).onFalse(intake.stop());
+                driverController.b().onTrue(arm.armUp());
+                driverController.a().onTrue(arm.armDown());
 
+                // Shooting and passing commands
+                Command feederCommand = Commands.parallel(
+                                shooter.spinFeeder(() -> {
+                                        return NTHelper.getDouble("/tuning/FeederSpeed", 0);
+                                }),
+                                arm.setAngle(Degrees.of(90)),
+                                intake.intake());
 
-        // driverController.leftTrigger().whileTrue(Commands.parallel(bline.goToNearestPose(targetPoses))); 
+                driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
+                driverController.rightBumper().whileTrue(feederCommand).onFalse(intake.stop());
+                driverController.leftTrigger(0.25)
+                                .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
+                driverController.leftBumper().whileTrue(
+                                shooterLeft.spinWithSetpoint(() -> -200.0)
+                                                .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
 
+        }
 
-    }
+        private void configureOperatorControllerBindings() {
 
-    private void configureOperatorControllerBindings() {
+                Command feedersAndTwindexer = Commands.parallel(
+                                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
+                                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
+                                twindexer.spindex(),
+                                arm.setAngle(Degrees.of(90)),
+                                intake.intake());
 
-        Command feedersAndTwindexer = Commands.parallel(
-                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
-                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
-                twindexer.spindex());
+                operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(feedersAndTwindexer))
+                                .onFalse(intake.stop());
 
-        operatorController.rightBumper().whileTrue(Commands.waitSeconds(.5).andThen(feedersAndTwindexer));
-        operatorController.rightTrigger().whileTrue(Commands.parallel(
-                shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
-                shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
+                operatorController.rightBumper().whileTrue(Commands.parallel(
+                                shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
+                                shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
 
-        operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
-        operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
+                operatorController.a().whileTrue(Commands.parallel(twindexer.spindexBack(), feederLeft.spin(() -> -0.5),
+                                feederRight.spin(() -> -0.5)));
 
-        operatorController.a().whileTrue(Commands.parallel(twindexer.spindexBack(), feederLeft.spin(() -> -0.5), feederRight.spin(() -> -0.5)));
+                operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
+                operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
 
-    }
+        }
 
-    private final CommandXboxController shortestPathController = new CommandXboxController(2);
+        private final CommandXboxController shortestPathController = new CommandXboxController(2);
 
-    private void configureShortestPathBindings() {
-        shortestPathController.a().whileTrue(
-                driveShortestPath.driveShortestPath(new Pose2d(14.6, 1.6, new Rotation2d(Math.PI))));
-        shortestPathController.b().whileTrue(
-                driveShortestPath.driveShortestPath(new Pose2d(9, 2, new Rotation2d(Math.PI))));
+        private void configureShortestPathBindings() {
+                shortestPathController.a().whileTrue(
+                                driveShortestPath.driveShortestPath(new Pose2d(14.6, 1.6, new Rotation2d(Math.PI))));
+                shortestPathController.b().whileTrue(
+                                driveShortestPath.driveShortestPath(new Pose2d(9, 2, new Rotation2d(Math.PI))));
 
-        // shortestPathController.x().whileTrue(
-        // driveShortestPath.driveShortestPath(new Pose2d(2, 6.5, new
-        // Rotation2d(Math.PI))));
-        // shortestPathController.y().whileTrue(
-        // driveShortestPath.driveShortestPath(new Pose2d(8, 7, new
-        // Rotation2d(Math.PI))));
+                // shortestPathController.x().whileTrue(
+                // driveShortestPath.driveShortestPath(new Pose2d(2, 6.5, new
+                // Rotation2d(Math.PI))));
+                // shortestPathController.y().whileTrue(
+                // driveShortestPath.driveShortestPath(new Pose2d(8, 7, new
+                // Rotation2d(Math.PI))));
 
-        // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1,
-        // Rotation2d.kZero)));
+                // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1,
+                // Rotation2d.kZero)));
 
-    }
+        }
 
-    private void configureSysIdBindings() {
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        driverController.back().and(driverController.y())
-                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        driverController.back().and(driverController.x())
-                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        driverController.start().and(driverController.y())
-                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        driverController.start().and(driverController.x())
-                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-    }
+        private void configureSysIdBindings() {
+                // Run SysId routines when holding back/start and X/Y.
+                // Note that each routine should be run exactly once in a single log.
+                driverController.back().and(driverController.y())
+                                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+                driverController.back().and(driverController.x())
+                                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+                driverController.start().and(driverController.y())
+                                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+                driverController.start().and(driverController.x())
+                                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+        }
 
-    public Command getAutonomousCommand() {
-        return auto.getAuto();
-    }
+        public Command getAutonomousCommand() {
+                return auto.getAuto();
+        }
 }

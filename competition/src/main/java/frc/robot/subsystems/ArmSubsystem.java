@@ -68,7 +68,7 @@ public class ArmSubsystem extends SubsystemBase {
         }
 
         SmartMotorController sparkSmartMotorController = new SparkWrapper(armMotor, DCMotor.getNEO(1), smcConfig);
-     
+
         ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
                 // Soft limit is applied to the SmartMotorControllers PID
                 .withSoftLimits(Degrees.of(-10), Degrees.of(100))
@@ -85,15 +85,25 @@ public class ArmSubsystem extends SubsystemBase {
         arm = new Arm(armCfg);
     }
 
-    ArmFeedforward feedforward = new ArmFeedforward(0, .05, .2);
+    ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
+
+    public Command armDown() {
+        return setAngle(Degrees.of(15))
+                .until(() -> isDown()).andThen(set(-.1));
+    }
+
+    public Command armUp() {
+        return setAngle(Degrees.of(90));
+    }
 
     public Command setAngle(Angle angle) {
-        
-        return runOnce(() -> {arm.set(() -> {
+
+        return arm.set(() -> {
             double armAngle = arm.getAngle().in(Radians);
             double setAngle = angle.in(Radians);
             return feedforward.calculate(armAngle, setAngle - armAngle);
-        });});
+        });
+
         // return arm.run(angle);
         // return arm.setAngle(angle);
     }
@@ -129,7 +139,16 @@ public class ArmSubsystem extends SubsystemBase {
         return angle.in(Degrees);
     }
 
+    @Logged
+    public double getMotorPercent() {
+        return armMotor.get();
+    }
+
     public boolean isNear(Angle angle, Angle tolerance) {
         return arm.getAngle().isNear(angle, tolerance);
+    }
+
+    public boolean isDown() {
+        return isNear(Degrees.of(15), Degrees.of(20));
     }
 }
