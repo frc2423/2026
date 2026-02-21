@@ -31,6 +31,7 @@ import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterCommands;
+import frc.robot.subsystems.PassingCommands;
 import frc.robot.subsystems.TwindexerSubsystem;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -83,11 +84,14 @@ public class RobotContainer {
         @Logged
         public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
 
+        public final BLine bline = new BLine(drivetrain);
+
         @Logged
         public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight,
                         twindexer, drivetrain);
 
-        public final BLine bline = new BLine(drivetrain);
+        public final PassingCommands passingCommands = new PassingCommands(drivetrain, bline, intake, arm, shooter,
+                        driverController);
         public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
         public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
         public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain, bline);
@@ -157,14 +161,10 @@ public class RobotContainer {
                 driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
                 // Intake commands
-                Command intakeDownCommand = arm.setAngle(Degrees.of(15))
-                                .until(() -> arm.isNear(Degrees.of(15), Degrees.of(20))).andThen(arm.set(-.1));
-
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
                 driverController.button(10).whileTrue(intake.intake()).onFalse(intake.stop());
-                driverController.b().onTrue(arm.setAngle(Degrees.of(90)));
-                driverController.a()
-                                .onTrue(intakeDownCommand);
+                driverController.b().onTrue(arm.armUp());
+                driverController.a().onTrue(arm.armDown());
 
                 // Shooting and passing commands
                 Command feederCommand = Commands.parallel(
@@ -202,6 +202,9 @@ public class RobotContainer {
 
                 operatorController.a().whileTrue(Commands.parallel(twindexer.spindexBack(), feederLeft.spin(() -> -0.5),
                                 feederRight.spin(() -> -0.5)));
+
+                operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
+                operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
 
         }
 

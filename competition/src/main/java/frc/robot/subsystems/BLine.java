@@ -2,12 +2,16 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest.FieldCentric;
+
+import java.util.Set;
+
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.NTHelper;
 import frc.robot.lib.BLine.*;
 
@@ -69,5 +73,25 @@ public class BLine {
     public Command goToPose(Pose2d pose) {
         Path testPoseProfeciency = new Path(new Path.Waypoint(pose));
         return pathBuilder.build(testPoseProfeciency);
+    }
+
+    public Command goToNearestPose(Pose2d[] targetPoses) {
+
+        return Commands.defer(() -> {
+            double shortestDistance = 1000;
+            Pose2d poseChosen = targetPoses[0];
+
+            for (Pose2d pose : targetPoses) {
+                double distance = swerve.getPose().getTranslation().getDistance(pose.getTranslation());
+                if (distance < shortestDistance) {
+                    shortestDistance = distance;
+                    poseChosen = pose;
+                }
+
+            }
+
+            return goToPose(poseChosen);
+        }, Set.of(swerve));
+
     }
 }

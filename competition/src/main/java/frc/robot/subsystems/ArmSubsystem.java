@@ -87,6 +87,15 @@ public class ArmSubsystem extends SubsystemBase {
 
     ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
 
+    public Command armDown() {
+        return setAngle(Degrees.of(15))
+                .until(() -> isDown()).andThen(set(-.1));
+    }
+
+    public Command armUp() {
+        return setAngle(Degrees.of(90));
+    }
+
     public Command setAngle(Angle angle) {
 
         return arm.set(() -> {
@@ -137,5 +146,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     public boolean isNear(Angle angle, Angle tolerance) {
         return arm.getAngle().isNear(angle, tolerance);
+    }
+
+    public boolean isDown() {
+        return isNear(Degrees.of(15), Degrees.of(20));
     }
 }

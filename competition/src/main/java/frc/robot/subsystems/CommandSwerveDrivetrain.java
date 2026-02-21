@@ -363,8 +363,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return mapleSimSwerveDrivetrain.getSimulatedPose();
     }
 
-   
-   
 }
 
 

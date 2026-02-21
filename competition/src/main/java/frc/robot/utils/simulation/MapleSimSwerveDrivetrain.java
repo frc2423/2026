@@ -151,6 +151,7 @@ public class MapleSimSwerveDrivetrain {
                 mapleSimDrive.getDriveTrainSimulatedChassisSpeedsRobotRelative().omegaRadiansPerSecond));
 
         NTHelper.setPose("/sim/robotPose", mapleSimDrive.getSimulatedDriveTrainPose());
+        
 
         fuelPoses.accept(SimulatedArena.getInstance()
                 .getGamePiecesArrayByType("Fuel"));
