@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
+import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.PathConstraints;
 import frc.robot.lib.BLine.Path.PathElement;
@@ -53,6 +54,47 @@ public class AutoCommands {
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
+        SmartDashboard.putData("setPoseToLeftTrench", setPoseToLeftTrench());
+        SmartDashboard.putData("setPoseToRightTrench", setPoseToRightTrench());
+        SmartDashboard.putData("setPoseToHub", setPoseToHub());
+
+    }
+
+    private Command setPoseToLeftTrench() {
+        Command command = Commands.runOnce(() -> {
+
+            Pose2d startPose = new Pose2d(3.5, 7.5, Rotation2d.fromDegrees(180));
+            if (PoseTransformUtils.isRedAlliance()) {
+                FlippingUtil.flipFieldPose(startPose);
+            }
+            drivetrain.resetPose(startPose);
+        });
+        command.runsWhenDisabled();
+        return command;
+    }
+
+    private Command setPoseToRightTrench() {
+        Command command = Commands.runOnce(() -> {
+            Pose2d startPose = new Pose2d(3.5, 0.5, Rotation2d.fromDegrees(180));
+            if (PoseTransformUtils.isRedAlliance()) {
+                FlippingUtil.flipFieldPose(startPose);
+            }
+            drivetrain.resetPose(startPose);
+        });
+        command.runsWhenDisabled();
+        return command;
+    }
+
+    private Command setPoseToHub() {
+        Command command = Commands.runOnce(() -> {
+            Pose2d startPose = new Pose2d(3.5, 4, Rotation2d.fromDegrees(180));
+            if (PoseTransformUtils.isRedAlliance()) {
+                FlippingUtil.flipFieldPose(startPose);
+            }
+            drivetrain.resetPose(startPose);
+        });
+        command.runsWhenDisabled();
+        return command;
     }
 
     public Command startIntaking() {
@@ -66,12 +108,21 @@ public class AutoCommands {
     }
 
     public Command goToHubAndShoot(Pose2d lastPose2d) {
+        Path path = new Path(constraints,
+                new Waypoint(flipPoseBasedOnRobotPose(new Pose2d(2.5, 4, Rotation2d.fromDegrees(-135)))));
+        if (PoseTransformUtils.isRedAlliance()) {
+            path.flip();
+        }
         return Commands.sequence(
-                driveShortestPath.driveShortestPath(
-                        flipPoseBasedOnRobotPose(new Pose2d(2.5, 3, Rotation2d.fromDegrees(-135)), lastPose2d)),
-                shooter.prepareToShoot(),
-                shooter.spinFeeder(() -> feederSpeed));
+                bline.pathBuilder.build(path),
+                Commands.parallel(
+                        shooter.prepareToShoot(),
+                        Commands.waitSeconds(3).andThen(
+                                shooter.spinFeeder(() -> feederSpeed))));
     }
+    // driveShortestPath.driveShortestPath(new Pose2d(2.5, 3,
+    // Rotation2d.fromDegrees(-135)
+    // flipPoseBasedOnRobotPose(), lastPose2d)),
 
     public Command centerAuto() {
         return Commands.sequence(
