@@ -49,6 +49,7 @@ public class AutoCommands {
         m_chooser.addOption("Outpost Auto", "Outpost Auto");
         m_chooser.addOption("Outpost and Depot Auto", "Outpost and Depot Auto");
         m_chooser.addOption("Depot Auto", "Depot Auto");
+        m_chooser.addOption("Shoot Auto", "Shoot Auto");
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
@@ -56,7 +57,7 @@ public class AutoCommands {
 
     public Command startIntaking() {
         return Commands.deadline(
-                arm.setAngle(Degrees.of(10)),
+                arm.armDown(),
                 intake.intake());
     }
 
@@ -74,11 +75,10 @@ public class AutoCommands {
 
     public Command centerAuto() {
         return Commands.sequence(
-                driveShortestPath.driveShortestPath(
-                        flipPoseBasedOnRobotPose(new Pose2d(8, 1.3, Rotation2d.fromDegrees(90)))),
-                driveShortestPath.driveShortestPath(
+                startIntaking().withDeadline(Commands.sequence(driveShortestPath.driveShortestPath(
                         flipPoseBasedOnRobotPose(new Pose2d(8, 3, Rotation2d.fromDegrees(90)))),
-                startIntaking(),
+                        driveShortestPath.driveShortestPath(
+                                flipPoseBasedOnRobotPose(new Pose2d(8, 1.3, Rotation2d.fromDegrees(90)))))),
                 intake.stop(),
                 goToHubAndShoot());
 
@@ -93,9 +93,9 @@ public class AutoCommands {
 
     public Command outpostAndDepotAuto() {
         Path path = new Path(constraints,
-                        new Waypoint(new Pose2d(2.25, 2, Rotation2d.fromDegrees(180))),
-                        new Waypoint(new Pose2d(2.25, 5, Rotation2d.fromDegrees(180))),
-                        new Waypoint(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180))));
+                new Waypoint(new Pose2d(2.25, 2, Rotation2d.fromDegrees(180))),
+                new Waypoint(new Pose2d(2.25, 5, Rotation2d.fromDegrees(180))),
+                new Waypoint(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180))));
         if (PoseTransformUtils.isRedAlliance()) {
             path.flip();
         }
@@ -112,16 +112,18 @@ public class AutoCommands {
 
     public Command depotAuto() {
         return Commands.sequence(
-                driveShortestPath.driveShortestPath(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180))),
-                startIntaking(),
+                startIntaking().withDeadline(
+                        driveShortestPath.driveShortestPath(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180)))),
                 driveShortestPath.driveShortestPath(new Pose2d(0.4, 6, Rotation2d.fromDegrees(180))),
                 intake.stop(),
                 goToHubAndShoot());
     }
 
-    public Command shoot() {
-        return Commands.sequence(shooter.prepareToShoot(),
-                shooter.spinFeeder(() -> feederSpeed));
+    public Command shootAuto() {
+        return goToHubAndShoot();
+
+        // Commands.sequence(shooter.prepareToShoot(),
+        // shooter.spinFeeder(() -> feederSpeed));
     }
 
     public Command getAuto() {
@@ -133,6 +135,8 @@ public class AutoCommands {
             return outpostAndDepotAuto();
         } else if (m_chooser.getSelected().equals("Depot Auto")) {
             return depotAuto();
+        } else if (m_chooser.getSelected().equals("Shoot Auto")) {
+            return shootAuto();
         } else {
             return Commands.none();
         }

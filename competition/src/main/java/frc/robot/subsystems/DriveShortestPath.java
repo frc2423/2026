@@ -124,7 +124,7 @@ public class DriveShortestPath {
 
     public Rotation2d getClosestRotation() {
         Rotation2d closestRotation2d = new Rotation2d(0);
-        if (getPose().getRotation().getDegrees() > 90 & getPose().getRotation().getDegrees() < 270) {
+        if (getPose().getRotation().getDegrees() > 90 && getPose().getRotation().getDegrees() < 270) {
             closestRotation2d = new Rotation2d(Math.PI);
         }
         return closestRotation2d;
