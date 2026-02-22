@@ -4,7 +4,6 @@ import java.util.function.Supplier;
 
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -15,6 +14,10 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.util.sendable.SendableBuilder;
+import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
+import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.NTHelper;
@@ -25,11 +28,18 @@ public class ShooterSubsystem extends SubsystemBase {
     private double shootSpeed = 8;
 
     public SparkFlex motor;
-    private boolean isInverted;
+
+    private final Mechanism2d mechanism2d = new Mechanism2d(1, 1);
+
+    private final MechanismLigament2d[] mechanismLigaments = {
+            new MechanismLigament2d("part1", 0.05, 45),
+            new MechanismLigament2d("part2", 0.05, 135),
+            new MechanismLigament2d("part3", 0.05, 225),
+            new MechanismLigament2d("part4", 0.05, 315),
+    };
 
     public ShooterSubsystem(int motorId, boolean isInverted) {
         motor = new SparkFlex(motorId, MotorType.kBrushless);
-        this.isInverted = isInverted;
 
         SparkFlexConfig config = new SparkFlexConfig();
         config.encoder.velocityConversionFactor(1);
@@ -46,6 +56,17 @@ public class ShooterSubsystem extends SubsystemBase {
         setDefaultCommand(stop());
 
         NTHelper.setDouble("/shooter/speed", 2800);
+
+        var root = mechanism2d.getRoot("shooter", -.2, 0.5);
+        for (int i = 0; i < mechanismLigaments.length; i++) {
+            var ligament = mechanismLigaments[i];
+            ligament.setLineWeight(1);
+            var color = i % 2 == 0 ? new Color8Bit(0, 200, 100) : new Color8Bit(255, 100, 0);
+            ligament.setColor(color);
+            root.append(ligament);
+        }
+
+        SmartDashboard.putData("Mechanism2ds/Shooter", mechanism2d);
     }
 
     public Command spin() {
@@ -63,6 +84,14 @@ public class ShooterSubsystem extends SubsystemBase {
         return run(() -> {
             motor.stopMotor();
         });
+    }
+
+    @Override
+    public void periodic() {
+        double percentSpeed = motor.get();
+        for (var ligament : mechanismLigaments) {
+            ligament.setAngle(ligament.getAngle() - percentSpeed * 10);
+        }
     }
 
     public Command spinWithSetpoint(Supplier<Double> setpoint) {

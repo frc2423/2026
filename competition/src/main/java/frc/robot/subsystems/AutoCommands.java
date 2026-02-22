@@ -11,17 +11,7 @@ import frc.robot.generated.PoseTransformUtils;
 import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.PathConstraints;
-import frc.robot.lib.BLine.Path.PathElement;
-import frc.robot.lib.BLine.Path.RotationTarget;
 import frc.robot.lib.BLine.Path.Waypoint;
-
-import static edu.wpi.first.units.Units.Degrees;
-
-import javax.lang.model.element.Element;
-
-import org.ironmaple.simulation.drivesims.configs.DriveTrainSimulationConfig;
-
-import edu.wpi.first.epilogue.Logged;
 
 public class AutoCommands {
     private final IntakeSubsystem intake;
@@ -36,6 +26,12 @@ public class AutoCommands {
 
     // @Logged
     private final SendableChooser<String> m_chooser = new SendableChooser<>();
+
+    private static final Pose2d leftTrenchPose = new Pose2d(3.5, 7.5, Rotation2d.fromDegrees(180));
+    private static final Pose2d rightTrenchPose = new Pose2d(3.5, 0.5, Rotation2d.fromDegrees(180));
+    private static final Pose2d hubPose = new Pose2d(3.5, 4, Rotation2d.fromDegrees(180));
+
+    private static final Pose2d shootInFrontOfHubPose = new Pose2d(2.5, 4, Rotation2d.fromDegrees(-135));
 
     public AutoCommands(ArmSubsystem arm, DriveShortestPath driveShortestPath, IntakeSubsystem intake,
             ShooterCommands shooter, CommandSwerveDrivetrain drivetrain, BLine bline) {
@@ -54,44 +50,15 @@ public class AutoCommands {
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
-        SmartDashboard.putData("setPoseToLeftTrench", setPoseToLeftTrench());
-        SmartDashboard.putData("setPoseToRightTrench", setPoseToRightTrench());
-        SmartDashboard.putData("setPoseToHub", setPoseToHub());
+        SmartDashboard.putData("setPoseToLeftTrench", resetRobotPose(leftTrenchPose));
+        SmartDashboard.putData("setPoseToRightTrench", resetRobotPose(rightTrenchPose));
+        SmartDashboard.putData("setPoseToHub", resetRobotPose(hubPose));
 
     }
 
-    private Command setPoseToLeftTrench() {
+    private Command resetRobotPose(Pose2d pose) {
         Command command = Commands.runOnce(() -> {
-
-            Pose2d startPose = new Pose2d(3.5, 7.5, Rotation2d.fromDegrees(180));
-            if (PoseTransformUtils.isRedAlliance()) {
-                FlippingUtil.flipFieldPose(startPose);
-            }
-            drivetrain.resetPose(startPose);
-        });
-        command.runsWhenDisabled();
-        return command;
-    }
-
-    private Command setPoseToRightTrench() {
-        Command command = Commands.runOnce(() -> {
-            Pose2d startPose = new Pose2d(3.5, 0.5, Rotation2d.fromDegrees(180));
-            if (PoseTransformUtils.isRedAlliance()) {
-                FlippingUtil.flipFieldPose(startPose);
-            }
-            drivetrain.resetPose(startPose);
-        });
-        command.runsWhenDisabled();
-        return command;
-    }
-
-    private Command setPoseToHub() {
-        Command command = Commands.runOnce(() -> {
-            Pose2d startPose = new Pose2d(3.5, 4, Rotation2d.fromDegrees(180));
-            if (PoseTransformUtils.isRedAlliance()) {
-                FlippingUtil.flipFieldPose(startPose);
-            }
-            drivetrain.resetPose(startPose);
+            drivetrain.resetPose(PoseTransformUtils.isRedAlliance() ? FlippingUtil.flipFieldPose(pose) : pose);
         });
         command.runsWhenDisabled();
         return command;
@@ -103,33 +70,41 @@ public class AutoCommands {
                 intake.intake());
     }
 
-    public Command goToHubAndShoot() {
-        return goToHubAndShoot(drivetrain.getPose());
+    private Command driveToPose(Pose2d pose, boolean drivesShortestPath) {
+        if (drivesShortestPath) {
+            Path path = new Path(constraints, new Waypoint(pose));
+            if (PoseTransformUtils.isRedAlliance()) {
+                path.flip();
+            }
+            return bline.pathBuilder.build(path);
+        }
+        return bline.goToPose(PoseTransformUtils.isRedAlliance() ? FlippingUtil.flipFieldPose(pose) : pose);
     }
 
-    public Command goToHubAndShoot(Pose2d lastPose2d) {
-        Path path = new Path(constraints,
-                new Waypoint(flipPoseBasedOnRobotPose(new Pose2d(2.5, 4, Rotation2d.fromDegrees(-135)))));
-        if (PoseTransformUtils.isRedAlliance()) {
-            path.flip();
-        }
+    public Command goToHubAndShoot() {
+        return goToHubAndShoot(true);
+    }
+
+    public Command goToHubAndShoot(boolean drivesShortestPath) {
+        Command driveToHub = driveToPose(shootInFrontOfHubPose, drivesShortestPath);
         return Commands.sequence(
-                bline.pathBuilder.build(path),
+                driveToHub,
                 Commands.parallel(
                         shooter.prepareToShoot(),
                         Commands.waitSeconds(3).andThen(
                                 shooter.spinFeeder(() -> feederSpeed))));
     }
-    // driveShortestPath.driveShortestPath(new Pose2d(2.5, 3,
-    // Rotation2d.fromDegrees(-135)
-    // flipPoseBasedOnRobotPose(), lastPose2d)),
 
     public Command centerAuto() {
+
+        Command driveThroughTrench = driveShortestPath.driveShortestPath(
+                flipPoseBasedOnRobotPose(new Pose2d(8, 3, Rotation2d.fromDegrees(90))));
+
+        Command driveIntoFuel = driveShortestPath.driveShortestPath(
+                flipPoseBasedOnRobotPose(new Pose2d(8, 1.3, Rotation2d.fromDegrees(90))));
+
         return Commands.sequence(
-                startIntaking().withDeadline(Commands.sequence(driveShortestPath.driveShortestPath(
-                        flipPoseBasedOnRobotPose(new Pose2d(8, 3, Rotation2d.fromDegrees(90)))),
-                        driveShortestPath.driveShortestPath(
-                                flipPoseBasedOnRobotPose(new Pose2d(8, 1.3, Rotation2d.fromDegrees(90)))))),
+                startIntaking().withDeadline(Commands.sequence(driveThroughTrench, driveIntoFuel)),
                 intake.stop(),
                 goToHubAndShoot());
 
@@ -139,7 +114,7 @@ public class AutoCommands {
         return Commands.sequence(
                 driveShortestPath.driveShortestPath(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))),
                 Commands.waitSeconds(2),
-                goToHubAndShoot(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))));
+                goToHubAndShoot());
     }
 
     public Command outpostAndDepotAuto() {
@@ -158,7 +133,7 @@ public class AutoCommands {
                 startIntaking(),
                 driveShortestPath.driveShortestPath(new Pose2d(0.4, 6, Rotation2d.fromDegrees(180))),
                 intake.stop(),
-                goToHubAndShoot(new Pose2d(0.4, 6, Rotation2d.fromDegrees(180))));
+                goToHubAndShoot());
     }
 
     public Command depotAuto() {
