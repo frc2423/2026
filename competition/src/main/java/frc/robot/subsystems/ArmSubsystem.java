@@ -43,6 +43,9 @@ public class ArmSubsystem extends SubsystemBase {
 
     private Angle offset = Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
 
+    private Angle setpointAngle;
+    private double motorPercent = 0;
+
     public ArmSubsystem() {
         SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
                 .withControlMode(ControlMode.CLOSED_LOOP)
@@ -97,25 +100,33 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     public Command setAngle(Angle angle) {
-
-        return arm.set(() -> {
-            double armAngle = arm.getAngle().in(Radians);
-            double setAngle = angle.in(Radians);
-            return feedforward.calculate(armAngle, setAngle - armAngle);
+        return runOnce(() -> {
+            setpointAngle = angle;
         });
-
-        // return arm.run(angle);
-        // return arm.setAngle(angle);
     }
 
     public Command set(double dutycycle) {
-        return arm.set(dutycycle);
+        // return arm.set(dutycycle);
+        return runOnce(() -> {
+            motorPercent = dutycycle;
+            setpointAngle = null;
+        });
     }
 
     @Override
-
     public void periodic() {
         arm.updateTelemetry();
+
+        if (setpointAngle != null) {
+            double armAngle = arm.getAngle().in(Radians);
+            double setAngle = setpointAngle.in(Radians);
+            double motorSpeed = feedforward.calculate(armAngle, setAngle - armAngle);
+            armMotor.set(motorSpeed);
+        } else {
+            double motorSpeed = motorPercent;
+            armMotor.set(motorSpeed);
+        }
+
     }
 
     @Override
