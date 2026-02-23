@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -72,7 +71,8 @@ public class PassingCommands extends SubsystemBase {
     }
 
     public Command aimToPass() {
-        return shooter.actuallyLookAngle(() -> {
+        return Commands.parallel(
+        shooter.actuallyLookAngle(() -> {
             Pose2d targetPose = Pose2d.kZero;
             if (swerve.getPose().getY() > FieldConstants.LinesHorizontal.center) {
                 if (PoseTransformUtils.isRedAlliance()) {
@@ -90,7 +90,8 @@ public class PassingCommands extends SubsystemBase {
                 }
             }
             return targetPose;
-        });
+        }),
+        shooter.rev(() -> 3200.0));
     }
 
 }

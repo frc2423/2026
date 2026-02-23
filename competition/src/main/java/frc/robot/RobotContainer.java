@@ -64,7 +64,6 @@ public class RobotContainer {
 
         private final CommandXboxController driverController = new CommandXboxController(0);
         private final CommandXboxController operatorController = new CommandXboxController(1);
-
         public final IntakeSubsystem intake = new IntakeSubsystem();
 
         @Logged
@@ -176,19 +175,22 @@ public class RobotContainer {
 
                 driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
                 driverController.rightBumper().whileTrue(feederCommand).onFalse(intake.stop());
-                driverController.leftTrigger(0.25)
-                                .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
-                driverController.leftBumper().whileTrue(
-                                shooterLeft.spinWithSetpoint(() -> -200.0)
-                                                .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
+                driverController.leftBumper().whileTrue(passingCommands.trenchPass());
+                driverController.leftTrigger().whileTrue(passingCommands.aimToPass());
+
+                // driverController.leftTrigger(0.25)
+                //                 .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
+                // driverController.leftBumper().whileTrue(
+                //                 shooterLeft.spinWithSetpoint(() -> -200.0)
+                //                                 .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
 
         }
 
         private void configureOperatorControllerBindings() {
 
                 Command feedersAndTwindexer = Commands.parallel(
-                                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
-                                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)),
+                                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0.7)),
+                                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0.7)),
                                 twindexer.spindex(),
                                 arm.setAngle(Degrees.of(90)),
                                 intake.intake());
@@ -200,11 +202,19 @@ public class RobotContainer {
                                 shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
                                 shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
 
-                operatorController.a().whileTrue(Commands.parallel(twindexer.spindexBack(), feederLeft.spin(() -> -0.5),
-                                feederRight.spin(() -> -0.5)));
+                operatorController.a().whileTrue(arm.armDown());
+                operatorController.b().whileTrue(arm.armUp());
+                operatorController.x().whileTrue(intake.intake()).onFalse(intake.stop());
+                operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
 
-                operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
-                operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
+                operatorController.povLeft().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
+                operatorController.povRight().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
+                // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() -> 0.7).alongWith(feederRight.spinWithSetpoint(() -> 0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
+                // operatorController.povDown().whileTrue(feederLeft.spinWithSetpoint(() -> -0.7).alongWith(feederRight.spinWithSetpoint(() -> -0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
+
+
+                // operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
+                // operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
 
         }
 

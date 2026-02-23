@@ -136,4 +136,11 @@ public class ShooterCommands extends SubsystemBase {
     return Commands.parallel(left, right);
   }
 
+  public Command rev(Supplier<Double> speed) {
+    return Commands.parallel(
+      shooterL.spinWithSetpoint(speed),
+      shooterR.spinWithSetpoint(speed)
+    );
+  }
+
 }
