@@ -164,6 +164,8 @@ public class RobotContainer {
                 driverController.button(10).whileTrue(intake.intake()).onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
                 driverController.a().onTrue(arm.armDown());
+                driverController.x().onTrue(drivetrain.callQuestNav());
+
 
                 // Shooting and passing commands
                 Command feederCommand = Commands.parallel(

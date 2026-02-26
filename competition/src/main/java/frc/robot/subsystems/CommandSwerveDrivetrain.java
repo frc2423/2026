@@ -247,6 +247,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    public Command callQuestNav(){
+
+        return Commands.runOnce(() -> questNav.setRobotPose(this.getPose()));
+
+    }
+
     @Override
     public void periodic() {
         Transform3d cameraTransform = vision.getTransform3d();
