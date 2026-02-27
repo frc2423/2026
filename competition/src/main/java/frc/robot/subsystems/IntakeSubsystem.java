@@ -50,13 +50,19 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command intake() {
         return run(() -> {
-            motor.set(1);
+            motor.set(.5);
         });
     }
 
     public Command outtake() {
         return run(() -> {
             motor.set(-1);
+        });
+    }
+
+    public Command outtakeDown() {
+        return run(() -> {
+            motor.set(-.2);
         });
     }
 

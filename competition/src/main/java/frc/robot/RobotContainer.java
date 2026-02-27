@@ -32,6 +32,7 @@ import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterCommands;
 import frc.robot.subsystems.PassingCommands;
+import frc.robot.subsystems.IntakeCommands;
 import frc.robot.subsystems.TwindexerSubsystem;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -94,6 +95,7 @@ public class RobotContainer {
         public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
         public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
         public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain, bline);
+        public final IntakeCommands intakeCommands = new IntakeCommands(intake, arm);
 
         public RobotContainer() {
                 configureBindings();
@@ -163,7 +165,7 @@ public class RobotContainer {
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
                 driverController.button(10).whileTrue(intake.intake()).onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
-                driverController.a().onTrue(arm.armDown());
+                driverController.a().onTrue(intakeCommands.armDown());
 
                 // Shooting and passing commands
                 Command feederCommand = Commands.parallel(
@@ -202,7 +204,7 @@ public class RobotContainer {
                                 shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
                                 shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
 
-                operatorController.a().whileTrue(arm.armDown());
+                operatorController.a().whileTrue(intakeCommands.armDown());
                 operatorController.b().whileTrue(arm.armUp());
                 operatorController.x().whileTrue(intake.intake()).onFalse(intake.stop());
                 operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
