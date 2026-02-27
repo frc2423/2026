@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -12,6 +12,11 @@ import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.PathConstraints;
 import frc.robot.lib.BLine.Path.Waypoint;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.BLine;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.DriveShortestPath;
+import frc.robot.subsystems.IntakeSubsystem;
 
 public class AutoCommands {
     private final IntakeSubsystem intake;

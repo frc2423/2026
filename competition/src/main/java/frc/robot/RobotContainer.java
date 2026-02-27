@@ -21,20 +21,21 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.commands.AutoCommands;
+import frc.robot.commands.PassingCommands;
+import frc.robot.commands.ShooterCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.AutoCommands;
 import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.ShooterCommands;
-import frc.robot.subsystems.PassingCommands;
 import frc.robot.subsystems.TwindexerSubsystem;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.telemetry.SubsystemMechanism2d;
+import frc.robot.telemetry.Telemetry;
 
 public class RobotContainer {
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -50,17 +51,8 @@ public class RobotContainer {
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
                                                                                  // motors
 
-        // private final SwerveRequest.SwerveDriveBrake brake = new
-        // SwerveRequest.SwerveDriveBrake();
-        // private final SwerveRequest.PointWheelsAt point = new
-        // SwerveRequest.PointWheelsAt();
-
         private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
         private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
-
-        public final double feederSpeed = 10;
-
-        private final Telemetry logger = new Telemetry(MaxSpeed);
 
         private final CommandXboxController driverController = new CommandXboxController(0);
         private final CommandXboxController operatorController = new CommandXboxController(1);
@@ -72,6 +64,7 @@ public class RobotContainer {
         private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
                         .withHeadingPID(10, 0, 0);
         private Rotation2d lastHeading = new Rotation2d();
+
         @Logged
         public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35, true);
         @Logged
@@ -94,6 +87,10 @@ public class RobotContainer {
         public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
         public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
         public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain, bline);
+
+        private final Telemetry logger = new Telemetry(MaxSpeed);
+        @SuppressWarnings("unused")
+        private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
         public RobotContainer() {
                 configureBindings();
@@ -179,10 +176,11 @@ public class RobotContainer {
                 driverController.leftTrigger().whileTrue(passingCommands.aimToPass());
 
                 // driverController.leftTrigger(0.25)
-                //                 .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() -> 0.5)));
+                // .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() ->
+                // 0.5)));
                 // driverController.leftBumper().whileTrue(
-                //                 shooterLeft.spinWithSetpoint(() -> -200.0)
-                //                                 .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
+                // shooterLeft.spinWithSetpoint(() -> -200.0)
+                // .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
 
         }
 
@@ -209,9 +207,12 @@ public class RobotContainer {
 
                 operatorController.povLeft().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
                 operatorController.povRight().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
-                // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() -> 0.7).alongWith(feederRight.spinWithSetpoint(() -> 0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
-                // operatorController.povDown().whileTrue(feederLeft.spinWithSetpoint(() -> -0.7).alongWith(feederRight.spinWithSetpoint(() -> -0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
-
+                // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() ->
+                // 0.7).alongWith(feederRight.spinWithSetpoint(() ->
+                // 0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
+                // operatorController.povDown().whileTrue(feederLeft.spinWithSetpoint(() ->
+                // -0.7).alongWith(feederRight.spinWithSetpoint(() ->
+                // -0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
 
                 // operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
                 // operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
@@ -225,30 +226,6 @@ public class RobotContainer {
                                 driveShortestPath.driveShortestPath(new Pose2d(14.6, 1.6, new Rotation2d(Math.PI))));
                 shortestPathController.b().whileTrue(
                                 driveShortestPath.driveShortestPath(new Pose2d(9, 2, new Rotation2d(Math.PI))));
-
-                // shortestPathController.x().whileTrue(
-                // driveShortestPath.driveShortestPath(new Pose2d(2, 6.5, new
-                // Rotation2d(Math.PI))));
-                // shortestPathController.y().whileTrue(
-                // driveShortestPath.driveShortestPath(new Pose2d(8, 7, new
-                // Rotation2d(Math.PI))));
-
-                // driverController.a().whileTrue(bline.goToPose(new Pose2d(1, 1,
-                // Rotation2d.kZero)));
-
-        }
-
-        private void configureSysIdBindings() {
-                // Run SysId routines when holding back/start and X/Y.
-                // Note that each routine should be run exactly once in a single log.
-                driverController.back().and(driverController.y())
-                                .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-                driverController.back().and(driverController.x())
-                                .whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-                driverController.start().and(driverController.y())
-                                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-                driverController.start().and(driverController.x())
-                                .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
         }
 
         public Command getAutonomousCommand() {

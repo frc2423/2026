@@ -14,29 +14,15 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.NTHelper;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-    private SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
-    private double shootSpeed = 8;
-
-    public SparkFlex motor;
-
-    private final Mechanism2d mechanism2d = new Mechanism2d(1, 1);
-
-    private final MechanismLigament2d[] mechanismLigaments = {
-            new MechanismLigament2d("part1", 0.05, 45),
-            new MechanismLigament2d("part2", 0.05, 135),
-            new MechanismLigament2d("part3", 0.05, 225),
-            new MechanismLigament2d("part4", 0.05, 315),
-    };
+    private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
+    private final SparkFlex motor;
+    private double shooterSetpoint = 0;
 
     public ShooterSubsystem(int motorId, boolean isInverted) {
         motor = new SparkFlex(motorId, MotorType.kBrushless);
@@ -53,84 +39,51 @@ public class ShooterSubsystem extends SubsystemBase {
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
-        setDefaultCommand(stop());
-
         NTHelper.setDouble("/shooter/speed", 2800);
-
-        var root = mechanism2d.getRoot("shooter", -.2, 0.5);
-        for (int i = 0; i < mechanismLigaments.length; i++) {
-            var ligament = mechanismLigaments[i];
-            ligament.setLineWeight(1);
-            var color = i % 2 == 0 ? new Color8Bit(0, 200, 100) : new Color8Bit(255, 100, 0);
-            ligament.setColor(color);
-            root.append(ligament);
-        }
-
-        SmartDashboard.putData("Mechanism2ds/Shooter", mechanism2d);
-    }
-
-    public Command spin() {
-        return run(() -> {
-            double speed = NTHelper.getDouble("/shooter/speed", 0);
-            double voltage = feedforward.calculate(speed);
-            // motor.set(-.25);
-            motor.getClosedLoopController().setReference(speed, ControlType.kVelocity, ClosedLoopSlot.kSlot0, voltage);
-        });
-        // motor.
-        // motorConfig.
     }
 
     public Command stop() {
+        return runOnce(() -> {
+            shooterSetpoint = 0;
+        }).withName("stopShooter");
+    }
+
+    public Command spinWithSetpoint(Supplier<Double> setpoint) {
         return run(() -> {
-            motor.stopMotor();
-        });
+            shooterSetpoint = setpoint.get();
+        }).withName("spinWithSetpoint");
+    }
+    
+    public Command spinWithSetpoint(double setpoint) {
+        return runOnce(() -> {
+            shooterSetpoint = setpoint;
+        }).withName("spinWithSetpoint");
     }
 
     @Override
     public void periodic() {
-        double percentSpeed = motor.get();
-        for (var ligament : mechanismLigaments) {
-            ligament.setAngle(ligament.getAngle() - percentSpeed * 10);
-        }
-    }
-
-    public Command spinWithSetpoint(Supplier<Double> setpoint) {
-
-        return run(() -> {
-            double setpointYAY = setpoint.get();
-            double voltage = feedforward.calculate(setpointYAY);
-            motor.getClosedLoopController().setReference(setpointYAY, ControlType.kVelocity, ClosedLoopSlot.kSlot0,
-                    voltage);
-        });
-
-    }
-
-    public Command rev() {
-        return run(() -> {
-            motor.set(shootSpeed);
-
-        });
-    }
-
-    public Command rev(Supplier<Double> speed) {
-        return run(() -> {
-            motor.set(speed.get());
-
-        });
+        double voltage = feedforward.calculate(shooterSetpoint);
+        motor.getClosedLoopController().setReference(shooterSetpoint, ControlType.kVelocity, ClosedLoopSlot.kSlot0,
+                voltage);
     }
 
     @Logged
     public double getVelocity() {
         return motor.getEncoder().getVelocity();
     }
-  
+
     @Logged
     public double getMotorSpeed() {
         return motor.get();
     }
 
+    public double getSetpoint() {
+        return motor.getClosedLoopController().getSetpoint();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
         builder.addDoubleProperty("current", () -> motor.getOutputCurrent(), null);
         builder.addDoubleProperty("encoderspeed", () -> motor.getEncoder().getVelocity(), null);
 

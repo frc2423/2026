@@ -92,17 +92,17 @@ public class ArmSubsystem extends SubsystemBase {
 
     public Command armDown() {
         return setAngle(Degrees.of(15))
-                .until(() -> isDown()).andThen(set(-.1));
+                .until(() -> isDown()).andThen(set(-.1)).withName("armDown");
     }
 
     public Command armUp() {
-        return setAngle(Degrees.of(90));
+        return setAngle(Degrees.of(90)).withName("armUp");
     }
 
     public Command setAngle(Angle angle) {
         return runOnce(() -> {
             setpointAngle = angle;
-        });
+        }).withName("setArmAngle");
     }
 
     public Command set(double dutycycle) {
@@ -110,7 +110,7 @@ public class ArmSubsystem extends SubsystemBase {
         return runOnce(() -> {
             motorPercent = dutycycle;
             setpointAngle = null;
-        });
+        }).withName("setArmSpeed");
     }
 
     @Override

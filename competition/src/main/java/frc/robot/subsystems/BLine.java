@@ -17,8 +17,8 @@ import frc.robot.lib.BLine.*;
 
 public class BLine {
 
-    CommandSwerveDrivetrain swerve;
-    FollowPath.Builder pathBuilder;
+    private final CommandSwerveDrivetrain swerve;
+    public final FollowPath.Builder pathBuilder;
 
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
