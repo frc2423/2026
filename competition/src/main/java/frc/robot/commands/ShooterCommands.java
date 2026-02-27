@@ -11,7 +11,9 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.*;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -48,11 +50,7 @@ public class ShooterCommands extends SubsystemBase {
 
   @Logged
   public double getDistanceToHub() {
-    // Pose2d = Pose2d.kZero.getTranslation().getDistance()
-    return getDistanceBetweenPoses(robot.drivetrain.getPose(),
-        new Pose2d((PoseTransformUtils.isRedAlliance())
-            ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
-            : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
+    return getDistanceBetweenPoses(robot.drivetrain.getPose(), getHubPose());
 
   }
 
@@ -63,16 +61,22 @@ public class ShooterCommands extends SubsystemBase {
       return currentPose.getRotation();
     }
     double angleRads = Math.atan2(targetPose.getY() - currentPose.getY(), targetPose.getX() - currentPose.getX());
-    if (!PoseTransformUtils.isRedAlliance()) {
+    if (PoseTransformUtils.isRedAlliance()) {
       angleRads += Math.PI;
     }
     return new Rotation2d(angleRads);
   }
 
+  public Pose2d getHubPose() {
+    Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
+    if (PoseTransformUtils.isRedAlliance()) {
+      hubTranslation = FlippingUtil.flipFieldPosition(hubTranslation);
+    }
+    return new Pose2d(hubTranslation, Rotation2d.kZero);
+  }
+
   public Command actuallyLookAngle() {
-    return actuallyLookAngle(new Pose2d((PoseTransformUtils.isRedAlliance())
-        ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
-        : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
+    return actuallyLookAngle(getHubPose());
   }
 
   public Command actuallyLookAngle(Pose2d targetPose) {
@@ -84,7 +88,7 @@ public class ShooterCommands extends SubsystemBase {
     return robot.drivetrain.applyRequest(() -> {
       double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
       double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
-      Rotation2d targetHeading = getLookAngle(targetPoseSupplier.get());
+      Rotation2d targetHeading = getLookAngle(targetPoseSupplier.get()).plus(Rotation2d.k180deg);
 
       return driveFacing
           .withVelocityX(-x)
@@ -93,9 +97,29 @@ public class ShooterCommands extends SubsystemBase {
     });
   }
 
+  public boolean isFacingPose(Pose2d targetPose) {
+    Angle targetAngle = getLookAngle(targetPose).getMeasure();
+    Angle robotAngle = robot.drivetrain.getPose().getRotation().plus(Rotation2d.k180deg).getMeasure();
+    return targetAngle.isNear(robotAngle, Degrees.of(3));
+  }
+
+  public boolean isFacingHub() {
+    return isFacingPose(getHubPose());
+  }
+
   public Command prepareToShoot() {
     Command command = Commands.parallel(actuallyLookAngle(), revSpeedFromDAS());
     return command;
+  }
+
+  public Command scoreDeadline(double shootingTime) {
+    return Commands.sequence(
+      prepareToShoot().until(() -> isFacingHub()),
+      Commands.parallel(
+        revSpeedFromDAS(),
+        feed(() -> 1.0)
+      ).withTimeout(shootingTime)
+    );
   }
 
   public Command feed(Supplier<Double> setpoint) {

@@ -113,6 +113,8 @@ public class RobotContainer {
                 drivetrain.setDefaultCommand(
                                 // Drivetrain will execute this command periodically
                                 drivetrain.applyRequest(() -> {
+
+                                        shooterCommands.isFacingHub();
                                         double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
                                         double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
 

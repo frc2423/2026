@@ -10,14 +10,10 @@ import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
 import frc.robot.lib.BLine.FlippingUtil;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.PathConstraints;
 import frc.robot.lib.BLine.Path.Waypoint;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.BLine;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.DriveShortestPath;
-import frc.robot.subsystems.IntakeSubsystem;
 
 public class AutoCommands {
     private final RobotContainer robot;
@@ -43,6 +39,7 @@ public class AutoCommands {
         m_chooser.addOption("Outpost and Depot Auto", "Outpost and Depot Auto");
         m_chooser.addOption("Depot Auto", "Depot Auto");
         m_chooser.addOption("Shoot Auto", "Shoot Auto");
+        m_chooser.addOption("Center Twice Auto", "Center Twice Auto");
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
@@ -148,6 +145,48 @@ public class AutoCommands {
         // shooter.spinFeeder(() -> feederSpeed));
     }
 
+    public Command centerTwiceAuto() {
+        FollowPath trenchToCenter = robot.bline.pathBuilder.build(new Path("Trench-to-Center"));
+        FollowPath centerToTrench = robot.bline.pathBuilder.build(new Path("Center-to-Trench"));
+        FollowPath trenchToLeftovers = robot.bline.pathBuilder.build(new Path("Trench-to-Leftovers"));
+        FollowPath leftoversToTrench = robot.bline.pathBuilder.build(new Path("Leftovers-to-Trench"));
+
+        Command goToCenterAndIntake = Commands.deadline(
+                trenchToCenter,
+                Commands.sequence(
+                        Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake()));
+
+        Command trenchToLeftoversAndIntake = Commands.deadline(
+                trenchToLeftovers,
+                Commands.sequence(
+                        Commands.waitUntil(() -> trenchToLeftovers.getCurrentTranslationElementIndex() >= 2),
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake()));
+
+        Command leftoversToTrenchAndIntake = Commands.deadline(
+                leftoversToTrench,
+                Commands.waitUntil(() -> leftoversToTrench.getCurrentTranslationElementIndex() >= 3)
+                        .andThen(robot.intake.stop()));
+
+        return Commands.sequence(
+                goToCenterAndIntake,
+                robot.intake.stop(),
+                Commands.print("CENTER TO TRENCH"),
+                Commands.deadline(
+                        centerToTrench,
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                Commands.print("SCORE DEADLINE"),
+                robot.shooterCommands.scoreDeadline(3),
+                Commands.print("STOP FEEDING"),
+                robot.shooterCommands.stopFeeding(),
+                robot.shooterCommands.stopShooting(),
+                trenchToLeftoversAndIntake,
+                leftoversToTrenchAndIntake,
+                robot.shooterCommands.scoreDeadline(3));
+    }
+
     public Command getAuto() {
         if (m_chooser.getSelected().equals("Center Piece Auto")) {
             return centerAuto();
@@ -159,6 +198,8 @@ public class AutoCommands {
             return depotAuto();
         } else if (m_chooser.getSelected().equals("Shoot Auto")) {
             return shootAuto();
+        } else if (m_chooser.getSelected().equals("Center Twice Auto")) {
+            return centerTwiceAuto();
         } else {
             return Commands.none();
         }

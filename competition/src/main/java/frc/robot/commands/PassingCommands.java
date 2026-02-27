@@ -28,11 +28,9 @@ public class PassingCommands extends SubsystemBase {
                 robot.bline.goToNearestPose(trenchPosesBlue),
                 () -> PoseTransformUtils.isRedAlliance());
 
-        Command passFuel = Commands.parallel(
+        Command passFuel = Commands.sequence(
                 robot.intakeCommands.armDown(),
-                Commands.sequence(
-                        Commands.waitUntil(() -> robot.arm.isDown()),
-                        robot.intake.outtake()));
+                robot.intake.outtake());
 
         return Commands.sequence(driveToNearestTrench, passFuel);
     }
