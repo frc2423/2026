@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import frc.robot.commands.AutoCommands;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PassingCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.generated.TunerConstants;
@@ -53,8 +54,8 @@ public class RobotContainer {
         private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
         private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
-        private final CommandXboxController driverController = new CommandXboxController(0);
-        private final CommandXboxController operatorController = new CommandXboxController(1);
+        public final CommandXboxController driverController = new CommandXboxController(0);
+        public final CommandXboxController operatorController = new CommandXboxController(1);
         public final IntakeSubsystem intake = new IntakeSubsystem();
 
         @Logged
@@ -80,13 +81,11 @@ public class RobotContainer {
         @Logged
         public final ShooterCommands shooterCommands = new ShooterCommands(this);
 
-        public final PassingCommands passingCommands = new PassingCommands(drivetrain, bline, intake, arm,
-                        shooterCommands,
-                        driverController);
+        public final PassingCommands passingCommands = new PassingCommands(this);
+        public final IntakeCommands intakeCommands = new IntakeCommands(this);
         public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
         public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
-        public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooterCommands, drivetrain,
-                        bline);
+        public final AutoCommands auto = new AutoCommands(this);
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
         @SuppressWarnings("unused")
@@ -102,7 +101,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
 
                 configureBindings();
-                NTHelper.setDouble("/tuning/FeederSpeed", .7);
+                NTHelper.setDouble("/tuning/FeederSpeed", 1);
                 NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
                 NTHelper.setBoolean("/tuning/snakeMode", false);
 
@@ -167,7 +166,7 @@ public class RobotContainer {
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
                 driverController.button(10).whileTrue(intake.intake()).onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
-                driverController.a().onTrue(arm.armDown());
+                driverController.a().onTrue(intakeCommands.armDown());
 
                 driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
                                 .onFalse(shooterCommands.stopShooting());
@@ -184,7 +183,7 @@ public class RobotContainer {
         private void configureOperatorControllerBindings() {
 
                 operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(shooterCommands.feed(() -> {
-                        return NTHelper.getDouble("/tuning/FeederSpeed", 0.7);
+                        return NTHelper.getDouble("/tuning/FeederSpeed", 1);
                 })))
                                 .onFalse(shooterCommands.stopFeeding());
 
@@ -192,7 +191,7 @@ public class RobotContainer {
                                 .whileTrue(shooterCommands.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
                                 .onFalse(shooterCommands.stopShooting());
 
-                operatorController.a().whileTrue(arm.armDown());
+                operatorController.a().whileTrue(intakeCommands.armDown());
                 operatorController.b().whileTrue(arm.armUp());
                 operatorController.x().whileTrue(intake.intake()).onFalse(intake.stop());
                 operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());

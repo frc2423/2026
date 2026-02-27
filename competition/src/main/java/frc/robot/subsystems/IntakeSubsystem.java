@@ -37,6 +37,12 @@ public class IntakeSubsystem extends SubsystemBase {
         }).withName("outtake");
     }
 
+    public Command outtakeDown() {
+        return runOnce(() -> {
+            percentSpeed = -.2;
+        }).withName("outtakeDown");
+    }
+
     public Command stop() {
         return runOnce(() -> {
             percentSpeed = 0;

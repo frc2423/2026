@@ -33,7 +33,7 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     public Command spindex() {
         return runOnce(() -> {
-            percentSpeed = 0.5;
+            percentSpeed = 1;
         }).withName("spindex");
     }
 

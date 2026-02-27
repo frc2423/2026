@@ -91,13 +91,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
 
-    public Command armDown() {
-        return Commands.sequence(
-                setAngle(Degrees.of(15)),
-                Commands.waitUntil(() -> isDown()),
-                set(-1)).withName("armDown");
-    }
-
     public Command armUp() {
         return setAngle(Degrees.of(90)).withName("armUp");
     }
