@@ -97,7 +97,7 @@ public class AutoCommands {
                 Commands.parallel(
                         shooter.prepareToShoot(),
                         Commands.waitSeconds(3).andThen(
-                                shooter.spinFeeder(() -> feederSpeed))));
+                                shooter.feed(() -> feederSpeed))));
     }
 
     public Command centerAuto() {

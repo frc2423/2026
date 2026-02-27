@@ -67,7 +67,7 @@ public class PassingCommands extends SubsystemBase {
                 shooter.revSpeedFromDAS(),
                 Commands.sequence(
                         Commands.waitSeconds(3),
-                        shooter.spinFeeder(() -> {
+                        shooter.feed(() -> {
                             return NTHelper.getDouble("/tuning/FeederSpeed", 0);
                         })));
 

@@ -25,6 +25,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 
@@ -91,8 +92,10 @@ public class ArmSubsystem extends SubsystemBase {
     ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
 
     public Command armDown() {
-        return setAngle(Degrees.of(15))
-                .until(() -> isDown()).andThen(set(-.1)).withName("armDown");
+        return Commands.sequence(
+                setAngle(Degrees.of(15)),
+                Commands.waitUntil(() -> isDown()),
+                set(-1)).withName("armDown");
     }
 
     public Command armUp() {

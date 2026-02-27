@@ -28,13 +28,6 @@ public class SubsystemMechanism2d {
             new MechanismLigament2d("part4", 0.05, 315),
     };
 
-    private final MechanismLigament2d[] rightShooterLigaments = {
-            new MechanismLigament2d("part1", 0.05, 45),
-            new MechanismLigament2d("part2", 0.05, 135),
-            new MechanismLigament2d("part3", 0.05, 225),
-            new MechanismLigament2d("part4", 0.05, 315),
-    };
-
     private final MechanismLigament2d[] leftSpindexerLigaments = {
             new MechanismLigament2d("part1", 0.05, 0),
             new MechanismLigament2d("part2", 0.05, 90),
@@ -56,16 +49,15 @@ public class SubsystemMechanism2d {
 
         addIntake();
         addShooter("leftShooter", leftShooterLigaments);
-        addShooter("rightShooter", rightShooterLigaments);
         addSpindexer(0, .55);
         addSpindexer(1, .7);
 
-        notifier.startPeriodic(.1);
+        notifier.startPeriodic(.02);
 
     }
 
     private void addIntake() {
-        var root = mechanism2d.getRoot("intake", .8, .3);
+        var root = mechanism2d.getRoot("intake", 1.4, .3);
         for (int i = 0; i < intakeLigaments.length; i++) {
             var ligament = intakeLigaments[i];
             ligament.setLineWeight(1);
@@ -76,7 +68,7 @@ public class SubsystemMechanism2d {
     }
 
     private void addShooter(String name, MechanismLigament2d[] ligaments) {
-        var root = mechanism2d.getRoot(name, -.2, 0.5);
+        var root = mechanism2d.getRoot(name, .4, 0.7);
         for (int i = 0; i < ligaments.length; i++) {
             var ligament = ligaments[i];
             ligament.setLineWeight(1);
@@ -102,20 +94,16 @@ public class SubsystemMechanism2d {
             ligament.setAngle(ligament.getAngle() - robot.intake.getSpeed() * 10);
         }
 
-        for (var ligament : leftShooterLigaments) {
-            ligament.setAngle(ligament.getAngle() - robot.shooterLeft.getSetpoint() * 10);
-        }
-
-        for (var ligament : rightShooterLigaments) {
-            ligament.setAngle(ligament.getAngle() - robot.shooterRight.getSetpoint() * 10);
-        }
-
         double twindexerSpeed = robot.twindexer.getSpeed();
         for (int i = 0; i < twindexerLigaments.length; i++) {
             for (var ligament : twindexerLigaments[i]) {
                 double angleChange = i == 0 ? -twindexerSpeed * 10 : twindexerSpeed * 10;
                 ligament.setAngle(ligament.getAngle() + angleChange);
             }
+        }
+
+        for (var ligament : leftShooterLigaments) {            
+            ligament.setAngle(ligament.getAngle() - robot.shooterLeft.getSetpoint() / 350.0);
         }
     }
 }

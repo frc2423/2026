@@ -1,11 +1,11 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.None;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
@@ -16,28 +16,17 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.NTHelper;
 import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FlippingUtil;
-import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.DAS;
-import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.subsystems.TwindexerSubsystem;
-import frc.robot.subsystems.DAS.MotorSettings;
 
 public class ShooterCommands extends SubsystemBase {
 
-  private ShooterSubsystem shooterR;
-  private ShooterSubsystem shooterL;
-  private FeederSubsystem feederR;
-  private FeederSubsystem feederL;
-  private TwindexerSubsystem twinDexer;
+  private final RobotContainer robot;
 
-  private CommandSwerveDrivetrain swerve;
   public static final DAS das = new DAS();
   private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
       .withHeadingPID(10, 0, 0);
@@ -47,15 +36,8 @@ public class ShooterCommands extends SubsystemBase {
   private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
   private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
-  public ShooterCommands(ShooterSubsystem shooterR, ShooterSubsystem shooterL, FeederSubsystem feederR,
-      FeederSubsystem feederL, TwindexerSubsystem twinDexer, CommandSwerveDrivetrain swerve) {
-    this.shooterR = shooterR;
-    this.shooterL = shooterL;
-    this.swerve = swerve;
-    this.feederR = feederR;
-    this.feederL = feederL;
-    this.twinDexer = twinDexer;
-
+  public ShooterCommands(RobotContainer robot) {
+    this.robot = robot;
   }
 
   public double getDistanceBetweenPoses(Pose2d a, Pose2d b) {
@@ -67,7 +49,7 @@ public class ShooterCommands extends SubsystemBase {
   @Logged
   public double getDistanceToHub() {
     // Pose2d = Pose2d.kZero.getTranslation().getDistance()
-    return getDistanceBetweenPoses(swerve.getPose(),
+    return getDistanceBetweenPoses(robot.drivetrain.getPose(),
         new Pose2d((PoseTransformUtils.isRedAlliance())
             ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
             : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
@@ -75,7 +57,7 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public Rotation2d getLookAngle(Pose2d targetPose) {
-    Pose2d currentPose = swerve.getPose();
+    Pose2d currentPose = robot.drivetrain.getPose();
     double distance = getDistanceBetweenPoses(currentPose, targetPose);
     if (distance < Units.inchesToMeters(8)) {
       return currentPose.getRotation();
@@ -89,8 +71,8 @@ public class ShooterCommands extends SubsystemBase {
 
   public Command actuallyLookAngle() {
     return actuallyLookAngle(new Pose2d((PoseTransformUtils.isRedAlliance())
-              ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
-              : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
+        ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+        : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
   }
 
   public Command actuallyLookAngle(Pose2d targetPose) {
@@ -99,7 +81,7 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public Command actuallyLookAngle(Supplier<Pose2d> targetPoseSupplier) {
-    return swerve.applyRequest(() -> {
+    return robot.drivetrain.applyRequest(() -> {
       double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
       double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
       Rotation2d targetHeading = getLookAngle(targetPoseSupplier.get());
@@ -116,25 +98,40 @@ public class ShooterCommands extends SubsystemBase {
     return command;
   }
 
-  public Command spinFeeder(Supplier<Double> setpoint) {
-
-    Command feedersAndTwindexer = Commands.parallel(
-        feederL.spin(() -> setpoint.get()),
-        feederR.spin(() -> setpoint.get()),
+  public Command feed(Supplier<Double> setpoint) {
+    return Commands.parallel(
+        robot.feederLeft.spin(() -> setpoint.get()),
+        robot.feederRight.spin(() -> setpoint.get()),
+        robot.arm.setAngle(Degrees.of(90)),
+        robot.intake.intake(),
         Commands.repeatingSequence(
-            twinDexer.spindex().until(() -> twinDexer.isJammed()).andThen(twinDexer.spindexBack()).withTimeout(0.5)));
+            robot.twindexer.spindex(),
+            Commands.waitUntil(() -> robot.twindexer.isJammed()),
+            robot.twindexer.spindexBack(),
+            Commands.waitSeconds(.5)));
+  }
 
-    return feedersAndTwindexer;
+  public Command stopFeeding() {
+    return Commands.sequence(
+        robot.feederLeft.stop(),
+        robot.feederRight.stop(),
+        robot.twindexer.stop(),
+        robot.intake.stop());
+  }
 
+  public Command stopShooting() {
+    return Commands.sequence(
+        robot.shooterLeft.stop(),
+        robot.shooterRight.stop());
   }
 
   public Command revSpeedFromDAS() {
-    Command left = shooterR.spinWithSetpoint(() -> {
+    Command left = robot.shooterLeft.spinWithSetpoint(() -> {
       double distance = this.getDistanceToHub(); // not real
       DAS.MotorSettings as = das.calculateAS(distance);
       return as.velocity;
     });
-    Command right = shooterL.spinWithSetpoint(() -> {
+    Command right = robot.shooterRight.spinWithSetpoint(() -> {
       double distance = this.getDistanceToHub(); // not real
       DAS.MotorSettings as = das.calculateAS(distance);
       return as.velocity;
@@ -144,9 +141,8 @@ public class ShooterCommands extends SubsystemBase {
 
   public Command rev(Supplier<Double> speed) {
     return Commands.parallel(
-      shooterL.spinWithSetpoint(speed),
-      shooterR.spinWithSetpoint(speed)
-    );
+        robot.shooterLeft.spinWithSetpoint(speed),
+        robot.shooterRight.spinWithSetpoint(speed));
   }
 
 }

@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -79,22 +78,30 @@ public class RobotContainer {
         public final BLine bline = new BLine(drivetrain);
 
         @Logged
-        public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight,
-                        twindexer, drivetrain);
+        public final ShooterCommands shooterCommands = new ShooterCommands(this);
 
-        public final PassingCommands passingCommands = new PassingCommands(drivetrain, bline, intake, arm, shooter,
+        public final PassingCommands passingCommands = new PassingCommands(drivetrain, bline, intake, arm,
+                        shooterCommands,
                         driverController);
         public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
         public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
-        public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooter, drivetrain, bline);
+        public final AutoCommands auto = new AutoCommands(arm, driveShortestPath, intake, shooterCommands, drivetrain,
+                        bline);
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
         public RobotContainer() {
+                SmartDashboard.putData("subsystems/arm", arm);
+                SmartDashboard.putData("subsystems/feederLeft", feederLeft);
+                SmartDashboard.putData("subsystems/feederRight", feederRight);
+                SmartDashboard.putData("subsystems/intake", intake);
+                SmartDashboard.putData("subsystems/shooterLeft", shooterLeft);
+                SmartDashboard.putData("subsystems/shooterRight", shooterRight);
+                SmartDashboard.putData("subsystems/twindexer", twindexer);
+
                 configureBindings();
-                SmartDashboard.putData("armSubsystem", arm);
                 NTHelper.setDouble("/tuning/FeederSpeed", .7);
                 NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
                 NTHelper.setBoolean("/tuning/snakeMode", false);
@@ -162,43 +169,28 @@ public class RobotContainer {
                 driverController.b().onTrue(arm.armUp());
                 driverController.a().onTrue(arm.armDown());
 
-                // Shooting and passing commands
-                Command feederCommand = Commands.parallel(
-                                shooter.spinFeeder(() -> {
-                                        return NTHelper.getDouble("/tuning/FeederSpeed", 0);
-                                }),
-                                arm.setAngle(Degrees.of(90)),
-                                intake.intake());
+                driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
+                                .onFalse(shooterCommands.stopShooting());
 
-                driverController.rightTrigger(0.25).whileTrue(shooter.prepareToShoot());
-                driverController.rightBumper().whileTrue(feederCommand).onFalse(intake.stop());
-                driverController.leftBumper().whileTrue(passingCommands.trenchPass());
-                driverController.leftTrigger().whileTrue(passingCommands.aimToPass());
-
-                // driverController.leftTrigger(0.25)
-                // .whileTrue(feederLeft.spin(() -> 0.5).alongWith(feederRight.spin(() ->
-                // 0.5)));
-                // driverController.leftBumper().whileTrue(
-                // shooterLeft.spinWithSetpoint(() -> -200.0)
-                // .alongWith(shooterRight.spinWithSetpoint(() -> 200.0)));
+                driverController.rightBumper()
+                                .whileTrue(shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)))
+                                .onFalse(shooterCommands.stopFeeding());
+                driverController.leftBumper().whileTrue(passingCommands.trenchPass()).onFalse(intake.stop());
+                driverController.leftTrigger().whileTrue(passingCommands.aimToPass())
+                                .onFalse(shooterCommands.stopShooting());
 
         }
 
         private void configureOperatorControllerBindings() {
 
-                Command feedersAndTwindexer = Commands.parallel(
-                                feederLeft.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0.7)),
-                                feederRight.spin(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0.7)),
-                                twindexer.spindex(),
-                                arm.setAngle(Degrees.of(90)),
-                                intake.intake());
+                operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(shooterCommands.feed(() -> {
+                        return NTHelper.getDouble("/tuning/FeederSpeed", 0.7);
+                })))
+                                .onFalse(shooterCommands.stopFeeding());
 
-                operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(feedersAndTwindexer))
-                                .onFalse(intake.stop());
-
-                operatorController.rightBumper().whileTrue(Commands.parallel(
-                                shooterLeft.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)),
-                                shooterRight.spinWithSetpoint(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0))));
+                operatorController.rightBumper()
+                                .whileTrue(shooterCommands.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
+                                .onFalse(shooterCommands.stopShooting());
 
                 operatorController.a().whileTrue(arm.armDown());
                 operatorController.b().whileTrue(arm.armUp());
@@ -207,6 +199,7 @@ public class RobotContainer {
 
                 operatorController.povLeft().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
                 operatorController.povRight().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
+
                 // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() ->
                 // 0.7).alongWith(feederRight.spinWithSetpoint(() ->
                 // 0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
