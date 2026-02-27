@@ -98,6 +98,9 @@ public class RobotContainer {
         public RobotContainer() {
                 configureBindings();
                 SmartDashboard.putData("armSubsystem", arm);
+                SmartDashboard.putData("feederLeftSubsystem", feederLeft);
+                SmartDashboard.putData("feederRightSubsystem", feederRight);
+                SmartDashboard.putData("twindexerSubsystem", twindexer);
                 NTHelper.setDouble("/tuning/FeederSpeed", .7);
                 NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
                 NTHelper.setBoolean("/tuning/snakeMode", false);

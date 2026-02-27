@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -83,12 +84,12 @@ public class ShooterCommands extends SubsystemBase {
 
   public Command actuallyLookAngle() {
     return actuallyLookAngle(new Pose2d((PoseTransformUtils.isRedAlliance())
-              ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
-              : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero));
+        ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+        : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero)).until(() -> isFacingHub());
   }
 
   public Command actuallyLookAngle(Pose2d targetPose) {
-    return actuallyLookAngle(() -> targetPose);
+    return actuallyLookAngle(() -> targetPose).until(() -> isFacingPose(targetPose));
 
   }
 
@@ -105,9 +106,24 @@ public class ShooterCommands extends SubsystemBase {
     });
   }
 
+  public boolean isFacingHub() {
+    return getLookAngle(new Pose2d((PoseTransformUtils.isRedAlliance())
+        ? FlippingUtil.flipFieldPosition(FieldConstants.Hub.topCenterPoint.toTranslation2d())
+        : FieldConstants.Hub.topCenterPoint.toTranslation2d(), Rotation2d.kZero)).minus(swerve.getPose().getRotation())
+        .getDegrees() < 2.0;
+  }
+
+  public boolean isFacingPose(Pose2d targetPose) {
+    return getLookAngle(targetPose).minus(swerve.getPose().getRotation()).getDegrees() < 2.0;
+  }
+
   public Command prepareToShoot() {
     Command command = Commands.parallel(actuallyLookAngle(), revSpeedFromDAS());
     return command;
+  }
+
+  public Command prepareToShootWithDeadline() {
+    return Commands.deadline(actuallyLookAngle(), revSpeedFromDAS());
   }
 
   public Command spinFeeder(Supplier<Double> setpoint) {
@@ -119,6 +135,14 @@ public class ShooterCommands extends SubsystemBase {
             twinDexer.spindex().until(() -> twinDexer.isJammed()).andThen(twinDexer.spindexBack()).withTimeout(0.5)));
 
     return feedersAndTwindexer;
+
+  }
+
+  public Command stopFeeder() {
+    return Commands.parallel(
+        feederL.stop(),
+        feederR.stop(),
+        twinDexer.stop());
 
   }
 
@@ -138,9 +162,8 @@ public class ShooterCommands extends SubsystemBase {
 
   public Command rev(Supplier<Double> speed) {
     return Commands.parallel(
-      shooterL.spinWithSetpoint(speed),
-      shooterR.spinWithSetpoint(speed)
-    );
+        shooterL.spinWithSetpoint(speed),
+        shooterR.spinWithSetpoint(speed));
   }
 
 }

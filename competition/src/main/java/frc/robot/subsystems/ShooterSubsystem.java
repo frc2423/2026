@@ -88,9 +88,9 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double percentSpeed = motor.get();
+        double speed = motor.getClosedLoopController().getSetpoint();
         for (var ligament : mechanismLigaments) {
-            ligament.setAngle(ligament.getAngle() - percentSpeed * 10);
+            ligament.setAngle(ligament.getAngle() - speed/350.0);
         }
     }
 

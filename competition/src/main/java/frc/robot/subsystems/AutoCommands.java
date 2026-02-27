@@ -168,16 +168,21 @@ public class AutoCommands {
                 Commands.deadline(
                         centerToTrench,
                         shooter.rev(() -> 3000.0)),
-                shooter.prepareToShoot(),
-                shooter.spinFeeder(() -> feederSpeed),
+                shooter.prepareToShootWithDeadline(),
+                shooter.spinFeeder(() -> feederSpeed).withTimeout(3),
+                shooter.stopFeeder().withTimeout(.5),
+                // Commands.print("SO BORING"),
                 Commands.deadline(
                         trenchToLeftovers,
-                        Commands.waitUntil(() -> trenchToLeftovers.getCurrentTranslationElementIndex() >= 4)
+                        Commands.waitUntil(() -> trenchToLeftovers.getCurrentTranslationElementIndex() >= 2)
                                 .andThen(Commands.parallel(intake.intake(), arm.armDown()))),
                 Commands.deadline(
                         leftoversToTrench,
-                        Commands.waitUntil(() -> leftoversToTrench.getCurrentTranslationElementIndex() >= 4)
-                                .andThen(Commands.parallel(intake.intake(), arm.armDown()))));
+                        Commands.waitUntil(() -> leftoversToTrench.getCurrentTranslationElementIndex() >= 3)
+                                .andThen(intake.stop())),
+                shooter.prepareToShootWithDeadline(),
+                shooter.spinFeeder(() -> feederSpeed).withTimeout(3)
+                );
         // return Commands.sequence(
         // Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex()
         // == 1)

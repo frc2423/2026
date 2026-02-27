@@ -42,6 +42,7 @@ public class TwindexerSubsystem extends SubsystemBase {
     private final MechanismLigament2d[][] allLigaments = { mechanismLigaments, mechanismLigaments2 };
 
     public TwindexerSubsystem() {
+        super();
         setCurrentLimit(100, 80);
         motorConfig.idleMode(IdleMode.kCoast);
 
@@ -84,7 +85,7 @@ public class TwindexerSubsystem extends SubsystemBase {
     public Command stop() {
         return run(() -> {
             motor.set(speedLimiter.calculate(0));
-        });
+        }).withName("twindexerStop");
     }
 
     @Logged
@@ -115,6 +116,7 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     @Override
     public void initSendable(SendableBuilder builder) {
+        super.initSendable(builder);
         builder.addDoubleProperty("current", () -> motor.getOutputCurrent(), null);
         builder.addDoubleProperty("motor_speed", () -> motor.get(), null);
 
