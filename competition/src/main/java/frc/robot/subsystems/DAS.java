@@ -6,8 +6,8 @@ import java.util.TreeMap;
 // DAS means distance angle speed table
 public class DAS {
     public class MotorSettings {
-        double angle; // in degrees
-        double velocity; // in volts
+        public final double angle; // in degrees
+        public final double velocity; // in volts
 
         public MotorSettings(double angle, double velocity) {
             this.angle = angle;
