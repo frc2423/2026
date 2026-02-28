@@ -43,9 +43,9 @@ public class BLine {
                                     chassisSpeeds.omegaRadiansPerSecond);
                     swerve.setControl(swerveRequest);
                 },
-                new PIDController(5.0, 0.0, 0.0),
                 new PIDController(3.0, 0.0, 0.0),
-                new PIDController(3.0, 0.0, 0.0)); // .withDefaultShouldFlip();
+                new PIDController(2.0, 0.0, 0.0),
+                new PIDController(1.0, 0.0, 0.0)); // .withDefaultShouldFlip();
 
         FollowPath.setDoubleLoggingConsumer(pair -> {
             NTHelper.setDouble("/bline/double/" + pair.getFirst(), pair.getSecond());

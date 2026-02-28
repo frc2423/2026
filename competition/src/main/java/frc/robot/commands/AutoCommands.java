@@ -1,7 +1,10 @@
 package frc.robot.commands;
 
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,6 +16,7 @@ import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.PathConstraints;
+import frc.robot.lib.BLine.Path.PathElement;
 import frc.robot.lib.BLine.Path.Waypoint;
 
 public class AutoCommands {
@@ -146,10 +150,29 @@ public class AutoCommands {
     }
 
     public Command centerTwiceAuto() {
-        FollowPath trenchToCenter = robot.bline.pathBuilder.build(new Path("Trench-to-Center"));
-        FollowPath centerToTrench = robot.bline.pathBuilder.build(new Path("Center-to-Trench"));
-        FollowPath trenchToLeftovers = robot.bline.pathBuilder.build(new Path("Trench-to-Leftovers"));
-        FollowPath leftoversToTrench = robot.bline.pathBuilder.build(new Path("Leftovers-to-Trench"));
+
+        Path trenchToCenterPath = new Path("Trench-to-Center");
+        Path centerToTrenchPath = new Path("Center-to-Trench");
+        Path trenchToLeftoversPath = new Path("Trench-to-Leftovers");
+        Path leftoversToTrenchPath = new Path("Leftovers-to-Trench");
+
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils.isRedAlliance()) {
+            flopPath(trenchToCenterPath);
+            flopPath(centerToTrenchPath);
+            flopPath(trenchToLeftoversPath);
+            flopPath(leftoversToTrenchPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            trenchToCenterPath.flip();
+            centerToTrenchPath.flip();
+            trenchToLeftoversPath.flip();
+            leftoversToTrenchPath.flip();
+        }
+
+        FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
+        FollowPath centerToTrench = robot.bline.pathBuilder.build(centerToTrenchPath);
+        FollowPath trenchToLeftovers = robot.bline.pathBuilder.build(trenchToLeftoversPath);
+        FollowPath leftoversToTrench = robot.bline.pathBuilder.build(leftoversToTrenchPath);
 
         Command goToCenterAndIntake = Commands.deadline(
                 trenchToCenter,
@@ -181,7 +204,10 @@ public class AutoCommands {
                 robot.shooterCommands.scoreDeadline(3),
                 Commands.print("STOP FEEDING"),
                 robot.shooterCommands.stopFeeding(),
+                Commands.print("STOP SHOOTING"),
                 robot.shooterCommands.stopShooting(),
+                // robot.shooterCommands.lookAtAngle(Rotation2d.fromDegrees(0)),
+                Commands.print("THE REST"),
                 trenchToLeftoversAndIntake,
                 leftoversToTrenchAndIntake,
                 robot.shooterCommands.scoreDeadline(3));
@@ -220,5 +246,61 @@ public class AutoCommands {
         Pose2d flippedPose2d = needsToFlip ? new Pose2d(unflippedPose2d.getX(), flippedY, flippedRotation2d)
                 : unflippedPose2d;
         return flippedPose2d;
+    }
+
+    /*
+     * *****name should be changed*****
+     * flips the pose over the x axis.
+     */
+    public Pose2d flop(Pose2d unflippedPose2d) {
+        boolean needsToFlip = true;
+        if (PoseTransformUtils.isRedAlliance()) {
+            needsToFlip = !needsToFlip;
+        }
+        double flippedY = PoseTransformUtils.FIELD_WIDTH_METERS - unflippedPose2d.getY();
+        Rotation2d flippedRotation2d = new Rotation2d((2 * Math.PI) - unflippedPose2d.getRotation().getRadians());
+        Pose2d flippedPose2d = needsToFlip ? new Pose2d(unflippedPose2d.getX(), flippedY, flippedRotation2d)
+                : unflippedPose2d;
+        return flippedPose2d;
+    }
+
+    public Rotation2d flop(Rotation2d unflippedRotation2d) {
+        return new Rotation2d((2 * Math.PI) - unflippedRotation2d.getRadians());
+    }
+
+    public Translation2d flop(Translation2d unflippedTranslation2d) {
+        double flippedY = PoseTransformUtils.FIELD_WIDTH_METERS - unflippedTranslation2d.getY();
+        return new Translation2d(unflippedTranslation2d.getX(), flippedY);
+    }
+
+    public void flopPath(Path unflippedPath) {
+        List<PathElement> pathElements = unflippedPath.getPathElements();
+        for (int i = 0; i < pathElements.size(); i++) {
+            Path.PathElement element = pathElements.get(i);
+            if (element instanceof Path.TranslationTarget) {
+                pathElements.set(i, new Path.TranslationTarget(
+                        flop(((Path.TranslationTarget) element).translation()),
+                        ((Path.TranslationTarget) element).intermediateHandoffRadiusMeters()));
+            } else if (element instanceof Path.RotationTarget) {
+                pathElements.set(i, new Path.RotationTarget(
+                        flop(((Path.RotationTarget) element).rotation()),
+                        ((Path.RotationTarget) element).t_ratio(),
+                        ((Path.RotationTarget) element).profiledRotation()));
+            } else if (element instanceof Waypoint) {
+                pathElements.set(i, new Waypoint(
+                        new Path.TranslationTarget(
+                                flop(((Path.Waypoint) element).translationTarget().translation()),
+                                ((Path.Waypoint) element).translationTarget().intermediateHandoffRadiusMeters()),
+                        new Path.RotationTarget(
+                                flop(((Path.Waypoint) element).rotationTarget().rotation()),
+                                ((Path.Waypoint) element).rotationTarget().t_ratio(),
+                                ((Path.Waypoint) element).rotationTarget().profiledRotation())));
+            } else if (element instanceof Path.EventTrigger) {
+                pathElements.set(i, new Path.EventTrigger(
+                        ((Path.EventTrigger) element).t_ratio(),
+                        ((Path.EventTrigger) element).libKey()));
+            }
+        }
+        unflippedPath.setPathElements(pathElements);
     }
 }
