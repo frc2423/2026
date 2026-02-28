@@ -112,9 +112,9 @@ public class ShooterCommands extends SubsystemBase {
       robotAngle = Degrees.of(robotAngle.plus(Degrees.of(360)).in(Degrees));
     }
     if (targetAngle.in(Degrees) < 0) {
-      targetAngle=Degrees.of(targetAngle.plus(Degrees.of(360)).in(Degrees));
+      targetAngle = Degrees.of(targetAngle.plus(Degrees.of(360)).in(Degrees));
     }
-    System.out.println("targetAngle: " + targetAngle.in(Degrees) + ", robotAngle: " + robotAngle.in(Degrees));
+    // System.out.println("targetAngle: " + targetAngle.in(Degrees) + ", robotAngle: " + robotAngle.in(Degrees));
     boolean isNear = targetAngle.isNear(robotAngle, Degrees.of(3));
     return isNear;
   }
@@ -137,7 +137,7 @@ public class ShooterCommands extends SubsystemBase {
         prepareToShoot().until(() -> isFacingHub()),
         Commands.parallel(
             revSpeedFromDAS(),
-            feed(() -> 1.0)).withTimeout(shootingTime));
+            feed(() -> 0.25)).withTimeout(shootingTime));
   }
 
   public Command feed(Supplier<Double> setpoint) {

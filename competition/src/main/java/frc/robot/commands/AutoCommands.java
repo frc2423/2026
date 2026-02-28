@@ -18,13 +18,14 @@ import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.PathConstraints;
 import frc.robot.lib.BLine.Path.PathElement;
 import frc.robot.lib.BLine.Path.Waypoint;
+import frc.robot.subsystems.FloppingUtil;
 
 public class AutoCommands {
     private final RobotContainer robot;
 
     private final PathConstraints constraints = new PathConstraints()
-            .setMaxVelocityMetersPerSec(2);
-    public final double feederSpeed = 10;
+            .setMaxVelocityMetersPerSec(1);
+    public final double feederSpeed = 0.25*10;
 
     // @Logged
     private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -62,7 +63,7 @@ public class AutoCommands {
     }
 
     public Command startIntaking() {
-        return Commands.deadline(
+        return Commands.sequence(
                 robot.intakeCommands.armDown(),
                 robot.intake.intake());
     }
@@ -93,51 +94,92 @@ public class AutoCommands {
     }
 
     public Command centerAuto() {
+        Path trenchToCenterPath = new Path("Trench-to-Center");
+        Path centerToTrenchPath = new Path("Center-to-Trench");
 
-        Command driveThroughTrench = robot.driveShortestPath.driveShortestPath(
-                flipPoseBasedOnRobotPose(new Pose2d(8, 3, Rotation2d.fromDegrees(90))));
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils.isRedAlliance()) {
+            FloppingUtil.flopPath(trenchToCenterPath);
+            FloppingUtil.flopPath(centerToTrenchPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            trenchToCenterPath.flip();
+            centerToTrenchPath.flip();
+        }
 
-        Command driveIntoFuel = robot.driveShortestPath.driveShortestPath(
-                flipPoseBasedOnRobotPose(new Pose2d(8, 1.3, Rotation2d.fromDegrees(90))));
+        FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
+        FollowPath centerToTrench = robot.bline.pathBuilder.build(centerToTrenchPath);
+
+        Command goToCenterAndIntake = Commands.deadline(
+                trenchToCenter,
+                Commands.sequence(
+                        Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake()));
 
         return Commands.sequence(
-                startIntaking().withDeadline(Commands.sequence(driveThroughTrench, driveIntoFuel)),
+                goToCenterAndIntake,
                 robot.intake.stop(),
-                goToHubAndShoot());
-
+                Commands.print("CENTER TO TRENCH"),
+                Commands.deadline(
+                        centerToTrench,
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                Commands.print("SCORE DEADLINE"),
+                robot.shooterCommands.scoreDeadline(3),
+                Commands.print("STOP FEEDING"),
+                robot.shooterCommands.stopFeeding(),
+                Commands.print("STOP SHOOTING"),
+                robot.shooterCommands.stopShooting());
     }
 
     public Command outpostAuto() {
+        Path outpost = new Path(constraints,
+                new Waypoint(new Pose2d(1.0, 0.70, Rotation2d.fromDegrees(180))),
+                new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))));
+        if (PoseTransformUtils.isRedAlliance()) {
+            outpost.flip();
+        }
         return Commands.sequence(
-                robot.driveShortestPath.driveShortestPath(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))),
+                robot.bline.pathBuilder.build(outpost),
                 Commands.waitSeconds(2),
                 goToHubAndShoot());
     }
 
     public Command outpostAndDepotAuto() {
-        Path path = new Path(constraints,
+        Path depot = new Path(constraints,
                 new Waypoint(new Pose2d(2.25, 2, Rotation2d.fromDegrees(180))),
                 new Waypoint(new Pose2d(2.25, 5, Rotation2d.fromDegrees(180))),
                 new Waypoint(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180))));
+        Path outpost = new Path(constraints,
+                new Waypoint(new Pose2d(1.0, 0.70, Rotation2d.fromDegrees(180))),
+                new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))));
+        Pose2d shoot = new Pose2d(0.4, 6, Rotation2d.fromDegrees(180));
         if (PoseTransformUtils.isRedAlliance()) {
-            path.flip();
+            outpost.flip();
+            depot.flip();
+            FlippingUtil.flipFieldPose(shoot);
         }
+
         return Commands.sequence(
-                robot.bline.pathBuilder.build(new Path(constraints,
-                        new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))))),
+                robot.bline.pathBuilder.build(outpost),
                 Commands.waitSeconds(2),
-                robot.bline.pathBuilder.build(path),
+                robot.bline.pathBuilder.build(depot),
                 startIntaking(),
-                robot.driveShortestPath.driveShortestPath(new Pose2d(0.4, 6, Rotation2d.fromDegrees(180))),
+                robot.driveShortestPath.driveShortestPath(shoot),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
 
     public Command depotAuto() {
+        Pose2d depot = new Pose2d(1.25, 6, Rotation2d.fromDegrees(180));
+        Pose2d shoot = new Pose2d(0.4, 6, Rotation2d.fromDegrees(180));
+        if (PoseTransformUtils.isRedAlliance()) {
+            FlippingUtil.flipFieldPose(depot);
+            FlippingUtil.flipFieldPose(shoot);
+        }
         return Commands.sequence(
-                startIntaking().withDeadline(
-                        robot.driveShortestPath.driveShortestPath(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180)))),
-                robot.driveShortestPath.driveShortestPath(new Pose2d(0.4, 6, Rotation2d.fromDegrees(180))),
+                robot.driveShortestPath.driveShortestPath(depot),
+                startIntaking(),
+                robot.driveShortestPath.driveShortestPath(shoot),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
@@ -157,10 +199,10 @@ public class AutoCommands {
         Path leftoversToTrenchPath = new Path("Leftovers-to-Trench");
 
         if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils.isRedAlliance()) {
-            flopPath(trenchToCenterPath);
-            flopPath(centerToTrenchPath);
-            flopPath(trenchToLeftoversPath);
-            flopPath(leftoversToTrenchPath);
+            FloppingUtil.flopPath(trenchToCenterPath);
+            FloppingUtil.flopPath(centerToTrenchPath);
+            FloppingUtil.flopPath(trenchToLeftoversPath);
+            FloppingUtil.flopPath(leftoversToTrenchPath);
         }
         if (PoseTransformUtils.isRedAlliance()) {
             trenchToCenterPath.flip();
@@ -246,61 +288,5 @@ public class AutoCommands {
         Pose2d flippedPose2d = needsToFlip ? new Pose2d(unflippedPose2d.getX(), flippedY, flippedRotation2d)
                 : unflippedPose2d;
         return flippedPose2d;
-    }
-
-    /*
-     * *****name should be changed*****
-     * flips the pose over the x axis.
-     */
-    public Pose2d flop(Pose2d unflippedPose2d) {
-        boolean needsToFlip = true;
-        if (PoseTransformUtils.isRedAlliance()) {
-            needsToFlip = !needsToFlip;
-        }
-        double flippedY = PoseTransformUtils.FIELD_WIDTH_METERS - unflippedPose2d.getY();
-        Rotation2d flippedRotation2d = new Rotation2d((2 * Math.PI) - unflippedPose2d.getRotation().getRadians());
-        Pose2d flippedPose2d = needsToFlip ? new Pose2d(unflippedPose2d.getX(), flippedY, flippedRotation2d)
-                : unflippedPose2d;
-        return flippedPose2d;
-    }
-
-    public Rotation2d flop(Rotation2d unflippedRotation2d) {
-        return new Rotation2d((2 * Math.PI) - unflippedRotation2d.getRadians());
-    }
-
-    public Translation2d flop(Translation2d unflippedTranslation2d) {
-        double flippedY = PoseTransformUtils.FIELD_WIDTH_METERS - unflippedTranslation2d.getY();
-        return new Translation2d(unflippedTranslation2d.getX(), flippedY);
-    }
-
-    public void flopPath(Path unflippedPath) {
-        List<PathElement> pathElements = unflippedPath.getPathElements();
-        for (int i = 0; i < pathElements.size(); i++) {
-            Path.PathElement element = pathElements.get(i);
-            if (element instanceof Path.TranslationTarget) {
-                pathElements.set(i, new Path.TranslationTarget(
-                        flop(((Path.TranslationTarget) element).translation()),
-                        ((Path.TranslationTarget) element).intermediateHandoffRadiusMeters()));
-            } else if (element instanceof Path.RotationTarget) {
-                pathElements.set(i, new Path.RotationTarget(
-                        flop(((Path.RotationTarget) element).rotation()),
-                        ((Path.RotationTarget) element).t_ratio(),
-                        ((Path.RotationTarget) element).profiledRotation()));
-            } else if (element instanceof Waypoint) {
-                pathElements.set(i, new Waypoint(
-                        new Path.TranslationTarget(
-                                flop(((Path.Waypoint) element).translationTarget().translation()),
-                                ((Path.Waypoint) element).translationTarget().intermediateHandoffRadiusMeters()),
-                        new Path.RotationTarget(
-                                flop(((Path.Waypoint) element).rotationTarget().rotation()),
-                                ((Path.Waypoint) element).rotationTarget().t_ratio(),
-                                ((Path.Waypoint) element).rotationTarget().profiledRotation())));
-            } else if (element instanceof Path.EventTrigger) {
-                pathElements.set(i, new Path.EventTrigger(
-                        ((Path.EventTrigger) element).t_ratio(),
-                        ((Path.EventTrigger) element).libKey()));
-            }
-        }
-        unflippedPath.setPathElements(pathElements);
     }
 }
