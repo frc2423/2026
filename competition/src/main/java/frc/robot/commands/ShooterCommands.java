@@ -142,7 +142,7 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public Command feed(Supplier<Double> setpoint) {
-    return Commands.parallel(
+    Command feed = Commands.parallel(
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
         robot.arm.setAngle(Degrees.of(90)),
@@ -152,6 +152,11 @@ public class ShooterCommands extends SubsystemBase {
             Commands.waitUntil(() -> robot.twindexer.isJammed()),
             robot.twindexer.spindexBack(),
             Commands.waitSeconds(.5)));
+
+    return Commands.waitUntil(() -> {
+      return robot.shooterLeft.isAtSetpoint();
+    }).andThen(feed);
+
   }
 
   public Command stopFeeding() {
