@@ -114,7 +114,8 @@ public class ShooterCommands extends SubsystemBase {
     if (targetAngle.in(Degrees) < 0) {
       targetAngle = Degrees.of(targetAngle.plus(Degrees.of(360)).in(Degrees));
     }
-    // System.out.println("targetAngle: " + targetAngle.in(Degrees) + ", robotAngle: " + robotAngle.in(Degrees));
+    // System.out.println("targetAngle: " + targetAngle.in(Degrees) + ", robotAngle:
+    // " + robotAngle.in(Degrees));
     boolean isNear = targetAngle.isNear(robotAngle, Degrees.of(3));
     return isNear;
   }
@@ -178,7 +179,14 @@ public class ShooterCommands extends SubsystemBase {
       DAS.MotorSettings as = das.calculateAS(distance);
       return as.velocity;
     });
-    return Commands.parallel(left, right);
+
+    Command hood = robot.hood.setAngle(() -> {
+      double distance = this.getDistanceToHub(); // not real
+      DAS.MotorSettings as = das.calculateAS(distance);
+      return Degrees.of(as.angle);
+    });
+
+    return Commands.parallel(left, right, hood);
   }
 
   public Command rev(Supplier<Double> speed) {

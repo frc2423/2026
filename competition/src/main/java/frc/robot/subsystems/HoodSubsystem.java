@@ -7,6 +7,9 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.Seconds;
 import static edu.wpi.first.units.Units.Volts;
+
+import java.util.function.Supplier;
+
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -35,7 +38,7 @@ public class HoodSubsystem extends SubsystemBase {
             .withControlMode(ControlMode.CLOSED_LOOP)
             // .withFeedforward(new SimpleMotorFeedforward(1, 1))
             // Feedback Constants (PID Constants)
-            .withClosedLoopController(1000, 0, 0)
+            .withClosedLoopController(1, 0, 0)
             .withSimClosedLoopController(0, 0, 0)
             // Feedforward Constants
             // Telemetry name and verbosity level
@@ -73,6 +76,12 @@ public class HoodSubsystem extends SubsystemBase {
     public Command setAngle(Angle angle) {
         return runOnce(() -> {
             setpointAngle = angle;
+        }).withName("setHoodAngle");
+    }
+
+    public Command setAngle(Supplier<Angle> setpoint) {
+        return run(() -> {
+            setpointAngle = setpoint.get();
         }).withName("setHoodAngle");
     }
 

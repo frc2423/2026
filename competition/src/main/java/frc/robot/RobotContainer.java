@@ -162,6 +162,8 @@ public class RobotContainer {
 
                 drivetrain.registerTelemetry(logger::telemeterize);
 
+                RobotModeTriggers.disabled().onTrue(disableEverything());
+
         }
 
         private void configureDriveControllerBindings() {
@@ -170,7 +172,8 @@ public class RobotContainer {
 
                 // Intake commands
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
-                driverController.button(10).whileTrue(intake.intake()).onFalse(intake.stop());
+                driverController.button(10).whileTrue(intakeCommands.armDown().andThen(intake.intake()))
+                                .onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
                 driverController.a().onTrue(intakeCommands.armDown());
                 // driverController.x().onTrue(hood.set(.1)).onFalse(hood.set(0));
@@ -231,4 +234,19 @@ public class RobotContainer {
         public Command getAutonomousCommand() {
                 return auto.getAuto();
         }
+
+        public Command disableEverything() {
+                Command command = Commands.parallel(
+                        arm.set(0),
+                        feederLeft.stop(), 
+                        feederRight.stop(), 
+                        hood.set(0),
+                        intake.stop(), 
+                        shooterLeft.stop(), 
+                        shooterRight.stop(), 
+                        twindexer.stop()
+                ).ignoringDisable(true);
+                return command;
+        }
+
 }
