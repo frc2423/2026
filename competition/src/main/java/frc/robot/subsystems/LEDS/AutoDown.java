@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Timer;
 
 public class AutoDown implements Led {
-    private static final double DURATION = 32.0; // Total seconds before LEDs turn off
+    private static final double DURATION = 20.0; // Total seconds before LEDs turn off
     private final Timer timer = new Timer();
 
     public AutoDown() {

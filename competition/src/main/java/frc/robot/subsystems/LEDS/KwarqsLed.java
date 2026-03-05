@@ -44,76 +44,83 @@ public class KwarqsLed extends SubsystemBase {
     }
 
     public Command disable() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             // System.out.println("SEEES DARK!!!");
 
             ledController.set("dark");
         }).ignoringDisable(true);
-
-        command.addRequirements(this);
         return command;
     }
 
     public Command setYellow() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             // System.out.println("SEEES YELLOW!!!");
             ledController.set("yellow");
         }).ignoringDisable(true);
-        command.addRequirements(this);
+        return command;
+    }
+
+     public Command setAutoDown() {
+        var command = run(() -> {
+            // System.out.println("SEEES YELLOW!!!");
+            ledController.set("AutoDown");
+        }).ignoringDisable(true);
+        return command;
+    }
+
+    public Command setRainbow() {
+        var command = run(() -> {
+            // System.out.println("SEEES YELLOW!!!");
+            ledController.set("rainbow");
+        }).ignoringDisable(true);
         return command;
     }
 
     public Command setRedCycle() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             // System.out.println("SEEES YELLOW!!!");
             ledController.set("RedCycle");
         }).ignoringDisable(true);
-        command.addRequirements(this);
         return command;
     }
 
     public Command setBlueCycle() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             // System.out.println("SEEES YELLOW!!!");
             ledController.set("BlueCycle");
         }).ignoringDisable(true);
-        command.addRequirements(this);
         return command;
     }
 
     public Command setGreenCycle() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             // System.out.println("SEEES YELLOW!!!");
             ledController.set("GreenCycle");
         }).ignoringDisable(true);
-        command.addRequirements(this);
         return command;
     }
 
     public Command setOrange() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             // System.out.println("SEEES YELLOW!!!");
             ledController.set("yellow");
         }).ignoringDisable(true);
         // command.ignoringDisable(?true);
-        command.addRequirements(this);
         return command;
     }
 
     public Command setPurple() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             ledController.set("purple");
         }).ignoringDisable(true);
-        command.addRequirements(this);
         return command;
     }
 
     public Command setGreen() {
-        var command = Commands.run(() -> {
+        var command = run(() -> {
             // System.out.println("!!!!!!!!");
             ledController.set("green");
         }).ignoringDisable(true);
-        command.addRequirements(this);
         return command;
     }
 
