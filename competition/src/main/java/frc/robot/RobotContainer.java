@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
@@ -33,7 +34,9 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterCommands;
 import frc.robot.subsystems.PassingCommands;
 import frc.robot.subsystems.TwindexerSubsystem;
+import frc.robot.subsystems.LEDS.KwarqsLed;
 import frc.robot.utils.ShootOnMove;
+import yams.mechanisms.swerve.SwerveDrive;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class RobotContainer {
@@ -85,6 +88,8 @@ public class RobotContainer {
 
         public final BLine bline = new BLine(drivetrain);
 
+        public KwarqsLed kwarqsLed = new KwarqsLed();
+
         @Logged
         public final ShooterCommands shooter = new ShooterCommands(shooterRight, shooterLeft, feederLeft, feederRight,
                         twindexer, drivetrain);
@@ -101,6 +106,13 @@ public class RobotContainer {
                 NTHelper.setDouble("/tuning/FeederSpeed", .7);
                 NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
                 NTHelper.setBoolean("/tuning/snakeMode", false);
+
+        }
+
+        private void configureLeds(){
+
+                new Trigger(() -> drivetrain.isSeeingAprilTag()).whileTrue(kwarqsLed.setGreenCycle());
+
 
         }
 
@@ -150,6 +162,7 @@ public class RobotContainer {
                 configureDriveControllerBindings();
                 configureOperatorControllerBindings();
                 configureShortestPathBindings();
+                configureLeds();
 
                 drivetrain.registerTelemetry(logger::telemeterize);
 
