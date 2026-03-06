@@ -83,7 +83,7 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public Command lookAtPose() {
-    return lookAtPose(getHubPose());
+    return lookAtPose(() -> getHubPose());
   }
 
   public Command lookAtPose(Pose2d targetPose) {
