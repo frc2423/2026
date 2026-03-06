@@ -15,16 +15,19 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PassingCommands;
 import frc.robot.commands.ShooterCommands;
 import frc.robot.generated.TunerConstants;
+import frc.robot.generated.PoseTransformUtils;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -32,9 +35,10 @@ import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TwindexerSubsystem;
+import frc.robot.subsystems.LEDS.KwarqsLed;
 import frc.robot.subsystems.HoodSubsystem;
-import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.utils.ShootOnMove;
 import frc.robot.telemetry.SubsystemMechanism2d;
 import frc.robot.telemetry.Telemetry;
 
@@ -82,6 +86,9 @@ public class RobotContainer {
         public final BLine bline = new BLine(drivetrain);
 
         @Logged
+        public KwarqsLed kwarqsLed = new KwarqsLed();
+
+        @Logged
         public final ShooterCommands shooterCommands = new ShooterCommands(this);
 
         public final PassingCommands passingCommands = new PassingCommands(this);
@@ -109,6 +116,18 @@ public class RobotContainer {
                 NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
                 NTHelper.setBoolean("/tuning/snakeMode", false);
 
+        }
+
+        private void configureLeds() {
+                kwarqsLed.setDefaultCommand(kwarqsLed.setLeds(() -> {
+                        if (drivetrain.isSeeingAprilTag()) {
+                                return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
+                        }
+                        if (RobotState.isAutonomous()) {
+                                return "rainbow";
+                        }
+                        return "dark";
+                }));
         }
 
         private void configureBindings() {
@@ -159,6 +178,7 @@ public class RobotContainer {
                 configureDriveControllerBindings();
                 configureOperatorControllerBindings();
                 configureShortestPathBindings();
+                configureLeds();
 
                 drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -237,15 +257,14 @@ public class RobotContainer {
 
         public Command disableEverything() {
                 Command command = Commands.parallel(
-                        arm.set(0),
-                        feederLeft.stop(), 
-                        feederRight.stop(), 
-                        hood.set(0),
-                        intake.stop(), 
-                        shooterLeft.stop(), 
-                        shooterRight.stop(), 
-                        twindexer.stop()
-                ).ignoringDisable(true);
+                                arm.set(0),
+                                feederLeft.stop(),
+                                feederRight.stop(),
+                                hood.set(0),
+                                intake.stop(),
+                                shooterLeft.stop(),
+                                shooterRight.stop(),
+                                twindexer.stop()).ignoringDisable(true);
                 return command;
         }
 

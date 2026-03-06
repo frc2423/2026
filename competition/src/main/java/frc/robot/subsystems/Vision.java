@@ -451,10 +451,9 @@ public class Vision {
    * 
    * @return True when an april tag is discovered.
    */
-  // public boolean seesFrontAprilTag() {
-  // return Cameras.FRONT_RIGHT_CAM.hasTarget() ||
-  // Cameras.FRONT_LEFT_CAM.hasTarget();
-  // }
+    public boolean isSeeingAprilTag() {
+      return Cameras.FRONT_LEFT_CAM.hasTarget();
+    }
 
   /**
    * Camera Enum to select each camera
