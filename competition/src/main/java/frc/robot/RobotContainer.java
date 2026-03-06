@@ -32,6 +32,7 @@ import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TwindexerSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.telemetry.SubsystemMechanism2d;
@@ -60,6 +61,8 @@ public class RobotContainer {
 
         @Logged
         public final ArmSubsystem arm = new ArmSubsystem();
+        @Logged
+        public final HoodSubsystem hood = new HoodSubsystem();
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
                         .withHeadingPID(10, 0, 0);
@@ -99,6 +102,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterLeft", shooterLeft);
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
+                SmartDashboard.putData("subsytems/hood", hood);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
@@ -158,6 +162,8 @@ public class RobotContainer {
 
                 drivetrain.registerTelemetry(logger::telemeterize);
 
+                RobotModeTriggers.disabled().onTrue(disableEverything());
+
         }
 
         private void configureDriveControllerBindings() {
@@ -166,9 +172,12 @@ public class RobotContainer {
 
                 // Intake commands
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
-                driverController.button(10).whileTrue(intake.intake()).onFalse(intake.stop());
+                driverController.button(10).whileTrue(intakeCommands.armDown().andThen(intake.intake()))
+                                .onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
                 driverController.a().onTrue(intakeCommands.armDown());
+                // driverController.x().onTrue(hood.set(.1)).onFalse(hood.set(0));
+                // driverController.y().onTrue(hood.set(-.1)).onFalse(hood.set(0));
 
                 driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
                                 .onFalse(shooterCommands.stopShooting());
@@ -225,4 +234,19 @@ public class RobotContainer {
         public Command getAutonomousCommand() {
                 return auto.getAuto();
         }
+
+        public Command disableEverything() {
+                Command command = Commands.parallel(
+                        arm.set(0),
+                        feederLeft.stop(), 
+                        feederRight.stop(), 
+                        hood.set(0),
+                        intake.stop(), 
+                        shooterLeft.stop(), 
+                        shooterRight.stop(), 
+                        twindexer.stop()
+                ).ignoringDisable(true);
+                return command;
+        }
+
 }
