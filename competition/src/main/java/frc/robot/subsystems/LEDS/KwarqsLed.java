@@ -80,4 +80,9 @@ public class KwarqsLed extends SubsystemBase {
     public String getCurrentLed() {
         return ledController.getCurrentLed();
     }
+
+    @Override
+    public void periodic() {
+        ledController.run();
+    }
 }
