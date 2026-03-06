@@ -1,29 +1,12 @@
 package frc.robot.subsystems.LEDS;
 
-import edu.wpi.first.util.sendable.SendableBuilder;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.RobotState;
-import edu.wpi.first.wpilibj.XboxController;
+import java.util.function.Supplier;
+import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.NTHelper;
-// import frc.robot.subsystems.swervedrive.Vision;
 
 public class KwarqsLed extends SubsystemBase {
-    private final LedController ledController = new LedController(18); // 18 on each side
-
-    // private boolean isAutoScoring = false;
-    // private boolean isEjectingPOOP = false;
-
-    public static boolean isRedAlliance() {
-        var alliance = DriverStation.getAlliance();
-        if (alliance.isEmpty()) {
-            return false;
-        }
-        return Alliance.Red.equals(DriverStation.getAlliance().get());
-    }
+    private final LedController ledController = new LedController(18);
 
     public KwarqsLed() {
         ledController.add("yellow", new Yellow());
@@ -36,97 +19,65 @@ public class KwarqsLed extends SubsystemBase {
         ledController.add("RedCycle", new RedCycle());
         ledController.add("BlueCycle", new BlueCycle());
         ledController.add("POOP", new POOP());
-
         ledController.add("AutoDown", new AutoDown());
         ledController.set("dark");
 
         setDefaultCommand(disable());
     }
 
-    public Command disable() {
+    public Command setLeds(Supplier<String> name) {
         var command = run(() -> {
-            // System.out.println("SEEES DARK!!!");
-
-            ledController.set("dark");
-        }).ignoringDisable(true);
+            ledController.set(name.get());
+        }).withName(name.get()).ignoringDisable(true);
         return command;
+    }
+
+    public Command setLeds(String name) {
+        return setLeds(() -> name);
+    }
+
+    public Command disable() {
+        return setLeds("dark");
     }
 
     public Command setYellow() {
-        var command = run(() -> {
-            // System.out.println("SEEES YELLOW!!!");
-            ledController.set("yellow");
-        }).ignoringDisable(true);
-        return command;
+        return setLeds("yellow");
     }
 
-     public Command setAutoDown() {
-        var command = run(() -> {
-            // System.out.println("SEEES YELLOW!!!");
-            ledController.set("AutoDown");
-        }).ignoringDisable(true);
-        return command;
+    public Command setAutoDown() {
+        return setLeds("AutoDown");
     }
 
     public Command setRainbow() {
-        var command = run(() -> {
-            // System.out.println("SEEES YELLOW!!!");
-            ledController.set("rainbow");
-        }).ignoringDisable(true);
-        return command;
+        return setLeds("rainbow");
     }
 
     public Command setRedCycle() {
-        var command = run(() -> {
-            // System.out.println("SEEES YELLOW!!!");
-            ledController.set("RedCycle");
-        }).ignoringDisable(true);
-        return command;
+        return setLeds("RedCycle");
     }
 
     public Command setBlueCycle() {
-        var command = run(() -> {
-            // System.out.println("SEEES YELLOW!!!");
-            ledController.set("BlueCycle");
-        }).ignoringDisable(true);
-        return command;
+        return setLeds("BlueCycle");
     }
 
     public Command setGreenCycle() {
-        var command = run(() -> {
-            // System.out.println("SEEES YELLOW!!!");
-            ledController.set("GreenCycle");
-        }).ignoringDisable(true);
-        return command;
+        return setLeds("GreenCycle");
     }
 
     public Command setOrange() {
-        var command = run(() -> {
-            // System.out.println("SEEES YELLOW!!!");
-            ledController.set("yellow");
-        }).ignoringDisable(true);
-        // command.ignoringDisable(?true);
-        return command;
+        return setLeds("orange");
     }
 
     public Command setPurple() {
-        var command = run(() -> {
-            ledController.set("purple");
-        }).ignoringDisable(true);
-        return command;
+        return setLeds("purple");
     }
 
     public Command setGreen() {
-        var command = run(() -> {
-            // System.out.println("!!!!!!!!");
-            ledController.set("green");
-        }).ignoringDisable(true);
-        return command;
+        return setLeds("green");
     }
 
-    @Override
-    public void initSendable(SendableBuilder builder) {
-        builder.addStringProperty("led", () -> ledController.getCurrentLed(), null);
+    @Logged
+    public String getCurrentLed() {
+        return ledController.getCurrentLed();
     }
-
 }

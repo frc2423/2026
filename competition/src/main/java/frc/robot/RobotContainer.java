@@ -85,6 +85,7 @@ public class RobotContainer {
 
         public final BLine bline = new BLine(drivetrain);
 
+        @Logged
         public KwarqsLed kwarqsLed = new KwarqsLed();
 
         @Logged
@@ -117,12 +118,16 @@ public class RobotContainer {
 
         }
 
-        private void configureLeds(){
-
-                new Trigger(() -> drivetrain.isSeeingAprilTag()).whileTrue(Commands.either(Commands.print("RED!"), Commands.print("BLUE!"), () -> PoseTransformUtils.isRedAlliance()));
-                new Trigger(() -> RobotState.isAutonomous()).whileTrue(kwarqsLed.setRainbow());
-
-
+        private void configureLeds() {
+                kwarqsLed.setDefaultCommand(kwarqsLed.setLeds(() -> {
+                        if (drivetrain.isSeeingAprilTag()) {
+                                return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
+                        }
+                        if (RobotState.isAutonomous()) {
+                                return "rainbow";
+                        }
+                        return "dark";
+                }));
         }
 
         private void configureBindings() {
@@ -252,15 +257,14 @@ public class RobotContainer {
 
         public Command disableEverything() {
                 Command command = Commands.parallel(
-                        arm.set(0),
-                        feederLeft.stop(), 
-                        feederRight.stop(), 
-                        hood.set(0),
-                        intake.stop(), 
-                        shooterLeft.stop(), 
-                        shooterRight.stop(), 
-                        twindexer.stop()
-                ).ignoringDisable(true);
+                                arm.set(0),
+                                feederLeft.stop(),
+                                feederRight.stop(),
+                                hood.set(0),
+                                intake.stop(),
+                                shooterLeft.stop(),
+                                shooterRight.stop(),
+                                twindexer.stop()).ignoringDisable(true);
                 return command;
         }
 
