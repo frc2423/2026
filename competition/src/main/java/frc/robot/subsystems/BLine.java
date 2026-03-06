@@ -17,8 +17,8 @@ import frc.robot.lib.BLine.*;
 
 public class BLine {
 
-    CommandSwerveDrivetrain swerve;
-    FollowPath.Builder pathBuilder;
+    private final CommandSwerveDrivetrain swerve;
+    public final FollowPath.Builder pathBuilder;
 
     private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric()
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
@@ -27,7 +27,7 @@ public class BLine {
         this.swerve = swerve;
 
         Path.setDefaultGlobalConstraints(new Path.DefaultGlobalConstraints(
-                4.4, 12.0,
+                4.4, 7.0,
                 540, 860,
                 0.03, 2.0,
                 .2));
@@ -43,9 +43,9 @@ public class BLine {
                                     chassisSpeeds.omegaRadiansPerSecond);
                     swerve.setControl(swerveRequest);
                 },
-                new PIDController(5.0, 0.0, 0.0),
                 new PIDController(3.0, 0.0, 0.0),
-                new PIDController(3.0, 0.0, 0.0)); // .withDefaultShouldFlip();
+                new PIDController(2.0, 0.0, 0.0),
+                new PIDController(1.0, 0.0, 0.0)); // .withDefaultShouldFlip();
 
         FollowPath.setDoubleLoggingConsumer(pair -> {
             NTHelper.setDouble("/bline/double/" + pair.getFirst(), pair.getSecond());
