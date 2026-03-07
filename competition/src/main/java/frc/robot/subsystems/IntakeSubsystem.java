@@ -30,6 +30,12 @@ public class IntakeSubsystem extends SubsystemBase {
             percentSpeed = 1;
         }).withName("intake");
     }
+    
+    public Command intakeSlow() {
+        return runOnce(() -> {
+            percentSpeed = .5;
+        }).withName("intakeSlow");
+    }
 
     public Command outtake() {
         return runOnce(() -> {

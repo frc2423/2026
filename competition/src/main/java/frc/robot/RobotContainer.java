@@ -204,7 +204,7 @@ public class RobotContainer {
 
                 driverController.rightBumper()
                                 .whileTrue(shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)))
-                                .onFalse(shooterCommands.stopFeeding());
+                                .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
                 driverController.leftBumper().whileTrue(passingCommands.trenchPass()).onFalse(intake.stop());
                 driverController.leftTrigger().whileTrue(passingCommands.aimToPass())
                                 .onFalse(shooterCommands.stopShooting());
