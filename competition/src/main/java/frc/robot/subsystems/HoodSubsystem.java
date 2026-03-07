@@ -16,12 +16,14 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import yams.motorcontrollers.SmartMotorController;
@@ -66,11 +68,18 @@ public class HoodSubsystem extends SubsystemBase {
         SmartDashboard.putData("/dashboardCommands/hoodPid", hoodPidController);
         // SmartDashboard.getNumber("/dashboardCommands/hoodPID", p);
 
-
     }
 
     public Command hoodUp() {
         return setAngle(Degrees.of(45)).withName("hoodUp");
+    }
+
+    public Command hoodDown() {
+        return set(-0.25);
+    }
+
+    public Command hoodResetAngle() {
+        return setEncoderPosition(Degrees.of(0));
     }
 
     public Command setAngle(Angle angle) {
@@ -103,6 +112,28 @@ public class HoodSubsystem extends SubsystemBase {
         return runOnce(() -> {
             setpointAngle = Degrees.of(getAngle() - 5);
         }).withName("bumpUp5Degrees");
+    }
+
+    @Logged
+    public Current getCurrent() {
+        return hoodMotor.getSupplyCurrent().orElse(Amps.of(0));
+    }
+
+    @Logged
+    public double getCurrentInAmps() {
+        return getCurrent().in(Amps);
+    }
+
+    @Logged
+    public boolean isStalled() {
+        return getCurrent().in(Amps) > 90;
+    }
+
+    public Command hoodDownandReset() {
+        return Commands.sequence(
+                hoodDown(),
+                Commands.waitUntil(() -> getCurrent().in(Amps) > 90),
+                set(0));
     }
 
     @Override

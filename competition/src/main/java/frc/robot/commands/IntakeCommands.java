@@ -24,5 +24,4 @@ public class IntakeCommands extends SubsystemBase {
                 robot.intake.stop())
                 .withName("armDown");
     }
-
 }

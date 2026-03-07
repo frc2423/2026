@@ -28,6 +28,10 @@ public class SubsystemMechanism2d {
             new MechanismLigament2d("part4", 0.05, 315),
     };
 
+    private final MechanismLigament2d[] hoodLigaments = {
+            new MechanismLigament2d("part1", 0.05, 0),
+    };
+
     private final MechanismLigament2d[] leftSpindexerLigaments = {
             new MechanismLigament2d("part1", 0.05, 0),
             new MechanismLigament2d("part2", 0.05, 90),
@@ -48,6 +52,7 @@ public class SubsystemMechanism2d {
         SmartDashboard.putData("mechanism2ds", mechanism2d);
 
         addIntake();
+        addHood();
         addShooter("leftShooter", leftShooterLigaments);
         addSpindexer(0, .55);
         addSpindexer(1, .7);
@@ -60,6 +65,17 @@ public class SubsystemMechanism2d {
         var root = mechanism2d.getRoot("intake", 1.4, .3);
         for (int i = 0; i < intakeLigaments.length; i++) {
             var ligament = intakeLigaments[i];
+            ligament.setLineWeight(1);
+            var color = i % 2 == 0 ? new Color8Bit(255, 0, 0) : new Color8Bit(0, 255, 0);
+            ligament.setColor(color);
+            root.append(ligament);
+        }
+    }
+
+    private void addHood() {
+        var root = mechanism2d.getRoot("hood", 0.4, 0.8);
+        for (int i = 0; i < hoodLigaments.length; i++) {
+            var ligament = hoodLigaments[i];
             ligament.setLineWeight(1);
             var color = i % 2 == 0 ? new Color8Bit(255, 0, 0) : new Color8Bit(0, 255, 0);
             ligament.setColor(color);
@@ -104,6 +120,10 @@ public class SubsystemMechanism2d {
 
         for (var ligament : leftShooterLigaments) {            
             ligament.setAngle(ligament.getAngle() - robot.shooterLeft.getSetpoint() / 350.0);
+        }
+
+        for (var ligament : hoodLigaments) {            
+            ligament.setAngle(robot.hood.getSetpoint());
         }
     }
 }
