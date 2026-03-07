@@ -136,6 +136,10 @@ public class HoodSubsystem extends SubsystemBase {
                 set(0));
     }
 
+    // public Command hoodDownAuto() {
+    //     return set(0); 
+    // }
+
     @Override
     public void periodic() {
         hoodMotor.updateTelemetry();

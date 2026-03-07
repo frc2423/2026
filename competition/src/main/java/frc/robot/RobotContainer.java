@@ -230,7 +230,7 @@ public class RobotContainer {
                 operatorController.povLeft().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
                 operatorController.povRight().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
-                operatorController.rightTrigger().onTrue(hood.hoodUp());
+                operatorController.rightTrigger().whileTrue(hood.hoodUp()).onFalse(hood.hoodDownandReset());
                 operatorController.leftTrigger().onTrue(hood.hoodDownandReset());
 
                 // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() ->
