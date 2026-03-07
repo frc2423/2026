@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.Supplier;
 
@@ -145,8 +146,8 @@ public class ShooterCommands extends SubsystemBase {
     Command feed = Commands.parallel(
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
-        robot.arm.setAngle(Degrees.of(90)),
-        robot.intake.intake(),
+        robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
+        robot.intake.intakeSlow(),
         Commands.repeatingSequence(
             robot.twindexer.spindex(),
             Commands.waitUntil(() -> robot.twindexer.isJammed()),
