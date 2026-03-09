@@ -43,10 +43,6 @@ public class FeederSubsystem extends SubsystemBase {
         }).withName("spinFeeder");
     }
 
-    public boolean isRevved() {
-        return getVelocity() > 2000;
-    }
-
     public Command stop() {
         return runOnce(() -> {
             percentSpeed = 0;
@@ -60,7 +56,7 @@ public class FeederSubsystem extends SubsystemBase {
 
     @Logged
     public double getMotorSpeed() {
-        return motor.get();
+        return percentSpeed;
     }
 
     @Logged

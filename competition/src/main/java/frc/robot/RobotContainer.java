@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -66,7 +67,6 @@ public class RobotContainer {
         @Logged
         public final ArmSubsystem arm = new ArmSubsystem();
         @Logged
-        public final HoodSubsystem hood = new HoodSubsystem();
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
                         .withHeadingPID(10, 0, 0);
@@ -82,6 +82,8 @@ public class RobotContainer {
         public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
         @Logged
         public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
+
+        public final HoodSubsystem hood = new HoodSubsystem(this);
 
         public final BLine bline = new BLine(drivetrain);
 
@@ -183,7 +185,6 @@ public class RobotContainer {
                 drivetrain.registerTelemetry(logger::telemeterize);
 
                 RobotModeTriggers.disabled().onTrue(disableEverything());
-
         }
 
         private void configureDriveControllerBindings() {
@@ -230,7 +231,6 @@ public class RobotContainer {
                 operatorController.povLeft().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
                 operatorController.povRight().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
-                operatorController.rightTrigger().whileTrue(hood.hoodUp()).onFalse(hood.hoodDownandReset());
                 operatorController.leftTrigger().onTrue(hood.hoodDownandReset());
 
                 // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() ->

@@ -20,12 +20,11 @@ import edu.wpi.first.units.measure.Current;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.RobotContainer;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
 import yams.motorcontrollers.SmartMotorControllerConfig.ControlMode;
@@ -53,33 +52,23 @@ public class HoodSubsystem extends SubsystemBase {
 
     private final SmartMotorController hoodMotor = new SparkWrapper(hoodMotorBase, DCMotor.getNeo550(1), smcConfig);
 
-    private double p = 0.03;
-
-    private final PIDController hoodPidController = new PIDController(p, 0, 0);
+    private final PIDController hoodPidController = new PIDController(0.03, 0, 0);
+    private final RobotContainer robot;
 
     private Angle setpointAngle;
     private double motorPercent = 0;
 
-    public HoodSubsystem() {
-        // hoodMotor.close
+    public HoodSubsystem(RobotContainer robot) {
+        this.robot = robot;
         SmartDashboard.putData("/dashboardCommands/bumpUp5Degrees", bumpUp5Degrees());
         SmartDashboard.putData("/dashboardCommands/bumpDown5Degrees", bumpDown5Degrees());
         SmartDashboard.putData("/dashboardCommands/setZero", setEncoderPosition(Degrees.of(0)));
+        SmartDashboard.putData("/dashboardCommands/hoodDownandReset", hoodDownandReset());
         SmartDashboard.putData("/dashboardCommands/hoodPid", hoodPidController);
-        // SmartDashboard.getNumber("/dashboardCommands/hoodPID", p);
-
-    }
-
-    public Command hoodUp() {
-        return setAngle(Degrees.of(45)).withName("hoodUp");
     }
 
     public Command hoodDown() {
-        return set(-0.25);
-    }
-
-    public Command hoodResetAngle() {
-        return setEncoderPosition(Degrees.of(0));
+        return setAngle(Degrees.of(0)).withName("hoodDown");
     }
 
     public Command setAngle(Angle angle) {
@@ -114,7 +103,6 @@ public class HoodSubsystem extends SubsystemBase {
         }).withName("bumpUp5Degrees");
     }
 
-    @Logged
     public Current getCurrent() {
         return hoodMotor.getSupplyCurrent().orElse(Amps.of(0));
     }
@@ -131,20 +119,20 @@ public class HoodSubsystem extends SubsystemBase {
 
     public Command hoodDownandReset() {
         return Commands.sequence(
-                hoodDown(),
-                Commands.waitUntil(() -> getCurrent().in(Amps) > 90),
-                set(0));
+                set(-.25),
+                Commands.waitUntil(() -> isStalled()).withTimeout(3),
+                set(0),
+                setEncoderPosition(Degrees.of(0)));
     }
-
-    // public Command hoodDownAuto() {
-    //     return set(0); 
-    // }
 
     @Override
     public void periodic() {
         hoodMotor.updateTelemetry();
 
-        if (setpointAngle != null) {
+        if (robot.feederLeft.getMotorSpeed() == 0) {
+            double calcedMotorPercent = hoodPidController.calculate(getAngle(), 0);
+            hoodMotor.setDutyCycle(calcedMotorPercent);
+        } else if (setpointAngle != null) {
             double calcedMotorPercent = hoodPidController.calculate(getAngle(), setpointAngle.in(Degrees));
             hoodMotor.setDutyCycle(calcedMotorPercent);
 
@@ -178,7 +166,6 @@ public class HoodSubsystem extends SubsystemBase {
 
     @Logged
     public double getSetpoint() {
-        // Angle angle = hoodMotor.getMechanismPositionSetpoint().orElse(Degrees.of(0));
         if (setpointAngle != null) {
             return setpointAngle.in(Degrees);
         }
