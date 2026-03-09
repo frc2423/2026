@@ -144,6 +144,7 @@ public class ShooterCommands extends SubsystemBase {
 
   public Command feed(Supplier<Double> setpoint) {
     Command feed = Commands.parallel(
+        positionHoodFromDas(),
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
         robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
@@ -174,6 +175,14 @@ public class ShooterCommands extends SubsystemBase {
         robot.shooterRight.stop());
   }
 
+  public Command positionHoodFromDas() {
+    return robot.hood.setAngle(() -> {
+      double distance = this.getDistanceToHub(); // not real
+      DAS.MotorSettings as = das.calculateAS(distance);
+      return Degrees.of(as.angle);
+    });
+  }
+
   public Command revSpeedFromDAS() {
     Command left = robot.shooterLeft.spinWithSetpoint(() -> {
       double distance = this.getDistanceToHub(); // not real
@@ -186,13 +195,11 @@ public class ShooterCommands extends SubsystemBase {
       return as.velocity;
     });
 
-    Command hood = robot.hood.setAngle(() -> {
-      double distance = this.getDistanceToHub(); // not real
-      DAS.MotorSettings as = das.calculateAS(distance);
-      return Degrees.of(as.angle);
-    });
-
-    return Commands.parallel(left, right, hood);
+    return Commands.parallel(
+        left,
+        right
+    // positionHoodFromDas()
+    );
   }
 
   public Command rev(Supplier<Double> speed) {
