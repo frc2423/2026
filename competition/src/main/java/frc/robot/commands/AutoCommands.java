@@ -25,7 +25,7 @@ public class AutoCommands {
 
     private final PathConstraints constraints = new PathConstraints()
             .setMaxVelocityMetersPerSec(1);
-    public final double feederSpeed = 0.25*10;
+    public final double feederSpeed = 0.25 * 10;
 
     // @Logged
     private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -39,7 +39,7 @@ public class AutoCommands {
     public AutoCommands(RobotContainer robot) {
         this.robot = robot;
 
-        m_chooser.addOption("Center Piece Auto", "Center Piece Auto");
+        m_chooser.addOption("Center Once Auto", "Center Once Auto");
         m_chooser.addOption("Outpost Auto", "Outpost Auto");
         m_chooser.addOption("Outpost and Depot Auto", "Outpost and Depot Auto");
         m_chooser.addOption("Depot Auto", "Depot Auto");
@@ -93,21 +93,26 @@ public class AutoCommands {
                                 robot.shooterCommands.feed(() -> feederSpeed))));
     }
 
-    public Command centerAuto() {
+    public Command centerOnceAuto() {
         Path trenchToCenterPath = new Path("Trench-to-Center");
         Path centerToTrenchPath = new Path("Center-to-Trench");
+        Path centerToLeftoversPath = new Path("Center-to-Leftovers");
 
-        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils.isRedAlliance()) {
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
             FloppingUtil.flopPath(trenchToCenterPath);
             FloppingUtil.flopPath(centerToTrenchPath);
+            FloppingUtil.flopPath(centerToLeftoversPath);
         }
         if (PoseTransformUtils.isRedAlliance()) {
             trenchToCenterPath.flip();
             centerToTrenchPath.flip();
+            centerToLeftoversPath.flip();
         }
 
         FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
         FollowPath centerToTrench = robot.bline.pathBuilder.build(centerToTrenchPath);
+        FollowPath centerToLeftovers = robot.bline.pathBuilder.build(centerToLeftoversPath);
 
         Command goToCenterAndIntake = Commands.deadline(
                 trenchToCenter,
@@ -116,12 +121,17 @@ public class AutoCommands {
                         robot.intakeCommands.armDown(),
                         robot.intake.intake()));
 
+        Command intakeInCenterMore = Commands.deadline(centerToLeftovers,
+                Commands.sequence(
+                        Commands.waitUntil(() -> centerToLeftovers.getCurrentTranslationElementIndex() >= 6),
+                        robot.intake.stop()));
+
         return Commands.sequence(
                 goToCenterAndIntake,
-                robot.intake.stop(),
+                
                 Commands.print("CENTER TO TRENCH"),
                 Commands.deadline(
-                        centerToTrench,
+                        intakeInCenterMore,
                         robot.shooterCommands.rev(() -> 3000.0)),
                 Commands.print("SCORE DEADLINE"),
                 robot.shooterCommands.scoreDeadline(3),
@@ -198,7 +208,8 @@ public class AutoCommands {
         Path trenchToLeftoversPath = new Path("Trench-to-Leftovers");
         Path leftoversToTrenchPath = new Path("Leftovers-to-Trench");
 
-        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils.isRedAlliance()) {
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
             FloppingUtil.flopPath(trenchToCenterPath);
             FloppingUtil.flopPath(centerToTrenchPath);
             FloppingUtil.flopPath(trenchToLeftoversPath);
@@ -256,8 +267,8 @@ public class AutoCommands {
     }
 
     public Command getAuto() {
-        if (m_chooser.getSelected().equals("Center Piece Auto")) {
-            return centerAuto();
+        if (m_chooser.getSelected().equals("Center Once Auto")) {
+            return centerOnceAuto();
         } else if (m_chooser.getSelected().equals("Outpost Auto")) {
             return outpostAuto();
         } else if (m_chooser.getSelected().equals("Outpost and Depot Auto")) {
