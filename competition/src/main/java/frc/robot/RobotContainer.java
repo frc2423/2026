@@ -66,8 +66,9 @@ public class RobotContainer {
 
         @Logged
         public final ArmSubsystem arm = new ArmSubsystem();
-        @Logged
+
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
         private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
                         .withHeadingPID(10, 0, 0);
         private Rotation2d lastHeading = new Rotation2d();
@@ -83,6 +84,7 @@ public class RobotContainer {
         @Logged
         public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
 
+        @Logged
         public final HoodSubsystem hood = new HoodSubsystem(this);
 
         public final BLine bline = new BLine(drivetrain);

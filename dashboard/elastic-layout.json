@@ -152,7 +152,7 @@
           {
             "title": "isJammed",
             "x": 1152.0,
-            "y": 128.0,
+            "y": 0.0,
             "width": 384.0,
             "height": 256.0,
             "type": "Boolean Box",
@@ -169,7 +169,7 @@
           {
             "title": "Indexer Output Current",
             "x": 1152.0,
-            "y": 384.0,
+            "y": 256.0,
             "width": 192.0,
             "height": 128.0,
             "type": "Number Bar",
@@ -187,7 +187,7 @@
           {
             "title": "Indexer Velocity",
             "x": 1344.0,
-            "y": 384.0,
+            "y": 256.0,
             "width": 192.0,
             "height": 128.0,
             "type": "Number Bar",
@@ -200,33 +200,6 @@
               "divisions": 5,
               "inverted": false,
               "orientation": "horizontal"
-            }
-          },
-          {
-            "title": "snakeMode",
-            "x": 128.0,
-            "y": 448.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Toggle Switch",
-            "properties": {
-              "topic": "/tuning/snakeMode",
-              "period": 0.06,
-              "data_type": "boolean"
-            }
-          },
-          {
-            "title": "getDistanceToHub",
-            "x": 64.0,
-            "y": 320.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "Robot/robotContainer/shooter/getDistanceToHub",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
             }
           },
           {
@@ -259,8 +232,8 @@
           },
           {
             "title": "autoChooser",
-            "x": 0.0,
-            "y": 128.0,
+            "x": 256.0,
+            "y": 0.0,
             "width": 192.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -268,6 +241,118 @@
               "topic": "/SmartDashboard/autoChooser",
               "period": 0.06,
               "sort_options": false
+            }
+          },
+          {
+            "title": "getDistanceToHub",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterCommands/getDistanceToHub",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "bumpDown5Degrees",
+            "x": 0.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard//dashboardCommands/bumpDown5Degrees",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "bumpUp5Degrees",
+            "x": 0.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard//dashboardCommands/bumpUp5Degrees",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "setZero",
+            "x": 256.0,
+            "y": 384.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard//dashboardCommands/setZero",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "hoodDownandReset",
+            "x": 0.0,
+            "y": 512.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard//dashboardCommands/hoodDownandReset",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "getCurrentInAmps",
+            "x": 1024.0,
+            "y": 384.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getCurrentInAmps",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "getAngle",
+            "x": 1216.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getAngle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "getSetpoint",
+            "x": 1344.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getSetpoint",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]
