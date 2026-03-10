@@ -222,7 +222,7 @@ public class RobotContainer {
                                 .whileTrue(shooterCommands.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
                                 .onFalse(shooterCommands.stopShooting());
 
-                operatorController.a().whileTrue(intakeCommands.armDown());
+                operatorController.a().whileTrue(shooterCommands.prepareToShootNoVision());
                 operatorController.b().whileTrue(arm.armUp());
                 operatorController.x().whileTrue(intake.intake()).onFalse(intake.stop());
                 operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());

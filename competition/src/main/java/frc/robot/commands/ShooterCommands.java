@@ -14,6 +14,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.*;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -25,6 +28,10 @@ import frc.robot.generated.PoseTransformUtils;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.subsystems.DAS;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+
 
 public class ShooterCommands extends SubsystemBase {
 
@@ -35,12 +42,18 @@ public class ShooterCommands extends SubsystemBase {
       .withHeadingPID(3, 0, 0);
   private final CommandXboxController driverController = new CommandXboxController(0);
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+  private NetworkTableEntry noVisionTargetEntry;
 
   private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
   private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
   public ShooterCommands(RobotContainer robot) {
     this.robot = robot;
+
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("shooterCommands");
+    noVisionTargetEntry = table.getEntry("noVisionTarget");
+    noVisionTargetEntry.setDefaultString("hubleft");
+
   }
 
   public double getDistanceBetweenPoses(Pose2d a, Pose2d b) {
@@ -200,5 +213,43 @@ public class ShooterCommands extends SubsystemBase {
         robot.shooterLeft.spinWithSetpoint(speed),
         robot.shooterRight.spinWithSetpoint(speed));
   }
+
+public Command prepareToShootNoVision() {
+
+ String target = noVisionTargetEntry.getString("hubmiddle");
+
+  Rotation2d rotation;
+
+  switch (target.toLowerCase()) {
+    case "hubtopleft":
+      rotation = Rotation2d.fromDegrees(30);
+      break;
+
+    case "hubleft":
+      rotation = Rotation2d.fromDegrees(90); 
+      break;
+
+    case "hubmiddle":
+      rotation = Rotation2d.fromDegrees(45); 
+      break;
+
+    case "hubright":
+      rotation = Rotation2d.fromDegrees(-90);
+      break;
+
+    case "hubtopright":
+      rotation = Rotation2d.fromDegrees(-30);
+      break;
+
+    default:
+      rotation = robot.drivetrain.getPose().getRotation();
+      break;
+  }
+
+  return Commands.parallel(
+      lookAtAngle(rotation),
+      revSpeedFromDAS()
+  );
+}
 
 }
