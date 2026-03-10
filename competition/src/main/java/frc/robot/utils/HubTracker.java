@@ -12,39 +12,49 @@ public class HubTracker {
      * Returns an {@link Optional} containing the current {@link Shift}.
      * Will return {@link Optional#empty()} if disabled or in between auto and teleop.
      */
-    public static Optional<Shift> getCurrentShift() {
+    public static Shift getCurrentShift() {
         double matchTime = getMatchTime();
-        if (matchTime < 0) return Optional.empty();
+        if (matchTime < 0) return Shift.AUTO;
 
         for (Shift shift : Shift.values()) {
             if (matchTime < shift.endTime) {
-                return Optional.of(shift);
+                return shift;
             }
         }
-        return Optional.empty();
+        return Shift.AUTO;
     }
 
     /**
      * Returns an {@link Optional} containing the current {@link Time} remaining in the current shift.
      * Will return {@link Optional#empty()} if disabled or in between auto and teleop.
      */
-    public static Optional<Time> timeRemainingInCurrentShift() {
-        return getCurrentShift().map((shift) -> Seconds.of(shift.endTime - getMatchTime()));
+    public static Time timeRemainingInCurrentShift() {
+        Shift shift = getCurrentShift();
+        
+        return Seconds.of(shift.endTime - getMatchTime());
     }
+
+
+
+    
+     public static double timeRemainingInCurrentShiftInSeconds() {
+        return timeRemainingInCurrentShift().in(Seconds);
+    }
+
 
     /**
      * Returns an {@link Optional} containing the next {@link Shift}.
      * Will return {@link Optional#empty()} if disabled or in between auto and teleop.
      */
-    public static Optional<Shift> getNextShift() {
+    public static Shift getNextShift() {
         double matchTime = getMatchTime();
 
         for (Shift shift : Shift.values()) {
             if (matchTime < shift.startTime) {
-                return Optional.of(shift);
+                return shift;
             }
         }
-        return Optional.empty();
+        return Shift.AUTO;
     }
 
     /**
@@ -70,8 +80,9 @@ public class HubTracker {
      * Will return {@code false} if disabled or in between auto and teleop.
      */
     public static boolean isActive(Alliance alliance) {
-        Optional<Shift> currentShift = getCurrentShift();
-        return currentShift.isPresent() && isActive(alliance, currentShift.get());
+        Shift currentShift = getCurrentShift();
+        
+        return isActive(alliance, currentShift);
     }
 
     /**
@@ -88,9 +99,9 @@ public class HubTracker {
      * Will return {@code false} if disabled or in between auto and teleop.
      */
     public static boolean isActive() {
-        Optional<Shift> currentShift = getCurrentShift();
+        Shift currentShift = getCurrentShift();
         Optional<Alliance> alliance = DriverStation.getAlliance();
-        return currentShift.isPresent() && alliance.isPresent() && isActive(alliance.get(), currentShift.get());
+        return isActive(alliance.get(), currentShift);
     }
 
     /**
@@ -98,8 +109,8 @@ public class HubTracker {
      * Will return {@code false} if disabled or in between auto and teleop.
      */
     public static boolean isActiveNext(Alliance alliance) {
-        Optional<Shift> nextShift = getNextShift();
-        return nextShift.isPresent() && isActive(alliance, nextShift.get());
+        Shift nextShift = getNextShift();
+        return isActive(alliance, nextShift);
     }
 
     /**
@@ -107,9 +118,9 @@ public class HubTracker {
      * Will return {@code false} if disabled or in between auto and teleop.
      */
     public static boolean isActiveNext() {
-        Optional<Shift> nextShift = getNextShift();
+        Shift nextShift = getNextShift();
         Optional<Alliance> alliance = DriverStation.getAlliance();
-        return nextShift.isPresent() && alliance.isPresent() && isActive(alliance.get(), nextShift.get());
+        return isActive(alliance.get(), nextShift);
     }
 
     /**
