@@ -197,9 +197,11 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public boolean isSeeingAprilTag(){
+        return vision.isSeeingAprilTag();
+    }
 
-           return vision.isSeeingAprilTag();
-
+    public boolean isCameraConnected() {
+        return vision.isCameraConnected();
     }
 
     @Override

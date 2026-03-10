@@ -134,11 +134,17 @@ public class HoodSubsystem extends SubsystemBase {
                 setEncoderPosition(Degrees.of(0)));
     }
 
+    public boolean isHoodSafeToDeploy() {
+        var robotSpeeds = robot.drivetrain.getState().Speeds;
+        double robotVelocity = Math.hypot(robotSpeeds.vxMetersPerSecond, robotSpeeds.vyMetersPerSecond);
+        return robot.feederLeft.getMotorSpeed() > 0 || robotVelocity < .1;
+    }
+
     @Override
     public void periodic() {
         hoodMotor.updateTelemetry();
 
-        if (robot.feederLeft.getMotorSpeed() == 0 && false) {
+        if (!isHoodSafeToDeploy()) {
             double calcedMotorPercent = hoodPidController.calculate(getAngle(), 0);
             hoodMotor.setDutyCycle(calcedMotorPercent);
         } else if (setpointAngle != null) {

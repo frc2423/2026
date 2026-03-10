@@ -455,6 +455,10 @@ public class Vision {
       return Cameras.FRONT_LEFT_CAM.hasTarget();
     }
 
+    public boolean isCameraConnected() {
+      return Cameras.FRONT_LEFT_CAM.isConnected();
+    }
+
   /**
    * Camera Enum to select each camera
    * 
@@ -582,6 +586,10 @@ public class Vision {
         cameraSim = new PhotonCameraSim(camera, cameraProp);
         cameraSim.enableDrawWireframe(true);
       }
+    }
+
+    public boolean isConnected() {
+      return camera.isConnected();
     }
 
     public Transform3d getTransform3d() {

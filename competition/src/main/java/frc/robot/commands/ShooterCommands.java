@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
@@ -117,7 +118,7 @@ public class ShooterCommands extends SubsystemBase {
     }
     // System.out.println("targetAngle: " + targetAngle.in(Degrees) + ", robotAngle:
     // " + robotAngle.in(Degrees));
-    boolean isNear = targetAngle.isNear(robotAngle, Degrees.of(3));
+    boolean isNear = targetAngle.isNear(robotAngle, Degrees.of(10));
     return isNear;
   }
 
@@ -147,7 +148,8 @@ public class ShooterCommands extends SubsystemBase {
         positionHoodFromDas(),
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
-        robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
+        Commands.waitSeconds(2).andThen(robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4))),
+        // robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
         robot.intake.intakeSlow(),
         Commands.repeatingSequence(
             robot.twindexer.spindex(),
@@ -156,6 +158,9 @@ public class ShooterCommands extends SubsystemBase {
             Commands.waitSeconds(.5)));
 
     return Commands.waitUntil(() -> {
+      if (Robot.isSimulation()) {
+        return true;
+      }
       return robot.shooterLeft.isAtSetpoint();
     }).andThen(feed);
 

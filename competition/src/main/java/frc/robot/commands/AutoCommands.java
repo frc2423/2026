@@ -95,23 +95,19 @@ public class AutoCommands {
 
     public Command centerOnceAuto() {
         Path trenchToCenterPath = new Path("Trench-to-Center");
-        Path centerToTrenchPath = new Path("Center-to-Trench");
         Path centerToLeftoversPath = new Path("Center-to-Leftovers");
 
         if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
                 .isRedAlliance()) {
             FloppingUtil.flopPath(trenchToCenterPath);
-            FloppingUtil.flopPath(centerToTrenchPath);
             FloppingUtil.flopPath(centerToLeftoversPath);
         }
         if (PoseTransformUtils.isRedAlliance()) {
             trenchToCenterPath.flip();
-            centerToTrenchPath.flip();
             centerToLeftoversPath.flip();
         }
 
         FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
-        FollowPath centerToTrench = robot.bline.pathBuilder.build(centerToTrenchPath);
         FollowPath centerToLeftovers = robot.bline.pathBuilder.build(centerToLeftoversPath);
 
         Command goToCenterAndIntake = Commands.deadline(
@@ -123,18 +119,17 @@ public class AutoCommands {
 
         Command intakeInCenterMore = Commands.deadline(centerToLeftovers,
                 Commands.sequence(
-                        Commands.waitUntil(() -> centerToLeftovers.getCurrentTranslationElementIndex() >= 6),
+                        Commands.waitUntil(() -> centerToLeftovers.getCurrentTranslationElementIndex() >= 8),
                         robot.intake.stop()));
 
         return Commands.sequence(
                 goToCenterAndIntake,
-                
                 Commands.print("CENTER TO TRENCH"),
                 Commands.deadline(
                         intakeInCenterMore,
                         robot.shooterCommands.rev(() -> 3000.0)),
                 Commands.print("SCORE DEADLINE"),
-                robot.shooterCommands.scoreDeadline(3),
+                robot.shooterCommands.scoreDeadline(20),
                 Commands.print("STOP FEEDING"),
                 robot.shooterCommands.stopFeeding(),
                 Commands.print("STOP SHOOTING"),

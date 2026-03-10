@@ -124,6 +124,9 @@ public class RobotContainer {
 
         private void configureLeds() {
                 kwarqsLed.setDefaultCommand(kwarqsLed.setLeds(() -> {
+                        if (!drivetrain.isCameraConnected()) {
+                                return "GreenCycle";
+                        }
                         if (drivetrain.isSeeingAprilTag()) {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
                         }
