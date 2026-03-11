@@ -42,16 +42,15 @@ public class ShooterCommands extends SubsystemBase {
   private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
   private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
+  private final SendableChooser<String> shootingPoseChooser = new SendableChooser<>();
+
   public ShooterCommands(RobotContainer robot) {
     this.robot = robot;
-    m_chooser.addOption("Auto", "Auto");
-    m_chooser.addOption("Spot", "Spot");
-    m_chooser.addOption("Spot 2", "Spot 2");
-    m_chooser.addOption("Spot 3", "Spot 3");
-    m_chooser.setDefaultOption("none", "none");
-    SmartDashboard.putData("shooterCommands/chooser", m_chooser);
+    shootingPoseChooser.setDefaultOption("Auto", "Auto");
+    shootingPoseChooser.addOption("Tower", "Tower");
+    shootingPoseChooser.addOption("Left Bump", "Left Bump");
+    shootingPoseChooser.addOption("Right Bump", "Right Bump");
+    SmartDashboard.putData("shooterCommands/chooser", shootingPoseChooser);
   }
 
   public double getDistanceBetweenPoses(Pose2d a, Pose2d b) {
@@ -62,12 +61,31 @@ public class ShooterCommands extends SubsystemBase {
 
   @Logged
   public double getDistanceToHub() {
-    return getDistanceBetweenPoses(robot.drivetrain.getPose(), getHubPose());
+    return getDistanceBetweenPoses(getShootingPose(), getHubPose());
 
   }
 
+  // TODO: Change this based on shootingPoseChooser option selected
+  private Pose2d getShootingPose() {
+    Pose2d shootingPose = robot.drivetrain.getPose();
+    if (shootingPoseChooser.getSelected() == null) {
+      return shootingPose;
+    }
+    if (shootingPoseChooser.getSelected().equals("Tower")) {
+      shootingPose = new Pose2d(1.72, 3.63, robot.drivetrain.getPose().getRotation());
+    } else if (shootingPoseChooser.getSelected().equals("Left Bump")) {
+      shootingPose = new Pose2d(3.23, 6.4, robot.drivetrain.getPose().getRotation());
+    } else if (shootingPoseChooser.getSelected().equals("Right Bump")) {
+      shootingPose = new Pose2d(3.23, 1.65, robot.drivetrain.getPose().getRotation());
+    }
+    if (!shootingPoseChooser.getSelected().equals("Auto") && PoseTransformUtils.isRedAlliance()) {
+      shootingPose = FlippingUtil.flipFieldPose(shootingPose);
+    }
+    return shootingPose;
+  }
+
   public Rotation2d getLookAngle(Pose2d targetPose) {
-    Pose2d currentPose = robot.drivetrain.getPose();
+    Pose2d currentPose = getShootingPose();
     double distance = getDistanceBetweenPoses(currentPose, targetPose);
     if (distance < Units.inchesToMeters(8)) {
       return currentPose.getRotation();
@@ -118,8 +136,8 @@ public class ShooterCommands extends SubsystemBase {
 
   public boolean isFacingPose(Pose2d targetPose) {
     Angle targetAngle = getLookAngle(targetPose).getMeasure();
-    Angle robotAngle = PoseTransformUtils.isRedAlliance() ? robot.drivetrain.getPose().getRotation().getMeasure()
-        : robot.drivetrain.getPose().getRotation().getMeasure().plus(Degrees.of(180));
+    Angle robotAngle = PoseTransformUtils.isRedAlliance() ? getShootingPose().getRotation().getMeasure()
+        : getShootingPose().getRotation().getMeasure().plus(Degrees.of(180));
     if (robotAngle.in(Degrees) < 0) {
       robotAngle = Degrees.of(robotAngle.plus(Degrees.of(360)).in(Degrees));
     }
@@ -133,7 +151,7 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public boolean isFacingAngle(Rotation2d targetAngle) {
-    return robot.drivetrain.getPose().getRotation().getMeasure().isNear(targetAngle.getMeasure(), Degrees.of(3));
+    return getShootingPose().getRotation().getMeasure().isNear(targetAngle.getMeasure(), Degrees.of(3));
   }
 
   public boolean isFacingHub() {
