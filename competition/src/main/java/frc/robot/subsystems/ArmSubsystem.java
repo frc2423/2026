@@ -21,6 +21,7 @@ import com.revrobotics.spark.SparkMax;
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Time;
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -92,7 +93,7 @@ public class ArmSubsystem extends SubsystemBase {
     ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
 
     public Command armUp() {
-        return setAngle(Degrees.of(90)).withName("armUp");
+        return setAngle(Degrees.of(80)).withName("armUp");
     }
 
     public Command setAngle(Angle angle) {
@@ -101,8 +102,15 @@ public class ArmSubsystem extends SubsystemBase {
         }).withName("setArmAngle");
     }
 
+    public Command wiggleArm(Angle angle1, Angle angle2, Time time) {
+        return Commands.repeatingSequence(
+                setAngle(angle1),
+                Commands.waitSeconds(time.in(Seconds)),
+                setAngle(angle2),
+                Commands.waitSeconds(time.in(Seconds))).withName("wiggleArm");
+    }
+
     public Command set(double dutycycle) {
-        // return arm.set(dutycycle);
         return runOnce(() -> {
             motorPercent = dutycycle;
             setpointAngle = null;

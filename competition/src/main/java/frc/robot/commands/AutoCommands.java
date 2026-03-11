@@ -1,7 +1,10 @@
 package frc.robot.commands;
 
+import java.util.List;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -13,14 +16,16 @@ import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.PathConstraints;
+import frc.robot.lib.BLine.Path.PathElement;
 import frc.robot.lib.BLine.Path.Waypoint;
+import frc.robot.subsystems.FloppingUtil;
 
 public class AutoCommands {
     private final RobotContainer robot;
 
     private final PathConstraints constraints = new PathConstraints()
-            .setMaxVelocityMetersPerSec(2);
-    public final double feederSpeed = 10;
+            .setMaxVelocityMetersPerSec(1);
+    public final double feederSpeed = 0.25 * 10;
 
     // @Logged
     private final SendableChooser<String> m_chooser = new SendableChooser<>();
@@ -34,7 +39,7 @@ public class AutoCommands {
     public AutoCommands(RobotContainer robot) {
         this.robot = robot;
 
-        m_chooser.addOption("Center Piece Auto", "Center Piece Auto");
+        m_chooser.addOption("Center Once Auto", "Center Once Auto");
         m_chooser.addOption("Outpost Auto", "Outpost Auto");
         m_chooser.addOption("Outpost and Depot Auto", "Outpost and Depot Auto");
         m_chooser.addOption("Depot Auto", "Depot Auto");
@@ -58,7 +63,7 @@ public class AutoCommands {
     }
 
     public Command startIntaking() {
-        return Commands.deadline(
+        return Commands.sequence(
                 robot.intakeCommands.armDown(),
                 robot.intake.intake());
     }
@@ -88,52 +93,103 @@ public class AutoCommands {
                                 robot.shooterCommands.feed(() -> feederSpeed))));
     }
 
-    public Command centerAuto() {
+    public Command centerOnceAuto() {
+        Path trenchToCenterPath = new Path("Trench-to-Center");
+        Path centerToTrenchPath = new Path("Center-to-Trench");
+        Path centerToLeftoversPath = new Path("Center-to-Leftovers");
 
-        Command driveThroughTrench = robot.driveShortestPath.driveShortestPath(
-                flipPoseBasedOnRobotPose(new Pose2d(8, 3, Rotation2d.fromDegrees(90))));
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
+            FloppingUtil.flopPath(trenchToCenterPath);
+            FloppingUtil.flopPath(centerToTrenchPath);
+            FloppingUtil.flopPath(centerToLeftoversPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            trenchToCenterPath.flip();
+            centerToTrenchPath.flip();
+            centerToLeftoversPath.flip();
+        }
 
-        Command driveIntoFuel = robot.driveShortestPath.driveShortestPath(
-                flipPoseBasedOnRobotPose(new Pose2d(8, 1.3, Rotation2d.fromDegrees(90))));
+        FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
+        FollowPath centerToTrench = robot.bline.pathBuilder.build(centerToTrenchPath);
+        FollowPath centerToLeftovers = robot.bline.pathBuilder.build(centerToLeftoversPath);
+
+        Command goToCenterAndIntake = Commands.deadline(
+                trenchToCenter,
+                Commands.sequence(
+                        Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake()));
+
+        Command intakeInCenterMore = Commands.deadline(centerToLeftovers,
+                Commands.sequence(
+                        Commands.waitUntil(() -> centerToLeftovers.getCurrentTranslationElementIndex() >= 6),
+                        robot.intake.stop()));
 
         return Commands.sequence(
-                startIntaking().withDeadline(Commands.sequence(driveThroughTrench, driveIntoFuel)),
-                robot.intake.stop(),
-                goToHubAndShoot());
-
+                goToCenterAndIntake,
+                
+                Commands.print("CENTER TO TRENCH"),
+                Commands.deadline(
+                        intakeInCenterMore,
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                Commands.print("SCORE DEADLINE"),
+                robot.shooterCommands.scoreDeadline(3),
+                Commands.print("STOP FEEDING"),
+                robot.shooterCommands.stopFeeding(),
+                Commands.print("STOP SHOOTING"),
+                robot.shooterCommands.stopShooting());
     }
 
     public Command outpostAuto() {
+        Path outpost = new Path(constraints,
+                new Waypoint(new Pose2d(1.0, 0.70, Rotation2d.fromDegrees(180))),
+                new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))));
+        if (PoseTransformUtils.isRedAlliance()) {
+            outpost.flip();
+        }
         return Commands.sequence(
-                robot.driveShortestPath.driveShortestPath(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))),
+                robot.bline.pathBuilder.build(outpost),
                 Commands.waitSeconds(2),
                 goToHubAndShoot());
     }
 
     public Command outpostAndDepotAuto() {
-        Path path = new Path(constraints,
+        Path depot = new Path(constraints,
                 new Waypoint(new Pose2d(2.25, 2, Rotation2d.fromDegrees(180))),
                 new Waypoint(new Pose2d(2.25, 5, Rotation2d.fromDegrees(180))),
                 new Waypoint(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180))));
+        Path outpost = new Path(constraints,
+                new Waypoint(new Pose2d(1.0, 0.70, Rotation2d.fromDegrees(180))),
+                new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))));
+        Pose2d shoot = new Pose2d(0.4, 6, Rotation2d.fromDegrees(180));
         if (PoseTransformUtils.isRedAlliance()) {
-            path.flip();
+            outpost.flip();
+            depot.flip();
+            FlippingUtil.flipFieldPose(shoot);
         }
+
         return Commands.sequence(
-                robot.bline.pathBuilder.build(new Path(constraints,
-                        new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))))),
+                robot.bline.pathBuilder.build(outpost),
                 Commands.waitSeconds(2),
-                robot.bline.pathBuilder.build(path),
+                robot.bline.pathBuilder.build(depot),
                 startIntaking(),
-                robot.driveShortestPath.driveShortestPath(new Pose2d(0.4, 6, Rotation2d.fromDegrees(180))),
+                robot.driveShortestPath.driveShortestPath(shoot),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
 
     public Command depotAuto() {
+        Pose2d depot = new Pose2d(1.25, 6, Rotation2d.fromDegrees(180));
+        Pose2d shoot = new Pose2d(0.4, 6, Rotation2d.fromDegrees(180));
+        if (PoseTransformUtils.isRedAlliance()) {
+            FlippingUtil.flipFieldPose(depot);
+            FlippingUtil.flipFieldPose(shoot);
+        }
         return Commands.sequence(
-                startIntaking().withDeadline(
-                        robot.driveShortestPath.driveShortestPath(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180)))),
-                robot.driveShortestPath.driveShortestPath(new Pose2d(0.4, 6, Rotation2d.fromDegrees(180))),
+                robot.driveShortestPath.driveShortestPath(depot),
+                startIntaking(),
+                robot.driveShortestPath.driveShortestPath(shoot),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
@@ -146,10 +202,30 @@ public class AutoCommands {
     }
 
     public Command centerTwiceAuto() {
-        FollowPath trenchToCenter = robot.bline.pathBuilder.build(new Path("Trench-to-Center"));
-        FollowPath centerToTrench = robot.bline.pathBuilder.build(new Path("Center-to-Trench"));
-        FollowPath trenchToLeftovers = robot.bline.pathBuilder.build(new Path("Trench-to-Leftovers"));
-        FollowPath leftoversToTrench = robot.bline.pathBuilder.build(new Path("Leftovers-to-Trench"));
+
+        Path trenchToCenterPath = new Path("Trench-to-Center");
+        Path centerToTrenchPath = new Path("Center-to-Trench");
+        Path trenchToLeftoversPath = new Path("Trench-to-Leftovers");
+        Path leftoversToTrenchPath = new Path("Leftovers-to-Trench");
+
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
+            FloppingUtil.flopPath(trenchToCenterPath);
+            FloppingUtil.flopPath(centerToTrenchPath);
+            FloppingUtil.flopPath(trenchToLeftoversPath);
+            FloppingUtil.flopPath(leftoversToTrenchPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            trenchToCenterPath.flip();
+            centerToTrenchPath.flip();
+            trenchToLeftoversPath.flip();
+            leftoversToTrenchPath.flip();
+        }
+
+        FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
+        FollowPath centerToTrench = robot.bline.pathBuilder.build(centerToTrenchPath);
+        FollowPath trenchToLeftovers = robot.bline.pathBuilder.build(trenchToLeftoversPath);
+        FollowPath leftoversToTrench = robot.bline.pathBuilder.build(leftoversToTrenchPath);
 
         Command goToCenterAndIntake = Commands.deadline(
                 trenchToCenter,
@@ -181,15 +257,18 @@ public class AutoCommands {
                 robot.shooterCommands.scoreDeadline(3),
                 Commands.print("STOP FEEDING"),
                 robot.shooterCommands.stopFeeding(),
+                Commands.print("STOP SHOOTING"),
                 robot.shooterCommands.stopShooting(),
+                // robot.shooterCommands.lookAtAngle(Rotation2d.fromDegrees(0)),
+                Commands.print("THE REST"),
                 trenchToLeftoversAndIntake,
                 leftoversToTrenchAndIntake,
                 robot.shooterCommands.scoreDeadline(3));
     }
 
     public Command getAuto() {
-        if (m_chooser.getSelected().equals("Center Piece Auto")) {
-            return centerAuto();
+        if (m_chooser.getSelected().equals("Center Once Auto")) {
+            return centerOnceAuto();
         } else if (m_chooser.getSelected().equals("Outpost Auto")) {
             return outpostAuto();
         } else if (m_chooser.getSelected().equals("Outpost and Depot Auto")) {

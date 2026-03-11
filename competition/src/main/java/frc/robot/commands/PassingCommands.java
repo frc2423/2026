@@ -58,7 +58,7 @@ public class PassingCommands extends SubsystemBase {
 
     public Command aimToPass() {
         return Commands.parallel(
-                robot.shooterCommands.actuallyLookAngle(() -> {
+                robot.shooterCommands.lookAtPose(() -> {
                     Pose2d targetPose = Pose2d.kZero;
                     if (robot.drivetrain.getPose().getY() > FieldConstants.LinesHorizontal.center) {
                         if (PoseTransformUtils.isRedAlliance()) {

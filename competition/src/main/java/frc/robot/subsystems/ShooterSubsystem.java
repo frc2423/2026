@@ -53,7 +53,7 @@ public class ShooterSubsystem extends SubsystemBase {
             shooterSetpoint = setpoint.get();
         }).withName("spinWithSetpoint");
     }
-    
+
     public Command spinWithSetpoint(double setpoint) {
         return runOnce(() -> {
             shooterSetpoint = setpoint;
@@ -62,9 +62,14 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        double voltage = feedforward.calculate(shooterSetpoint);
-        motor.getClosedLoopController().setReference(shooterSetpoint, ControlType.kVelocity, ClosedLoopSlot.kSlot0,
-                voltage);
+
+        if (shooterSetpoint == 0) {
+            motor.stopMotor();
+        } else {
+            double voltage = feedforward.calculate(shooterSetpoint);
+            motor.getClosedLoopController().setReference(shooterSetpoint, ControlType.kVelocity, ClosedLoopSlot.kSlot0,
+                    voltage);
+        }
     }
 
     @Logged
@@ -77,8 +82,15 @@ public class ShooterSubsystem extends SubsystemBase {
         return motor.get();
     }
 
+    @Logged
     public double getSetpoint() {
         return motor.getClosedLoopController().getSetpoint();
+    }
+
+    @Logged
+    public boolean isAtSetpoint() {
+        return Math.abs(getVelocity() - getSetpoint()) <= 100;
+        // return motor.getClosedLoopController().isAtSetpoint();
     }
 
     @Override

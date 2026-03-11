@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.Supplier;
 
@@ -33,7 +34,7 @@ public class ShooterCommands extends SubsystemBase {
 
   public static final DAS das = new DAS();
   private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
-      .withHeadingPID(10, 0, 0);
+      .withHeadingPID(3, 0, 0);
   private final CommandXboxController driverController = new CommandXboxController(0);
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
@@ -85,16 +86,23 @@ public class ShooterCommands extends SubsystemBase {
     return new Pose2d(hubTranslation, Rotation2d.kZero);
   }
 
-  public Command actuallyLookAngle() {
-    return actuallyLookAngle(getHubPose());
+  public Command lookAtAngle(Rotation2d targetHeading) {
+    return robot.drivetrain.applyRequest(() -> {
+      return driveFacing
+          .withTargetDirection(targetHeading);
+    }).until(() -> isFacingAngle(targetHeading));
   }
 
-  public Command actuallyLookAngle(Pose2d targetPose) {
-    return actuallyLookAngle(() -> targetPose);
+  public Command lookAtPose() {
+    return lookAtPose(() -> getHubPose());
+  }
+
+  public Command lookAtPose(Pose2d targetPose) {
+    return lookAtPose(() -> targetPose);
 
   }
 
-  public Command actuallyLookAngle(Supplier<Pose2d> targetPoseSupplier) {
+  public Command lookAtPose(Supplier<Pose2d> targetPoseSupplier) {
     return robot.drivetrain.applyRequest(() -> {
       double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
       double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
@@ -109,8 +117,22 @@ public class ShooterCommands extends SubsystemBase {
 
   public boolean isFacingPose(Pose2d targetPose) {
     Angle targetAngle = getLookAngle(targetPose).getMeasure();
-    Angle robotAngle = robot.drivetrain.getPose().getRotation().plus(Rotation2d.k180deg).getMeasure();
-    return targetAngle.isNear(robotAngle, Degrees.of(3));
+    Angle robotAngle = PoseTransformUtils.isRedAlliance() ? robot.drivetrain.getPose().getRotation().getMeasure()
+        : robot.drivetrain.getPose().getRotation().getMeasure().plus(Degrees.of(180));
+    if (robotAngle.in(Degrees) < 0) {
+      robotAngle = Degrees.of(robotAngle.plus(Degrees.of(360)).in(Degrees));
+    }
+    if (targetAngle.in(Degrees) < 0) {
+      targetAngle = Degrees.of(targetAngle.plus(Degrees.of(360)).in(Degrees));
+    }
+    // System.out.println("targetAngle: " + targetAngle.in(Degrees) + ", robotAngle:
+    // " + robotAngle.in(Degrees));
+    boolean isNear = targetAngle.isNear(robotAngle, Degrees.of(3));
+    return isNear;
+  }
+
+  public boolean isFacingAngle(Rotation2d targetAngle) {
+    return robot.drivetrain.getPose().getRotation().getMeasure().isNear(targetAngle.getMeasure(), Degrees.of(3));
   }
 
   public boolean isFacingHub() {
@@ -118,31 +140,34 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public Command prepareToShoot() {
-    Command command = Commands.parallel(actuallyLookAngle(), revSpeedFromDAS());
+    Command command = Commands.parallel(lookAtPose(), revSpeedFromDAS());
     return command;
   }
 
   public Command scoreDeadline(double shootingTime) {
     return Commands.sequence(
-      prepareToShoot().until(() -> isFacingHub()),
-      Commands.parallel(
-        revSpeedFromDAS(),
-        feed(() -> 1.0)
-      ).withTimeout(shootingTime)
-    );
+        prepareToShoot().until(() -> isFacingHub()),
+        Commands.parallel(
+            revSpeedFromDAS(),
+            feed(() -> 0.25)).withTimeout(shootingTime));
   }
 
   public Command feed(Supplier<Double> setpoint) {
-    return Commands.parallel(
+    Command feed = Commands.parallel(
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
-        robot.arm.setAngle(Degrees.of(90)),
-        robot.intake.intake(),
+        robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
+        robot.intake.intakeSlow(),
         Commands.repeatingSequence(
             robot.twindexer.spindex(),
             Commands.waitUntil(() -> robot.twindexer.isJammed()),
             robot.twindexer.spindexBack(),
             Commands.waitSeconds(.5)));
+
+    return Commands.waitUntil(() -> {
+      return robot.shooterLeft.isAtSetpoint();
+    }).andThen(feed);
+
   }
 
   public Command stopFeeding() {
@@ -170,7 +195,14 @@ public class ShooterCommands extends SubsystemBase {
       DAS.MotorSettings as = das.calculateAS(distance);
       return as.velocity;
     });
-    return Commands.parallel(left, right);
+
+    Command hood = robot.hood.setAngle(() -> {
+      double distance = this.getDistanceToHub(); // not real
+      DAS.MotorSettings as = das.calculateAS(distance);
+      return Degrees.of(as.angle);
+    });
+
+    return Commands.parallel(left, right, hood);
   }
 
   public Command rev(Supplier<Double> speed) {

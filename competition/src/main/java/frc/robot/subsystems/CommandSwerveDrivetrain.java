@@ -196,6 +196,12 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
+    public boolean isSeeingAprilTag(){
+
+           return vision.isSeeingAprilTag();
+
+    }
+
     @Override
     public void periodic() {
         Transform3d cameraTransform = vision.getTransform3d();
