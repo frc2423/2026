@@ -15,6 +15,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.*;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -40,8 +42,16 @@ public class ShooterCommands extends SubsystemBase {
   private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
   private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
+  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  
   public ShooterCommands(RobotContainer robot) {
     this.robot = robot;
+    m_chooser.addOption("Auto", "Auto");
+    m_chooser.addOption("Spot", "Spot");
+    m_chooser.addOption("Spot 2", "Spot 2");
+    m_chooser.addOption("Spot 3", "Spot 3");
+    m_chooser.setDefaultOption("none", "none");
+    SmartDashboard.putData("shooterCommands/chooser", m_chooser);
   }
 
   public double getDistanceBetweenPoses(Pose2d a, Pose2d b) {

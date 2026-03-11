@@ -7,6 +7,7 @@ import {
   BooleanBox,
   Canvas,
   CanvasMjpgStream,
+  Gyro
 } from "@frc-web-components/react";
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
 
   return (
     <div style={{ padding: "20px" }}>
+      <Gyro  value={50}/>
       {/* NT4 Connection Panel */}
       <div
         style={{
