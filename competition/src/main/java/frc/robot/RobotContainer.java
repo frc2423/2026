@@ -127,6 +127,12 @@ public class RobotContainer {
                         if (!drivetrain.isCameraConnected()) {
                                 return "GreenCycle";
                         }
+                        if (twindexer.isJammed()) {
+                                return "yellow"; //make a yellow cycle
+                        }
+                        if (intake.isJammed()) {
+                                return "orange"; //make an orange cycle
+                        }
                         if (drivetrain.isSeeingAprilTag()) {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
                         }
