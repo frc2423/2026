@@ -23,7 +23,7 @@ public class DashboardTelemetry {
     @Logged
     private boolean isAllianceActive = true;
     @Logged
-    private double shiftTimeRemaining = 0; // seconds
+    public double shiftTimeRemaining = 0; // seconds
     // private String activeAlliance = null;
     @Logged
     private double matchTime = 160; // seconds

@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 
 public class GreenCycle implements Led {
     private int position = 0;
-    private static final int FADE_LENGTH = 20; // Adjust for a smoother or sharper fade
+    private static final int FADE_LENGTH = 30; // Adjust for a smoother or sharper fade
 
     public void start(AddressableLEDBuffer buffer, int length) {
     }

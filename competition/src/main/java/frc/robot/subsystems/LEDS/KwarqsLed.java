@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class KwarqsLed extends SubsystemBase {
     private final LedController ledController = new LedController(18);
+    private double autoDownTime = 20.0;
 
     public KwarqsLed() {
         ledController.add("yellow", new Yellow());
@@ -19,7 +20,7 @@ public class KwarqsLed extends SubsystemBase {
         ledController.add("RedCycle", new RedCycle());
         ledController.add("BlueCycle", new BlueCycle());
         ledController.add("POOP", new POOP());
-        ledController.add("AutoDown", new AutoDown());
+        ledController.add("AutoDown", new AutoDown(autoDownTime));
         ledController.set("dark");
 
         setDefaultCommand(disable());
@@ -44,7 +45,8 @@ public class KwarqsLed extends SubsystemBase {
         return setLeds("yellow");
     }
 
-    public Command setAutoDown() {
+    public Command setAutoDown(double x) {
+        this.autoDownTime = x;
         return setLeds("AutoDown");
     }
 
