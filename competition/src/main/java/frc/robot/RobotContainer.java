@@ -96,6 +96,7 @@ public class RobotContainer {
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
+        
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
@@ -104,6 +105,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterLeft", shooterLeft);
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
+                
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);

@@ -212,6 +212,7 @@ public class Vision {
    * @return an {@link EstimatedRobotPose} with an estimated pose, timestamp, and
    *         targets used to create the estimate
    */
+  
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Cameras camera) {
     Optional<EstimatedRobotPose> poseEst = camera.getEstimatedGlobalPose();
     NTHelper.setBoolean("/swerveSubsystem/vision/poseIsGood", filterPose(poseEst));
