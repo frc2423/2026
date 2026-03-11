@@ -84,7 +84,8 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Logged
     public double getSetpoint() {
-        return motor.getClosedLoopController().getSetpoint();
+        return shooterSetpoint;
+        // return motor.getClosedLoopController().getSetpoint();
     }
 
     @Logged

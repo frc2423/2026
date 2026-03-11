@@ -20,9 +20,8 @@ public class IntakeCommands extends SubsystemBase {
                 robot.arm.setAngle(Degrees.of(15)),
                 robot.intake.outtakeDown(),
                 Commands.waitUntil(() -> robot.arm.isDown()).withTimeout(2),
-                robot.arm.set(-.2),
+                robot.arm.set(-.1),
                 robot.intake.stop())
                 .withName("armDown");
     }
-
 }

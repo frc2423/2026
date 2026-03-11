@@ -64,6 +64,10 @@ public class IntakeSubsystem extends SubsystemBase {
         motor.set(percentSpeed);
     }
 
+    public boolean isJammed() {
+        return motor.getOutputCurrent() > 90 && motor.getEncoder().getVelocity() < 100;
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
