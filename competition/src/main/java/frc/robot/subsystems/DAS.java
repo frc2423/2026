@@ -3,8 +3,12 @@ package frc.robot.subsystems;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import frc.robot.NTHelper;
+
 // DAS means distance angle speed table
 public class DAS {
+    public static final double DEFAULT_DISTANCE_OFFSET = 0;
+
     public class MotorSettings {
         public final double angle; // in degrees
         public final double velocity; // in volts
@@ -26,6 +30,7 @@ public class DAS {
     private NavigableMap<Double, MotorSettings> distanceMap; // Map from distance to settings
 
     public DAS() {
+        NTHelper.setDouble("/tuning/DASOffset", DEFAULT_DISTANCE_OFFSET);
         distanceMap = new TreeMap<>();
         initializeMap();
     }
@@ -49,6 +54,8 @@ public class DAS {
     }
 
     public MotorSettings calculateAS(double distance) {
+        double distanceOffset = NTHelper.getDouble("/tuning/DASOffset", DEFAULT_DISTANCE_OFFSET);
+        distance = distance + distanceOffset;
         // Direct match
 
         if (distanceMap.containsKey(distance)) {
