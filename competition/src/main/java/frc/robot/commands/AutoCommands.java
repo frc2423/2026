@@ -128,7 +128,7 @@ public class AutoCommands {
 
         return Commands.sequence(
                 goToCenterAndIntake,
-                
+
                 Commands.print("CENTER TO TRENCH"),
                 Commands.deadline(
                         intakeInCenterMore,
@@ -155,26 +155,23 @@ public class AutoCommands {
     }
 
     public Command outpostAndDepotAuto() {
-        Path depot = new Path(constraints,
-                new Waypoint(new Pose2d(2.25, 2, Rotation2d.fromDegrees(180))),
-                new Waypoint(new Pose2d(2.25, 5, Rotation2d.fromDegrees(180))),
-                new Waypoint(new Pose2d(1.25, 6, Rotation2d.fromDegrees(180))));
-        Path outpost = new Path(constraints,
-                new Waypoint(new Pose2d(1.0, 0.70, Rotation2d.fromDegrees(180))),
-                new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))));
-        Pose2d shoot = new Pose2d(0.4, 6, Rotation2d.fromDegrees(180));
+        Path trenchToOutpostPath = new Path("Trench-to-Outpost");
+        Path outpostToDepotPath = new Path("Outpost-to-Depot");
+
         if (PoseTransformUtils.isRedAlliance()) {
-            outpost.flip();
-            depot.flip();
-            FlippingUtil.flipFieldPose(shoot);
+            trenchToOutpostPath.flip();
+            outpostToDepotPath.flip();
         }
 
+        FollowPath trenchToOutpost = robot.bline.pathBuilder.build(trenchToOutpostPath);
+        FollowPath outpostToDepot = robot.bline.pathBuilder.build(outpostToDepotPath);
+
         return Commands.sequence(
-                robot.bline.pathBuilder.build(outpost),
+                trenchToOutpost,
                 Commands.waitSeconds(2),
-                robot.bline.pathBuilder.build(depot),
-                startIntaking(),
-                robot.driveShortestPath.driveShortestPath(shoot),
+                Commands.deadline(
+                        outpostToDepot,
+                        Commands.waitUntil(() -> outpostToDepot.getCurrentTranslationElementIndex() >= 4).andThen(startIntaking())),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
