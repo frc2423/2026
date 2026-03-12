@@ -134,6 +134,7 @@ public class HoodSubsystem extends SubsystemBase {
                 set(-.15),
                 Commands.waitUntil(() -> isStalled()).withTimeout(3),
                 set(0),
+                Commands.waitSeconds(.5),
                 setEncoderPosition(Degrees.of(0)));
     }
 
