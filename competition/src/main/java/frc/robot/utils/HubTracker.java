@@ -62,14 +62,14 @@ public class HubTracker {
      * Will return {@code false} if disabled or in between auto and teleop.
      */
     public static boolean isActive(Alliance alliance, Shift shift) {
-        Optional<Alliance> autoWinner = getAutoWinner();
+        Alliance autoWinner = getAutoWinner();
         switch (shift.activeType) {
             case BOTH:
                 return true;
             case AUTO_WINNER:
-                return autoWinner.isPresent() && autoWinner.get() == alliance;
+                return autoWinner == alliance;
             case AUTO_LOSER:
-                return autoWinner.isPresent() && autoWinner.get() != alliance;
+                return autoWinner != alliance;
             default:
                 return false;
         }
@@ -127,16 +127,16 @@ public class HubTracker {
      * Returns the {@link Alliance} that won auto as specified by the FMS/Driver Station's game specific message data.
      * Will return {@link Optional#empty()} if no game message or alliance is available.
      */
-    public static Optional<Alliance> getAutoWinner() {
+    public static Alliance getAutoWinner() {
         String msg = DriverStation.getGameSpecificMessage();
         char msgChar = msg.length() > 0 ? msg.charAt(0) : ' ';
         switch (msgChar) {
             case 'B':
-                return Optional.of(Alliance.Blue);
+                return Alliance.Blue;
             case 'R':
-                return Optional.of(Alliance.Red);
+                return Alliance.Red;
             default:
-                return Optional.empty();
+                return Alliance.Blue;
         }
     }
 
@@ -169,22 +169,28 @@ public class HubTracker {
      * </ul>
      */
     public enum Shift {
-        AUTO(0, 20, ActiveType.BOTH),
-        TRANSITION(20, 30, ActiveType.BOTH),
-        SHIFT_1(30, 55, ActiveType.AUTO_LOSER),
-        SHIFT_2(55, 80, ActiveType.AUTO_WINNER),
-        SHIFT_3(80, 105, ActiveType.AUTO_LOSER),
-        SHIFT_4(105, 130, ActiveType.AUTO_WINNER),
-        ENDGAME(130, 160, ActiveType.BOTH);
+        AUTO(0, 20, ActiveType.BOTH, "Auto"),
+        TRANSITION(20, 30, ActiveType.BOTH, "Transition"),
+        SHIFT_1(30, 55, ActiveType.AUTO_LOSER, "Shift 1"),
+        SHIFT_2(55, 80, ActiveType.AUTO_WINNER, "Shift 2"),
+        SHIFT_3(80, 105, ActiveType.AUTO_LOSER, "Shift 3"),
+        SHIFT_4(105, 130, ActiveType.AUTO_WINNER, "Shift 4"),
+        ENDGAME(130, 160, ActiveType.BOTH, "Endgame");
 
         final int startTime;
         final int endTime;
         final ActiveType activeType;
+        final String shiftName;
 
-        private Shift(int startTime, int endTime, ActiveType activeType) {
+        private Shift(int startTime, int endTime, ActiveType activeType, String name) {
             this.startTime = startTime;
             this.endTime = endTime;
             this.activeType = activeType;
+            this.shiftName = name;
+        }
+
+        public String getShiftName() {
+            return shiftName;
         }
     }
 

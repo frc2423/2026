@@ -105,7 +105,7 @@ public class RobotContainer {
         private final Telemetry logger = new Telemetry(MaxSpeed);
         
         @Logged
-        private final DashboardTelemetry dashboardlogger = new DashboardTelemetry(this);
+        private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
 
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
@@ -119,7 +119,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterLeft", shooterLeft);
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
-                SmartDashboard.putData("subsytems/hood", hood);
+                SmartDashboard.putData("subsystems/hood", hood);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
