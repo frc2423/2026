@@ -34,10 +34,10 @@
             }
           },
           {
-            "title": "Is our alliance active?",
+            "title": "Is Active",
             "x": 192.0,
             "y": 0.0,
-            "width": 320.0,
+            "width": 192.0,
             "height": 256.0,
             "type": "Boolean Box",
             "properties": {
@@ -185,6 +185,23 @@
               "topic": "/SmartDashboard/autoChooser",
               "period": 0.06,
               "sort_options": false
+            }
+          },
+          {
+            "title": "Is Active Next",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
             }
           }
         ]

@@ -105,7 +105,7 @@ public class RobotContainer {
         private final Telemetry logger = new Telemetry(MaxSpeed);
         
         @Logged
-        private final DashboardTelemetry dashboardlogger = new DashboardTelemetry(this);
+        private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
 
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
