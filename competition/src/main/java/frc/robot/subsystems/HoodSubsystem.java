@@ -150,14 +150,21 @@ public class HoodSubsystem extends SubsystemBase {
 
         if (setpointAngle == null) {
             hoodMotor.setDutyCycle(motorPercent);
-        } else {
-            if (!isHoodSafeToDeploy()) {
+
+            if (motorPercent == 0 && !isHoodSafeToDeploy()) {
                 setpointAngle = Degrees.of(0);
             }
-
-            double calcedMotorPercent = hoodPidController.calculate(getAngle(), setpointAngle.in(Degrees));
-            hoodMotor.setDutyCycle(calcedMotorPercent);
+            return;
         }
+        
+
+        if (!isHoodSafeToDeploy()) {
+            setpointAngle = Degrees.of(0);
+        }
+
+        double calcedMotorPercent = hoodPidController.calculate(getAngle(), setpointAngle.in(Degrees));
+        hoodMotor.setDutyCycle(calcedMotorPercent);
+
     }
 
     @Override

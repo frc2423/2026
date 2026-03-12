@@ -129,19 +129,6 @@
             }
           },
           {
-            "title": "Camera View of AprilTags",
-            "x": 1216.0,
-            "y": 0.0,
-            "width": 320.0,
-            "height": 512.0,
-            "type": "Camera Stream",
-            "properties": {
-              "topic": "/CameraPublisher/april_tag_cam-raw",
-              "period": 0.06,
-              "rotation_turns": 0
-            }
-          },
-          {
             "title": "Field",
             "x": 960.0,
             "y": 0.0,
@@ -202,6 +189,59 @@
               "false_color": 4294198070,
               "true_icon": "None",
               "false_icon": "None"
+            }
+          },
+          {
+            "title": "photonvision_Port_1184_Output_MJPEG_Server",
+            "x": 1216.0,
+            "y": 0.0,
+            "width": 320.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "hoodDownandReset",
+            "x": 1216.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/subsystems/hood/hoodDownandReset",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "Hood Angle",
+            "x": 1216.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getAngle",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Hood Setpoint",
+            "x": 1344.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getSetpoint",
+              "period": 0.06,
+              "data_type": "double"
             }
           }
         ]
