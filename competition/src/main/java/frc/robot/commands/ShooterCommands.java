@@ -176,8 +176,8 @@ public class ShooterCommands extends SubsystemBase {
         positionHoodFromDas(),
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
-        Commands.waitSeconds(2).andThen(robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4))),
-        // robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
+        // Commands.waitSeconds(2).andThen(robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4))),
+        robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
         robot.intake.intakeSlow(),
         Commands.repeatingSequence(
             robot.twindexer.spindex(),

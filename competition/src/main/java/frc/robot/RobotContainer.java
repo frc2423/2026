@@ -119,7 +119,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterLeft", shooterLeft);
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
-                SmartDashboard.putData("subsytems/hood", hood);
+                SmartDashboard.putData("subsystems/hood", hood);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);

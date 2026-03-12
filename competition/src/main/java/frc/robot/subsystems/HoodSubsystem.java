@@ -25,6 +25,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.NTHelper;
 import frc.robot.RobotContainer;
 import yams.motorcontrollers.SmartMotorController;
 import yams.motorcontrollers.SmartMotorControllerConfig;
@@ -64,11 +65,13 @@ public class HoodSubsystem extends SubsystemBase {
 
     public HoodSubsystem(RobotContainer robot) {
         this.robot = robot;
-        SmartDashboard.putData("/dashboardCommands/bumpUp5Degrees", bumpUp5Degrees());
-        SmartDashboard.putData("/dashboardCommands/bumpDown5Degrees", bumpDown5Degrees());
-        SmartDashboard.putData("/dashboardCommands/setZero", setEncoderPosition(Degrees.of(0)));
-        SmartDashboard.putData("/dashboardCommands/hoodDownandReset", hoodDownandReset());
-        SmartDashboard.putData("/dashboardCommands/hoodPid", hoodPidController);
+        SmartDashboard.putData("subsystems/hood/setZero", setEncoderPosition(Degrees.of(0)));
+        SmartDashboard.putData("subsystems/hood/hoodDownandReset", hoodDownandReset());
+        NTHelper.setDouble("/SmartDashboard/subsystems/hood/desiredAngle", 0);
+        SmartDashboard.putData("subsystems/hood/updateSetpoint", runOnce(() -> {
+            double desiredAngle = NTHelper.getDouble("/SmartDashboard/subsystems/hood/desiredAngle", 0);
+            setpointAngle = Degrees.of(desiredAngle);
+        }).ignoringDisable(true));
     }
 
     public Command hoodDown() {
@@ -116,7 +119,7 @@ public class HoodSubsystem extends SubsystemBase {
         return getCurrent().in(Amps);
     }
 
-    @Logged 
+    @Logged
     public double getSampledCurrentInAmps() {
         return currentFilter.calculate(getCurrentInAmps());
     }
@@ -144,17 +147,16 @@ public class HoodSubsystem extends SubsystemBase {
     public void periodic() {
         hoodMotor.updateTelemetry();
 
-        if (!isHoodSafeToDeploy()) {
-            double calcedMotorPercent = hoodPidController.calculate(getAngle(), 0);
-            hoodMotor.setDutyCycle(calcedMotorPercent);
-        } else if (setpointAngle != null) {
+        if (setpointAngle == null) {
+            hoodMotor.setDutyCycle(motorPercent);
+        } else {
+            if (!isHoodSafeToDeploy()) {
+                setpointAngle = Degrees.of(0);
+            }
+
             double calcedMotorPercent = hoodPidController.calculate(getAngle(), setpointAngle.in(Degrees));
             hoodMotor.setDutyCycle(calcedMotorPercent);
-
-        } else {
-            hoodMotor.setDutyCycle(motorPercent);
         }
-
     }
 
     @Override
