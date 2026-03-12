@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -41,6 +42,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.telemetry.SubsystemMechanism2d;
 import frc.robot.telemetry.Telemetry;
+import frc.robot.telemetry.DashboardTelemetry;
 
 public class RobotContainer {
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -65,9 +67,9 @@ public class RobotContainer {
 
         @Logged
         public final ArmSubsystem arm = new ArmSubsystem();
-        @Logged
-        public final HoodSubsystem hood = new HoodSubsystem();
+
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+
         private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
                         .withHeadingPID(10, 0, 0);
         private Rotation2d lastHeading = new Rotation2d();
@@ -82,6 +84,9 @@ public class RobotContainer {
         public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
         @Logged
         public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
+
+        @Logged
+        public final HoodSubsystem hood = new HoodSubsystem(this);
 
         public final BLine bline = new BLine(drivetrain);
 
@@ -98,9 +103,14 @@ public class RobotContainer {
         public final AutoCommands auto = new AutoCommands(this);
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
+        
+        @Logged
+        private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
+
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
+        
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
@@ -109,7 +119,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterLeft", shooterLeft);
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
-                SmartDashboard.putData("subsytems/hood", hood);
+                SmartDashboard.putData("subsystems/hood", hood);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
@@ -120,6 +130,15 @@ public class RobotContainer {
 
         private void configureLeds() {
                 kwarqsLed.setDefaultCommand(kwarqsLed.setLeds(() -> {
+                        if (!drivetrain.isCameraConnected()) {
+                                return "GreenCycle";
+                        }
+                        if (twindexer.isJammed()) {
+                                return "yellow"; //make a yellow cycle
+                        }
+                        if (intake.isJammed()) {
+                                return "orange"; //make an orange cycle
+                        }
                         if (drivetrain.isSeeingAprilTag()) {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
                         }
@@ -183,7 +202,6 @@ public class RobotContainer {
                 drivetrain.registerTelemetry(logger::telemeterize);
 
                 RobotModeTriggers.disabled().onTrue(disableEverything());
-
         }
 
         private void configureDriveControllerBindings() {
@@ -229,6 +247,8 @@ public class RobotContainer {
 
                 operatorController.povLeft().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
                 operatorController.povRight().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
+
+                operatorController.leftTrigger().onTrue(hood.hoodDownandReset());
 
                 // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() ->
                 // 0.7).alongWith(feederRight.spinWithSetpoint(() ->

@@ -1,0 +1,433 @@
+{
+  "version": 1.0,
+  "grid_size": 64,
+  "tabs": [
+    {
+      "name": "Competition",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Active Alliance",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/dashboardlogger/activeAlliance",
+              "period": 0.06,
+              "data_type": "string"
+            }
+          },
+          {
+            "title": "Current Shift",
+            "x": 0.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 320.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/dashboardlogger/currentShift",
+              "period": 0.06,
+              "data_type": "int"
+            }
+          },
+          {
+            "title": "Is Active",
+            "x": 192.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "Robot/robotContainer/dashboardlogger/isAllianceActive",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Match Time",
+            "x": 192.0,
+            "y": 256.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "Robot/robotContainer/dashboardlogger/matchTime",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "Shift Time Remaining",
+            "x": 320.0,
+            "y": 256.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Match Time",
+            "properties": {
+              "topic": "Robot/robotContainer/dashboardlogger/shiftTimeRemaining",
+              "period": 0.06,
+              "data_type": "double",
+              "time_display_mode": "Minutes and Seconds",
+              "red_start_time": 20,
+              "yellow_start_time": 30
+            }
+          },
+          {
+            "title": "Cameras Connected?",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/visionDebug/april_tag_cam/camerasConnected",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "Alerts",
+            "x": 704.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 320.0,
+            "type": "Alerts",
+            "properties": {
+              "topic": "/SmartDashboard/Alerts",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Is Twindexer Jammed?",
+            "x": 512.0,
+            "y": 192.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "Robot/robotContainer/twindexer/isJammed",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4292982819,
+              "false_color": 4280821800,
+              "true_icon": "Checkmark",
+              "false_icon": "X"
+            }
+          },
+          {
+            "title": "Field",
+            "x": 960.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 512.0,
+            "type": "Field",
+            "properties": {
+              "topic": "/Pose",
+              "period": 0.06,
+              "field_game": "Rebuilt",
+              "robot_width": 0.85,
+              "robot_length": 0.85,
+              "show_other_objects": true,
+              "show_trajectories": true,
+              "field_rotation": -90.0,
+              "robot_color": 4294198070,
+              "trajectory_color": 4294967295,
+              "show_robot_outside_widget": true
+            }
+          },
+          {
+            "title": "Location Chooser (PLACEHOLDER)",
+            "x": 192.0,
+            "y": 384.0,
+            "width": 384.0,
+            "height": 128.0,
+            "type": "Split Button Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/shooterCommands/chooser",
+              "period": 0.06
+            }
+          },
+          {
+            "title": "Auto Chooser",
+            "x": 576.0,
+            "y": 320.0,
+            "width": 384.0,
+            "height": 192.0,
+            "type": "ComboBox Chooser",
+            "properties": {
+              "topic": "/SmartDashboard/autoChooser",
+              "period": 0.06,
+              "sort_options": false
+            }
+          },
+          {
+            "title": "Is Active Next",
+            "x": 384.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 256.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "photonvision_Port_1184_Output_MJPEG_Server",
+            "x": 1216.0,
+            "y": 0.0,
+            "width": 320.0,
+            "height": 256.0,
+            "type": "Camera Stream",
+            "properties": {
+              "topic": "/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server",
+              "period": 0.06,
+              "rotation_turns": 0
+            }
+          },
+          {
+            "title": "hoodDownandReset",
+            "x": 1216.0,
+            "y": 256.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/subsystems/hood/hoodDownandReset",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "Hood Angle",
+            "x": 1216.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getAngle",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Hood Setpoint",
+            "x": 1344.0,
+            "y": 384.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getSetpoint",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Debug",
+      "grid_layout": {
+        "layouts": [],
+        "containers": [
+          {
+            "title": "Left Shooter Velocity",
+            "x": 0.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterLeft/getVelocity",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "min_value": 2000.0,
+              "max_value": 3200.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Right Shooter Velocity",
+            "x": 384.0,
+            "y": 128.0,
+            "width": 384.0,
+            "height": 256.0,
+            "type": "Graph",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterRight/getVelocity",
+              "period": 0.033,
+              "data_type": "double",
+              "time_displayed": 15.0,
+              "min_value": 2000.0,
+              "max_value": 3200.0,
+              "color": 4278238420,
+              "line_width": 2.0
+            }
+          },
+          {
+            "title": "Shooter Velocity",
+            "x": 256.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/tuning/ShooterSpeed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "isJammed",
+            "x": 960.0,
+            "y": 256.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "Robot/robotContainer/twindexer/isJammed",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Right Shooter Velocity",
+            "x": 512.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterRight/getVelocity",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Left Shooter Velocity",
+            "x": 0.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterLeft/getVelocity",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "getDistanceToHub",
+            "x": 768.0,
+            "y": 256.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterCommands/getDistanceToHub",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Hood Angle",
+            "x": 768.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getAngle",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Hood Setpoint",
+            "x": 896.0,
+            "y": 0.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/hood/getSetpoint",
+              "period": 0.06,
+              "data_type": "double"
+            }
+          },
+          {
+            "title": "Desired Hood Angle",
+            "x": 1024.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/subsystems/hood/desiredAngle",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "hoodDownandReset",
+            "x": 768.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/subsystems/hood/hoodDownandReset",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          },
+          {
+            "title": "updateSetpoint",
+            "x": 1024.0,
+            "y": 128.0,
+            "width": 256.0,
+            "height": 128.0,
+            "type": "Command",
+            "properties": {
+              "topic": "/SmartDashboard/subsystems/hood/updateSetpoint",
+              "period": 0.06,
+              "show_type": true,
+              "maximize_button_space": false
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

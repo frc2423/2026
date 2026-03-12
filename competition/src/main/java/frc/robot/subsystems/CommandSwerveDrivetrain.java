@@ -197,17 +197,26 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
     public boolean isSeeingAprilTag(){
+        return vision.isSeeingAprilTag();
+    }
 
-           return vision.isSeeingAprilTag();
-
+    public boolean isCameraConnected() {
+        return vision.isCameraConnected();
     }
 
     @Override
     public void periodic() {
-        Transform3d cameraTransform = vision.getTransform3d();
         Pose3d robotPose = new Pose3d(getPose());
-        robotPose = robotPose.transformBy(cameraTransform);
-        NTHelper.setPose3d("/photonvision/Camera Pose", robotPose);
+
+        Transform3d leftCameraTransform = vision.getLeftCamTransform3d();
+        Pose3d leftCameraPose = robotPose.transformBy(leftCameraTransform);
+        NTHelper.setPose3d("/photonvision/leftCameraPose", leftCameraPose);
+        
+        Transform3d rightCameraTransform = vision.getRightCamTransform3d();
+        Pose3d rightCameraPose = robotPose.transformBy(rightCameraTransform);
+        NTHelper.setPose3d("/photonvision/rightCameraPose", rightCameraPose);
+
+
 
         //NTHelper.setPose3d("/photonvision/Camera Pose", pose3d.transformBy(Cameras.FRONT_LEFT_CAM.getTransform3d()));
         /*

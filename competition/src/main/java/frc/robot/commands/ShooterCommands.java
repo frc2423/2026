@@ -15,10 +15,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.*;
 import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
@@ -39,8 +42,15 @@ public class ShooterCommands extends SubsystemBase {
   private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
   private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
+  private final SendableChooser<String> shootingPoseChooser = new SendableChooser<>();
+
   public ShooterCommands(RobotContainer robot) {
     this.robot = robot;
+    shootingPoseChooser.setDefaultOption("Auto", "Auto");
+    shootingPoseChooser.addOption("Tower", "Tower");
+    shootingPoseChooser.addOption("Left Bump", "Left Bump");
+    shootingPoseChooser.addOption("Right Bump", "Right Bump");
+    SmartDashboard.putData("shooterCommands/chooser", shootingPoseChooser);
   }
 
   public double getDistanceBetweenPoses(Pose2d a, Pose2d b) {
@@ -51,12 +61,31 @@ public class ShooterCommands extends SubsystemBase {
 
   @Logged
   public double getDistanceToHub() {
-    return getDistanceBetweenPoses(robot.drivetrain.getPose(), getHubPose());
+    return getDistanceBetweenPoses(getShootingPose(), getHubPose());
 
   }
 
+  // TODO: Change this based on shootingPoseChooser option selected
+  private Pose2d getShootingPose() {
+    Pose2d shootingPose = robot.drivetrain.getPose();
+    if (shootingPoseChooser.getSelected() == null) {
+      return shootingPose;
+    }
+    if (shootingPoseChooser.getSelected().equals("Tower")) {
+      shootingPose = new Pose2d(1.72, 3.63, robot.drivetrain.getPose().getRotation());
+    } else if (shootingPoseChooser.getSelected().equals("Left Bump")) {
+      shootingPose = new Pose2d(3.23, 6.4, robot.drivetrain.getPose().getRotation());
+    } else if (shootingPoseChooser.getSelected().equals("Right Bump")) {
+      shootingPose = new Pose2d(3.23, 1.65, robot.drivetrain.getPose().getRotation());
+    }
+    if (!shootingPoseChooser.getSelected().equals("Auto") && PoseTransformUtils.isRedAlliance()) {
+      shootingPose = FlippingUtil.flipFieldPose(shootingPose);
+    }
+    return shootingPose;
+  }
+
   public Rotation2d getLookAngle(Pose2d targetPose) {
-    Pose2d currentPose = robot.drivetrain.getPose();
+    Pose2d currentPose = getShootingPose();
     double distance = getDistanceBetweenPoses(currentPose, targetPose);
     if (distance < Units.inchesToMeters(8)) {
       return currentPose.getRotation();
@@ -107,8 +136,8 @@ public class ShooterCommands extends SubsystemBase {
 
   public boolean isFacingPose(Pose2d targetPose) {
     Angle targetAngle = getLookAngle(targetPose).getMeasure();
-    Angle robotAngle = PoseTransformUtils.isRedAlliance() ? robot.drivetrain.getPose().getRotation().getMeasure()
-        : robot.drivetrain.getPose().getRotation().getMeasure().plus(Degrees.of(180));
+    Angle robotAngle = PoseTransformUtils.isRedAlliance() ? getShootingPose().getRotation().getMeasure()
+        : getShootingPose().getRotation().getMeasure().plus(Degrees.of(180));
     if (robotAngle.in(Degrees) < 0) {
       robotAngle = Degrees.of(robotAngle.plus(Degrees.of(360)).in(Degrees));
     }
@@ -117,12 +146,12 @@ public class ShooterCommands extends SubsystemBase {
     }
     // System.out.println("targetAngle: " + targetAngle.in(Degrees) + ", robotAngle:
     // " + robotAngle.in(Degrees));
-    boolean isNear = targetAngle.isNear(robotAngle, Degrees.of(3));
+    boolean isNear = targetAngle.isNear(robotAngle, Degrees.of(10));
     return isNear;
   }
 
   public boolean isFacingAngle(Rotation2d targetAngle) {
-    return robot.drivetrain.getPose().getRotation().getMeasure().isNear(targetAngle.getMeasure(), Degrees.of(3));
+    return getShootingPose().getRotation().getMeasure().isNear(targetAngle.getMeasure(), Degrees.of(3));
   }
 
   public boolean isFacingHub() {
@@ -144,8 +173,10 @@ public class ShooterCommands extends SubsystemBase {
 
   public Command feed(Supplier<Double> setpoint) {
     Command feed = Commands.parallel(
+        positionHoodFromDas(),
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
+        // Commands.waitSeconds(2).andThen(robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4))),
         robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
         robot.intake.intakeSlow(),
         Commands.repeatingSequence(
@@ -155,6 +186,9 @@ public class ShooterCommands extends SubsystemBase {
             Commands.waitSeconds(.5)));
 
     return Commands.waitUntil(() -> {
+      if (Robot.isSimulation()) {
+        return true;
+      }
       return robot.shooterLeft.isAtSetpoint();
     }).andThen(feed);
 
@@ -174,6 +208,14 @@ public class ShooterCommands extends SubsystemBase {
         robot.shooterRight.stop());
   }
 
+  public Command positionHoodFromDas() {
+    return robot.hood.setAngle(() -> {
+      double distance = this.getDistanceToHub(); // not real
+      DAS.MotorSettings as = das.calculateAS(distance);
+      return Degrees.of(as.angle);
+    });
+  }
+
   public Command revSpeedFromDAS() {
     Command left = robot.shooterLeft.spinWithSetpoint(() -> {
       double distance = this.getDistanceToHub(); // not real
@@ -186,13 +228,11 @@ public class ShooterCommands extends SubsystemBase {
       return as.velocity;
     });
 
-    Command hood = robot.hood.setAngle(() -> {
-      double distance = this.getDistanceToHub(); // not real
-      DAS.MotorSettings as = das.calculateAS(distance);
-      return Degrees.of(as.angle);
-    });
-
-    return Commands.parallel(left, right, hood);
+    return Commands.parallel(
+        left,
+        right
+    // positionHoodFromDas()
+    );
   }
 
   public Command rev(Supplier<Double> speed) {

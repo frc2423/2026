@@ -212,6 +212,7 @@ public class Vision {
    * @return an {@link EstimatedRobotPose} with an estimated pose, timestamp, and
    *         targets used to create the estimate
    */
+
   public Optional<EstimatedRobotPose> getEstimatedGlobalPose(Cameras camera) {
     Optional<EstimatedRobotPose> poseEst = camera.getEstimatedGlobalPose();
     NTHelper.setBoolean("/swerveSubsystem/vision/poseIsGood", filterPose(poseEst));
@@ -331,8 +332,12 @@ public class Vision {
 
   }
 
-  public Transform3d getTransform3d() {
+  public Transform3d getLeftCamTransform3d() {
     return Cameras.FRONT_LEFT_CAM.getTransform3d();
+  }
+
+  public Transform3d getRightCamTransform3d() {
+    return Cameras.FRONT_RIGHT_CAM.getTransform3d();
   }
 
   public Integer findClosestTagID(Pose2d currentPose) {
@@ -451,9 +456,13 @@ public class Vision {
    * 
    * @return True when an april tag is discovered.
    */
-    public boolean isSeeingAprilTag() {
-      return Cameras.FRONT_LEFT_CAM.hasTarget();
-    }
+  public boolean isSeeingAprilTag() {
+    return Cameras.FRONT_LEFT_CAM.hasTarget() || Cameras.FRONT_RIGHT_CAM.hasTarget();
+  }
+
+  public boolean isCameraConnected() {
+    return Cameras.FRONT_LEFT_CAM.isConnected() || Cameras.FRONT_RIGHT_CAM.isConnected();
+  }
 
   /**
    * Camera Enum to select each camera
@@ -463,17 +472,17 @@ public class Vision {
    * 
    */
   enum Cameras {
-    // FRONT_RIGHT_CAM("right_cam",
-    // new Rotation3d(0, Math.toRadians(-20), Math.toRadians(0)),
-    // new Translation3d(Units.inchesToMeters(10.5), // center to front
-    // Units.inchesToMeters(-5),
-    // Units.inchesToMeters(6)), // front floor
-    // VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
+    FRONT_RIGHT_CAM("april_tag_cam_right",
+        new Rotation3d(0, Math.toRadians(0), Math.toRadians(-245)),
+        new Translation3d(Units.inchesToMeters(-11),
+            Units.inchesToMeters(13.3),
+            Units.inchesToMeters(18)),
+        VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
     FRONT_LEFT_CAM("april_tag_cam",
         new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-180)),
         new Translation3d(Units.inchesToMeters(-12.560),
-            Units.inchesToMeters(  -8.75),
+            Units.inchesToMeters(-11),
             Units.inchesToMeters(19.919)),
         VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1));
 
@@ -582,6 +591,10 @@ public class Vision {
         cameraSim = new PhotonCameraSim(camera, cameraProp);
         cameraSim.enableDrawWireframe(true);
       }
+    }
+
+    public boolean isConnected() {
+      return camera.isConnected();
     }
 
     public Transform3d getTransform3d() {
