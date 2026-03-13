@@ -200,7 +200,7 @@ public class DriveShortestPath {
             waypoints.add(new Path.Waypoint(targetPose2d));
             
             PathConstraints pathConstraints = new PathConstraints()
-                .setMaxVelocityMetersPerSec(2)
+                .setMaxVelocityMetersPerSec(3.5)
                 .setMaxAccelerationMetersPerSec2(12);
             FollowPath followPath = bline.pathBuilder.build(new Path(pathConstraints,waypoints.toArray(new Path.PathElement[0])));
             return followPath;
