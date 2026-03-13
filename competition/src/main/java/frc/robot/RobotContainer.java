@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -103,14 +104,13 @@ public class RobotContainer {
         public final AutoCommands auto = new AutoCommands(this);
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
-        
+
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
 
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
-        
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
@@ -134,10 +134,10 @@ public class RobotContainer {
                                 return "GreenCycle";
                         }
                         if (twindexer.isJammed()) {
-                                return "yellow"; //make a yellow cycle
+                                return "yellow"; // make a yellow cycle
                         }
                         if (intake.isJammed()) {
-                                return "orange"; //make an orange cycle
+                                return "orange"; // make an orange cycle
                         }
                         if (drivetrain.isSeeingAprilTag()) {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
@@ -227,39 +227,46 @@ public class RobotContainer {
                 driverController.leftTrigger().whileTrue(passingCommands.aimToPass())
                                 .onFalse(shooterCommands.stopShooting());
 
+                driverController.povUp().onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Auto")));
+                driverController.povLeft()
+                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Left Bump")));
+                driverController.povRight()
+                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Right Bump")));
+                driverController.povDown()
+                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Tower")));
+
         }
 
         private void configureOperatorControllerBindings() {
 
-                operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(shooterCommands.feed(() -> {
-                        return NTHelper.getDouble("/tuning/FeederSpeed", 1);
-                })))
-                                .onFalse(shooterCommands.stopFeeding());
+                // operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(shooterCommands.feed(()
+                // -> {
+                // return NTHelper.getDouble("/tuning/FeederSpeed", 1);
+                // })))
+                // .onFalse(shooterCommands.stopFeeding());
 
-                operatorController.rightBumper()
-                                .whileTrue(shooterCommands.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
-                                .onFalse(shooterCommands.stopShooting());
+                // operatorController.rightBumper()
+                // .whileTrue(shooterCommands.rev(() ->
+                // NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
+                // .onFalse(shooterCommands.stopShooting());
 
-                operatorController.a().whileTrue(intakeCommands.armDown());
-                operatorController.b().whileTrue(arm.armUp());
-                operatorController.x().whileTrue(intake.intake()).onFalse(intake.stop());
-                operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
+                operatorController.leftBumper().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
+                operatorController.rightBumper().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
-                operatorController.povLeft().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
-                operatorController.povRight().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
+                operatorController.a().onTrue(hood.hoodDownandReset());
+                
+                operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain.resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance()?180:0))));
+                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
 
-                operatorController.leftTrigger().onTrue(hood.hoodDownandReset());
 
-                // operatorController.povUp().whileTrue(feederLeft.spinWithSetpoint(() ->
-                // 0.7).alongWith(feederRight.spinWithSetpoint(() ->
-                // 0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
-                // operatorController.povDown().whileTrue(feederLeft.spinWithSetpoint(() ->
-                // -0.7).alongWith(feederRight.spinWithSetpoint(() ->
-                // -0.7))).onFalse(feederLeft.stop().alongWith(feederRight.stop()));
-
-                // operatorController.leftBumper().whileTrue(passingCommands.trenchPass());
-                // operatorController.leftTrigger().whileTrue(passingCommands.aimToPass());
-
+                operatorController.povUp()
+                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Auto")));
+                operatorController.povLeft()
+                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Left Bump")));
+                operatorController.povRight()
+                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Right Bump")));
+                operatorController.povDown()
+                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Tower")));
         }
 
         private final CommandXboxController shortestPathController = new CommandXboxController(2);

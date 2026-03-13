@@ -44,6 +44,8 @@ public class ShooterCommands extends SubsystemBase {
 
   private final SendableChooser<String> shootingPoseChooser = new SendableChooser<>();
 
+  private String selectedShootingPose = "Auto";
+
   public ShooterCommands(RobotContainer robot) {
     this.robot = robot;
     shootingPoseChooser.setDefaultOption("Auto", "Auto");
@@ -65,23 +67,42 @@ public class ShooterCommands extends SubsystemBase {
 
   }
 
-  // TODO: Change this based on shootingPoseChooser option selected
+
+  public void setFixedShootingPose(String shootingPose) {
+    selectedShootingPose = shootingPose;
+  }
+
   private Pose2d getShootingPose() {
     Pose2d shootingPose = robot.drivetrain.getPose();
-    if (shootingPoseChooser.getSelected() == null) {
+    if (selectedShootingPose == null) {
       return shootingPose;
     }
-    if (shootingPoseChooser.getSelected().equals("Tower")) {
+    if (selectedShootingPose.equals("Tower")) {
       shootingPose = new Pose2d(1.72, 3.63, robot.drivetrain.getPose().getRotation());
-    } else if (shootingPoseChooser.getSelected().equals("Left Bump")) {
+    } else if (selectedShootingPose.equals("Left Bump")) {
       shootingPose = new Pose2d(3.23, 6.4, robot.drivetrain.getPose().getRotation());
-    } else if (shootingPoseChooser.getSelected().equals("Right Bump")) {
+    } else if (selectedShootingPose.equals("Right Bump")) {
       shootingPose = new Pose2d(3.23, 1.65, robot.drivetrain.getPose().getRotation());
     }
-    if (!shootingPoseChooser.getSelected().equals("Auto") && PoseTransformUtils.isRedAlliance()) {
+    if (!selectedShootingPose.equals("Auto") && PoseTransformUtils.isRedAlliance()) {
       shootingPose = FlippingUtil.flipFieldPose(shootingPose);
     }
     return shootingPose;
+    // Pose2d shootingPose = robot.drivetrain.getPose();
+    // if (shootingPoseChooser.getSelected() == null) {
+    //   return shootingPose;
+    // }
+    // if (shootingPoseChooser.getSelected().equals("Tower")) {
+    //   shootingPose = new Pose2d(1.72, 3.63, robot.drivetrain.getPose().getRotation());
+    // } else if (shootingPoseChooser.getSelected().equals("Left Bump")) {
+    //   shootingPose = new Pose2d(3.23, 6.4, robot.drivetrain.getPose().getRotation());
+    // } else if (shootingPoseChooser.getSelected().equals("Right Bump")) {
+    //   shootingPose = new Pose2d(3.23, 1.65, robot.drivetrain.getPose().getRotation());
+    // }
+    // if (!shootingPoseChooser.getSelected().equals("Auto") && PoseTransformUtils.isRedAlliance()) {
+    //   shootingPose = FlippingUtil.flipFieldPose(shootingPose);
+    // }
+    // return shootingPose;
   }
 
   public Rotation2d getLookAngle(Pose2d targetPose) {
