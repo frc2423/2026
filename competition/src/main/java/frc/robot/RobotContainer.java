@@ -103,14 +103,13 @@ public class RobotContainer {
         public final AutoCommands auto = new AutoCommands(this);
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
-        
+
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
 
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
-        
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
@@ -134,10 +133,10 @@ public class RobotContainer {
                                 return "GreenCycle";
                         }
                         if (twindexer.isJammed()) {
-                                return "yellow"; //make a yellow cycle
+                                return "yellow"; // make a yellow cycle
                         }
                         if (intake.isJammed()) {
-                                return "orange"; //make an orange cycle
+                                return "orange"; // make an orange cycle
                         }
                         if (drivetrain.isSeeingAprilTag()) {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
@@ -220,10 +219,20 @@ public class RobotContainer {
                 driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
                                 .onFalse(shooterCommands.stopShooting());
 
+                // Use passing feed command when left trigger is pressed, and shooter feed command otherwise
+                Command shooterFeedCommand = shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                Command passingFeedCommand = passingCommands
+                                .feedForPassing(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
+                                () -> driverController.leftTrigger().getAsBoolean());
+
+                // Feed when right bumper is pressed
                 driverController.rightBumper()
-                                .whileTrue(shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)))
+                                .whileTrue(feedCommand)
                                 .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
+                // Trench pass when left bumper is pressed
                 driverController.leftBumper().whileTrue(passingCommands.trenchPass()).onFalse(intake.stop());
+                // Aim to pass on left trigger
                 driverController.leftTrigger().whileTrue(passingCommands.aimToPass())
                                 .onFalse(shooterCommands.stopShooting());
 
