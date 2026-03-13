@@ -36,21 +36,21 @@ public class DAS {
     }
 
     private void initializeMap() {
-        // distanceMap.put(1.4, new MotorSettings(0, 2700));
-        // distanceMap.put(2.0, new MotorSettings(14, 2700));
-        // distanceMap.put(2.6, new MotorSettings(18.5, 2900));
-        // distanceMap.put(3.2, new MotorSettings(18.5, 3100));
-        // distanceMap.put(3.8, new MotorSettings(23.5, 3250));
-        // distanceMap.put(4.4, new MotorSettings(27, 3450));
-        // distanceMap.put(5.0, new MotorSettings(32, 3550));
-
-        distanceMap.put(1.4, new MotorSettings(5, 2900));
-        distanceMap.put(2.0, new MotorSettings(14, 2900));
-        distanceMap.put(2.6, new MotorSettings(18.75, 3100));
-        distanceMap.put(3.2, new MotorSettings(23, 3100));
+        distanceMap.put(1.4, new MotorSettings(0, 2700));
+        distanceMap.put(2.0, new MotorSettings(14, 2700));
+        distanceMap.put(2.6, new MotorSettings(18.5, 2900));
+        distanceMap.put(3.2, new MotorSettings(18.5, 3100));
         distanceMap.put(3.8, new MotorSettings(23.5, 3250));
         distanceMap.put(4.4, new MotorSettings(27, 3450));
         distanceMap.put(5.0, new MotorSettings(32, 3550));
+
+        // distanceMap.put(1.4, new MotorSettings(5, 2900));
+        // distanceMap.put(2.0, new MotorSettings(14, 2900));
+        // distanceMap.put(2.6, new MotorSettings(18.75, 3100));
+        // distanceMap.put(3.2, new MotorSettings(23, 3100));
+        // distanceMap.put(3.8, new MotorSettings(23.5, 3250));
+        // distanceMap.put(4.4, new MotorSettings(27, 3450));
+        // distanceMap.put(5.0, new MotorSettings(32, 3550));
     }
 
     public MotorSettings calculateAS(double distance) {

@@ -170,12 +170,10 @@ public class ShooterCommands extends SubsystemBase {
             feed(() -> 0.25)).withTimeout(shootingTime));
   }
 
-  public Command feed(Supplier<Double> setpoint) {
+  public Command feedOnly(Supplier<Double> setpoint) {
     Command feed = Commands.parallel(
-        positionHoodFromDas(),
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
-        // Commands.waitSeconds(2).andThen(robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4))),
         robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
         robot.intake.intakeSlow(),
         Commands.repeatingSequence(
@@ -183,6 +181,14 @@ public class ShooterCommands extends SubsystemBase {
             Commands.waitUntil(() -> robot.twindexer.isJammed()),
             robot.twindexer.spindexBack(),
             Commands.waitSeconds(.5)));
+
+    return feed;
+  }
+
+  public Command feed(Supplier<Double> setpoint) {
+    Command feed = Commands.parallel(
+        positionHoodFromDas(),
+        feedOnly(setpoint));
 
     return Commands.waitUntil(() -> {
       if (Robot.isSimulation()) {

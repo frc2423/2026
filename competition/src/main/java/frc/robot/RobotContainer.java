@@ -220,10 +220,20 @@ public class RobotContainer {
                 driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
                                 .onFalse(shooterCommands.stopShooting());
 
+                // Use passing feed command when left trigger is pressed, and shooter feed command otherwise
+                Command shooterFeedCommand = shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                Command passingFeedCommand = passingCommands
+                                .feedForPassing(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
+                                () -> driverController.leftTrigger().getAsBoolean());
+
+                // Feed when right bumper is pressed
                 driverController.rightBumper()
-                                .whileTrue(shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0)))
+                                .whileTrue(feedCommand)
                                 .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
+                // Trench pass when left bumper is pressed
                 driverController.leftBumper().whileTrue(passingCommands.trenchPass()).onFalse(intake.stop());
+                // Aim to pass on left trigger
                 driverController.leftTrigger().whileTrue(passingCommands.aimToPass())
                                 .onFalse(shooterCommands.stopShooting());
 

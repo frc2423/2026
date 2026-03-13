@@ -1,14 +1,21 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.Degrees;
+
+import java.util.function.Supplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.NTHelper;
+import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
+import frc.robot.subsystems.DAS;
 
 public class PassingCommands extends SubsystemBase {
 
@@ -56,32 +63,59 @@ public class PassingCommands extends SubsystemBase {
         return Commands.sequence(goToNearestPassingSpot, passFuel);
     }
 
+    private Pose2d getAimToPassPose() {
+        Pose2d targetPose = Pose2d.kZero;
+        if (robot.drivetrain.getPose().getY() > FieldConstants.LinesHorizontal.center) {
+            if (PoseTransformUtils.isRedAlliance()) {
+                targetPose = new Pose2d(FieldConstants.fieldLength,
+                        6.5 + 1.5 * robot.driverController.getRightX(),
+                        Rotation2d.fromDegrees(180));
+            } else {
+                targetPose = new Pose2d(0, 6.5 - 1.5 * robot.driverController.getRightX(),
+                        Rotation2d.fromDegrees(180));
+            }
+        } else {
+            if (PoseTransformUtils.isRedAlliance()) {
+                targetPose = new Pose2d(FieldConstants.fieldLength,
+                        1.5 + 1.5 * robot.driverController.getRightX(),
+                        Rotation2d.fromDegrees(180));
+            } else {
+                targetPose = new Pose2d(0, 1.5 - 1.5 * robot.driverController.getRightX(),
+                        Rotation2d.fromDegrees(180));
+            }
+        }
+        return targetPose;
+    }
+
+    private double getDistanceToAimToPassPose() {
+        return robot.shooterCommands.getDistanceBetweenPoses(robot.drivetrain.getPose(), getAimToPassPose());
+    }
+
+    public Command feedForPassing(Supplier<Double> setpoint) {
+        Command feed = Commands.parallel(
+                robot.hood.setAngle(() -> {
+                    return Degrees.of(40);
+                }),
+                robot.shooterCommands.feedOnly(setpoint));
+
+        return Commands.waitUntil(() -> {
+            if (Robot.isSimulation()) {
+                return true;
+            }
+            return robot.shooterLeft.isAtSetpoint();
+        }).andThen(feed);
+
+    }
+
     public Command aimToPass() {
         return Commands.parallel(
                 robot.shooterCommands.lookAtPose(() -> {
-                    Pose2d targetPose = Pose2d.kZero;
-                    if (robot.drivetrain.getPose().getY() > FieldConstants.LinesHorizontal.center) {
-                        if (PoseTransformUtils.isRedAlliance()) {
-                            targetPose = new Pose2d(FieldConstants.fieldLength,
-                                    6.5 + 1.5 * robot.driverController.getRightX(),
-                                    Rotation2d.fromDegrees(180));
-                        } else {
-                            targetPose = new Pose2d(0, 6.5 - 1.5 * robot.driverController.getRightX(),
-                                    Rotation2d.fromDegrees(180));
-                        }
-                    } else {
-                        if (PoseTransformUtils.isRedAlliance()) {
-                            targetPose = new Pose2d(FieldConstants.fieldLength,
-                                    1.5 + 1.5 * robot.driverController.getRightX(),
-                                    Rotation2d.fromDegrees(180));
-                        } else {
-                            targetPose = new Pose2d(0, 1.5 - 1.5 * robot.driverController.getRightX(),
-                                    Rotation2d.fromDegrees(180));
-                        }
-                    }
-                    return targetPose;
+                    return getAimToPassPose();
                 }),
-                robot.shooterCommands.rev(() -> 3200.0));
+                robot.shooterCommands.rev(() -> {
+                    double distance = getDistanceToAimToPassPose();
+                    return Math.min(4500, 2700 + distance * 100);
+                }));
     }
 
 }
