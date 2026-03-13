@@ -150,22 +150,10 @@
             }
           },
           {
-            "title": "Location Chooser (PLACEHOLDER)",
-            "x": 192.0,
-            "y": 384.0,
-            "width": 384.0,
-            "height": 128.0,
-            "type": "Split Button Chooser",
-            "properties": {
-              "topic": "/SmartDashboard/shooterCommands/chooser",
-              "period": 0.06
-            }
-          },
-          {
             "title": "Auto Chooser",
-            "x": 576.0,
+            "x": 512.0,
             "y": 320.0,
-            "width": 384.0,
+            "width": 448.0,
             "height": 192.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -242,6 +230,19 @@
               "topic": "Robot/robotContainer/hood/getSetpoint",
               "period": 0.06,
               "data_type": "double"
+            }
+          },
+          {
+            "title": "Selected Shooting Pose",
+            "x": 192.0,
+            "y": 384.0,
+            "width": 320.0,
+            "height": 128.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "Robot/robotContainer/shooterCommands/selectedShootingPose",
+              "period": 0.06,
+              "data_type": "string"
             }
           }
         ]
