@@ -59,8 +59,8 @@ public class RobotContainer {
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
                                                                                  // motors
 
-        private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
-        private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
+        private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(12);
+        private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(12);
 
         public final CommandXboxController driverController = new CommandXboxController(0);
         public final CommandXboxController operatorController = new CommandXboxController(1);

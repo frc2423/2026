@@ -54,7 +54,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     private final SmartMotorController hoodMotor = new SparkWrapper(hoodMotorBase, DCMotor.getNeo550(1), smcConfig);
 
-    private final PIDController hoodPidController = new PIDController(0.03, 0, 0);
+    private final PIDController hoodPidController = new PIDController(0.02, 0, 0);
     private final RobotContainer robot;
 
     private Angle setpointAngle;
@@ -131,8 +131,8 @@ public class HoodSubsystem extends SubsystemBase {
 
     public Command hoodDownandReset() {
         return Commands.sequence(
-                set(-.15),
-                Commands.waitUntil(() -> isStalled()).withTimeout(3),
+                set(-.1),
+                Commands.waitUntil(() -> isStalled()).withTimeout(1.5),
                 set(0),
                 Commands.waitSeconds(.5),
                 setEncoderPosition(Degrees.of(0)));

@@ -174,7 +174,7 @@ public class ShooterCommands extends SubsystemBase {
     Command feed = Commands.parallel(
         robot.feederLeft.spin(() -> setpoint.get()),
         robot.feederRight.spin(() -> setpoint.get()),
-        robot.arm.wiggleArm(Degrees.of(95), Degrees.of(20), Seconds.of(.4)),
+        robot.arm.wiggleArm(Degrees.of(80), Degrees.of(35), Seconds.of(.4)),
         robot.intake.intakeSlow(),
         Commands.repeatingSequence(
             robot.twindexer.spindex(),
