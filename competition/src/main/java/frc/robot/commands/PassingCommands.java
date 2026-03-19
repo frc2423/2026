@@ -56,9 +56,7 @@ public class PassingCommands extends SubsystemBase {
                 robot.shooterCommands.revSpeedFromDAS(),
                 Commands.sequence(
                         Commands.waitSeconds(3),
-                        robot.shooterCommands.feed(() -> {
-                            return NTHelper.getDouble("/tuning/FeederSpeed", 0);
-                        })));
+                        robot.shooterCommands.feed()));
 
         return Commands.sequence(goToNearestPassingSpot, passFuel);
     }
@@ -91,12 +89,12 @@ public class PassingCommands extends SubsystemBase {
         return robot.shooterCommands.getDistanceBetweenPoses(robot.drivetrain.getPose(), getAimToPassPose());
     }
 
-    public Command feedForPassing(Supplier<Double> setpoint) {
+    public Command feedForPassing() {
         Command feed = Commands.parallel(
                 robot.hood.setAngle(() -> {
                     return Degrees.of(40);
                 }),
-                robot.shooterCommands.feedOnly(setpoint));
+                robot.shooterCommands.feedOnly());
 
         return Commands.waitUntil(() -> {
             if (Robot.isSimulation()) {

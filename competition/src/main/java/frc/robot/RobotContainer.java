@@ -59,8 +59,8 @@ public class RobotContainer {
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive
                                                                                  // motors
 
-        private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
-        private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
+        private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(12);
+        private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(12);
 
         public final CommandXboxController driverController = new CommandXboxController(0);
         public final CommandXboxController operatorController = new CommandXboxController(1);
@@ -221,9 +221,9 @@ public class RobotContainer {
                                 .onFalse(shooterCommands.stopShooting());
 
                 // Use passing feed command when left trigger is pressed, and shooter feed command otherwise
-                Command shooterFeedCommand = shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                Command shooterFeedCommand = shooterCommands.feed();
                 Command passingFeedCommand = passingCommands
-                                .feedForPassing(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                                .feedForPassing();
                 Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
                                 () -> driverController.leftTrigger().getAsBoolean());
 

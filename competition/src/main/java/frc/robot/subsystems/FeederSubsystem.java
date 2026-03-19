@@ -17,13 +17,14 @@ import frc.robot.NTHelper;
 public class FeederSubsystem extends SubsystemBase {
 
     private final SparkFlex motor;
-    private double percentSpeed = 0;
+    private double motorVoltage = 0;
 
     public FeederSubsystem(int motorId, boolean isInverted) {
         motor = new SparkFlex(motorId, MotorType.kBrushless);
 
         SparkFlexConfig config = new SparkFlexConfig();
         config.inverted(isInverted);
+        config.openLoopRampRate(.5);
         config.smartCurrentLimit(80, 80);
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
@@ -33,30 +34,30 @@ public class FeederSubsystem extends SubsystemBase {
 
     public Command spin() {
         return runOnce(() -> {
-            percentSpeed = 1;
+            motorVoltage = 8;
         }).withName("spinFeeder");
     }
 
-    public Command spin(Supplier<Double> value) {
-        return run(() -> {
-            percentSpeed = value.get();
-        }).withName("spinFeeder");
-    }
+    // public Command spin(Supplier<Double> value) {
+    //     return run(() -> {
+    //         percentSpeed = .7;
+    //     }).withName("spinFeeder");
+    // }
 
     public Command stop() {
         return runOnce(() -> {
-            percentSpeed = 0;
+            motorVoltage = 0;
         }).withName("stopFeeder");
     }
 
     @Override
     public void periodic() {
-        motor.set(percentSpeed);
+        motor.setVoltage(motorVoltage);
     }
 
     @Logged
     public double getMotorSpeed() {
-        return percentSpeed;
+        return motor.get();
     }
 
     @Logged

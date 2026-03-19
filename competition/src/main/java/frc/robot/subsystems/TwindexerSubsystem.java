@@ -9,7 +9,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -18,12 +17,12 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     private SparkFlex motor = new SparkFlex(23, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
-    private final SlewRateLimiter speedLimiter = new SlewRateLimiter(2);
-    private double percentSpeed = 0;
+    private double motorVoltage = 0;
 
     public TwindexerSubsystem() {
-        setCurrentLimit(100, 80);
+        motorConfig.openLoopRampRate(.3);
         motorConfig.idleMode(IdleMode.kCoast);
+        setCurrentLimit(100, 80);
     }
 
     private void setCurrentLimit(int stallLimit, int freeLimit) {
@@ -33,25 +32,25 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     public Command spindex() {
         return runOnce(() -> {
-            percentSpeed = 1;
+            motorVoltage = 8;
         }).withName("spindex");
     }
 
     public Command spindexBack() {
         return runOnce(() -> {
-            percentSpeed = -0.5;
+            motorVoltage = -8;
         }).withName("spindexBack");
     }
 
     public Command stop() {
         return runOnce(() -> {
-            percentSpeed = 0;
+            motorVoltage = 0;
         }).withName("stopSpindexer");
     }
 
     @Override
     public void periodic() {
-        motor.set(speedLimiter.calculate(percentSpeed));
+        motor.setVoltage(motorVoltage);
 
     }
 

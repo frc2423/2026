@@ -55,7 +55,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private QuackNav questNav = new QuackNav();
 
     ProfiledPIDController thetaController = new ProfiledPIDController(3, 0, 0,
-      new TrapezoidProfile.Constraints(6.28, 12));
+            new TrapezoidProfile.Constraints(6.28, 12));
 
     /*
      * SysId routine for characterizing translation. This is used to find PID gains
@@ -72,7 +72,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                     output -> setControl(m_translationCharacterization.withVolts(output)),
                     null,
                     this));
-  
+
     /* The SysId routine to test */
     private SysIdRoutine m_sysIdRoutineToApply = m_sysIdRoutineTranslation;
 
@@ -196,7 +196,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         return m_sysIdRoutineToApply.dynamic(direction);
     }
 
-    public boolean isSeeingAprilTag(){
+    public boolean isSeeingAprilTag() {
         return vision.isSeeingAprilTag();
     }
 
@@ -211,14 +211,13 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
         Transform3d leftCameraTransform = vision.getLeftCamTransform3d();
         Pose3d leftCameraPose = robotPose.transformBy(leftCameraTransform);
         NTHelper.setPose3d("/photonvision/leftCameraPose", leftCameraPose);
-        
+
         Transform3d rightCameraTransform = vision.getRightCamTransform3d();
         Pose3d rightCameraPose = robotPose.transformBy(rightCameraTransform);
         NTHelper.setPose3d("/photonvision/rightCameraPose", rightCameraPose);
 
-
-
-        //NTHelper.setPose3d("/photonvision/Camera Pose", pose3d.transformBy(Cameras.FRONT_LEFT_CAM.getTransform3d()));
+        // NTHelper.setPose3d("/photonvision/Camera Pose",
+        // pose3d.transformBy(Cameras.FRONT_LEFT_CAM.getTransform3d()));
         /*
          * Periodically try to apply the operator perspective.
          * If we haven't applied the operator perspective before, then we should apply
@@ -328,6 +327,3 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     }
 
 }
-
-
-
