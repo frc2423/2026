@@ -90,7 +90,7 @@ public class AutoCommands {
                 Commands.parallel(
                         robot.shooterCommands.prepareToShoot(),
                         Commands.waitSeconds(3).andThen(
-                                robot.shooterCommands.feed(() -> feederSpeed))));
+                                robot.shooterCommands.feed())));
     }
 
     public Command centerOnceAuto() {

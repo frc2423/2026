@@ -30,12 +30,22 @@ public class ShooterSubsystem extends SubsystemBase {
         SparkFlexConfig config = new SparkFlexConfig();
         config.encoder.velocityConversionFactor(1);
         config.encoder.positionConversionFactor(1);
+        config.encoder.uvwMeasurementPeriod(8)
+                .quadratureAverageDepth(2)
+                .quadratureMeasurementPeriod(8);
+        config.closedLoopRampRate(.2);
+        config.openLoopRampRate(.2);
         config.inverted(isInverted);
         // config.encoder.countsPerRevolution(1);
         config.idleMode(IdleMode.kCoast);
         // config.closedLoop.p(.002).i(0).d(.04).outputRange(-1,1 );
-        config.closedLoop.p(0.003).i(0).d(0).outputRange(-1, 0);
-        config.closedLoop.allowedClosedLoopError(100, ClosedLoopSlot.kSlot0);
+        if (!isInverted) {
+            config.closedLoop.p(100000.5).i(0).d(0).outputRange(0, 1);
+        } else {
+            config.closedLoop.p(100000.5).i(0).d(0).outputRange(-1, 0);
+
+        }
+        config.closedLoop.allowedClosedLoopError(50, ClosedLoopSlot.kSlot0);
 
         motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
 
@@ -90,7 +100,7 @@ public class ShooterSubsystem extends SubsystemBase {
 
     @Logged
     public boolean isAtSetpoint() {
-        return Math.abs(getVelocity() - getSetpoint()) <= 100;
+        return Math.abs(getVelocity() - getSetpoint()) <= 50;
         // return motor.getClosedLoopController().isAtSetpoint();
     }
 

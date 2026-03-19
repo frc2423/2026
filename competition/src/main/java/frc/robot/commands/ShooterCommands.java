@@ -40,7 +40,6 @@ public class ShooterCommands extends SubsystemBase {
   private final SlewRateLimiter xSpeedLimiter = new SlewRateLimiter(7);
   private final SlewRateLimiter ySpeedLimiter = new SlewRateLimiter(7);
 
-
   @Logged
   private String selectedShootingPose = "Auto";
 
@@ -59,7 +58,6 @@ public class ShooterCommands extends SubsystemBase {
     return getDistanceBetweenPoses(getShootingPose(), getHubPose());
 
   }
-
 
   public void setFixedShootingPose(String shootingPose) {
     selectedShootingPose = shootingPose;
@@ -167,13 +165,13 @@ public class ShooterCommands extends SubsystemBase {
         prepareToShoot().until(() -> isFacingHub()),
         Commands.parallel(
             revSpeedFromDAS(),
-            feed(() -> 0.25)).withTimeout(shootingTime));
+            feed()).withTimeout(shootingTime));
   }
 
-  public Command feedOnly(Supplier<Double> setpoint) {
+  public Command feedOnly() {
     Command feed = Commands.parallel(
-        robot.feederLeft.spin(() -> setpoint.get()),
-        robot.feederRight.spin(() -> setpoint.get()),
+        robot.feederLeft.spin(),
+        robot.feederRight.spin(),
         robot.arm.wiggleArm(Degrees.of(80), Degrees.of(35), Seconds.of(.4)),
         robot.intake.intakeSlow(),
         Commands.repeatingSequence(
@@ -185,10 +183,10 @@ public class ShooterCommands extends SubsystemBase {
     return feed;
   }
 
-  public Command feed(Supplier<Double> setpoint) {
+  public Command feed() {
     Command feed = Commands.parallel(
         positionHoodFromDas(),
-        feedOnly(setpoint));
+        feedOnly());
 
     return Commands.waitUntil(() -> {
       if (Robot.isSimulation()) {

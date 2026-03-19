@@ -221,9 +221,9 @@ public class RobotContainer {
                                 .onFalse(shooterCommands.stopShooting());
 
                 // Use passing feed command when left trigger is pressed, and shooter feed command otherwise
-                Command shooterFeedCommand = shooterCommands.feed(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                Command shooterFeedCommand = shooterCommands.feed();
                 Command passingFeedCommand = passingCommands
-                                .feedForPassing(() -> NTHelper.getDouble("/tuning/FeederSpeed", 0));
+                                .feedForPassing();
                 Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
                                 () -> driverController.leftTrigger().getAsBoolean());
 
