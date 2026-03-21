@@ -256,7 +256,7 @@ public class RobotContainer {
                 operatorController.a().onTrue(hood.hoodDownandReset());
                 
                 operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain.resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance()?180:0))));
-                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
+                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d(.5,.5,new Rotation2d(0)))));
 
 
                 operatorController.povUp()
