@@ -31,6 +31,15 @@ function App() {
   const [quality, setQuality] = useState(50);
   const [fps, setFps] = useState(60);
 
+  const [activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "both [DEFAULT VALUE]");
+  const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "both [DEFAULT VALUE]");
+  const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
+  const [isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
+  const [matchTime] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/matchTime", 160.0);
+  const [shiftTimeRemaining] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/shiftTimeRemaining", 0.0);
+  
+
+
   return (
     <div style={{ padding: "20px" }}>
       <Gyro  value={50}/>
@@ -105,6 +114,9 @@ function App() {
           Decrement
         </button>
         <button onClick={() => setSomeNumber(0)}>Reset</button>
+      </div>
+      <div>
+        {activeAlliance}
       </div>
       <div>
         <Canvas>
