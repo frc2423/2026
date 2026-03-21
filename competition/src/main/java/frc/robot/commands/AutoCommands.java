@@ -5,10 +5,12 @@ import java.util.List;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
@@ -94,9 +96,10 @@ public class AutoCommands {
                                 robot.shooterCommands.feed())));
     }
 
+    Path trenchToCenterPath = new Path("Trench-to-Center");
+    Path centerToLeftoversPath = new Path("Center-to-Leftovers");
+
     public Command centerOnceTrenchAuto() {
-        Path trenchToCenterPath = new Path("Trench-to-Center");
-        Path centerToLeftoversPath = new Path("Center-to-Leftovers");
 
         if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
                 .isRedAlliance()) {
@@ -119,12 +122,17 @@ public class AutoCommands {
                         robot.intake.intake()));
 
         // Command intakeInCenterMore = Commands.deadline(centerToLeftovers,
-        //         Commands.sequence(
-        //                 Commands.waitUntil(() -> centerToLeftovers.getCurrentTranslationElementIndex() >= 8),
-        //                 robot.intake.stop())
-        //                 );
+        // Commands.sequence(
+        // Commands.waitUntil(() ->
+        // centerToLeftovers.getCurrentTranslationElementIndex() >= 8),
+        // robot.intake.stop())
+        // );
 
         return Commands.sequence(
+                Commands.runOnce(() -> {
+                    System.out.println("TIME 3: " + Timer.getTimestamp());
+
+                }),
                 goToCenterAndIntake,
                 Commands.print("CENTER TO TRENCH"),
                 Commands.deadline(
@@ -169,7 +177,8 @@ public class AutoCommands {
                 Commands.waitSeconds(2),
                 Commands.deadline(
                         outpostToDepot,
-                        Commands.waitUntil(() -> outpostToDepot.getCurrentTranslationElementIndex() >= 4).andThen(startIntaking())),
+                        Commands.waitUntil(() -> outpostToDepot.getCurrentTranslationElementIndex() >= 4)
+                                .andThen(startIntaking())),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
@@ -334,11 +343,30 @@ public class AutoCommands {
             return shootAuto();
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto")) {
             return centerTwiceTrenchAuto();
-        } else  if (m_chooser.getSelected().equals("Center Twice Bump Auto")) {
+        } else if (m_chooser.getSelected().equals("Center Twice Bump Auto")) {
             return centerTwiceBumpAuto();
         } else {
             return Commands.none();
         }
+    }
+
+    public String getSelectedAuto() {
+        String autoSelection = m_chooser.getSelected();
+        if (autoSelection == null) {
+            return "";
+        }
+        return autoSelection;
+    }
+
+    private String previousAutoSelection = "";
+
+    public Trigger autoSelectionChange() {
+        return new Trigger(() -> {
+            String autoSelection = getSelectedAuto();
+            boolean hasChanged = !previousAutoSelection.equals(autoSelection);
+            previousAutoSelection = autoSelection;
+            return hasChanged;
+        });
     }
 
     private Pose2d flipPoseBasedOnRobotPose(Pose2d unflippedPose2d) {

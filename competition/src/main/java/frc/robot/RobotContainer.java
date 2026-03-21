@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
@@ -23,7 +22,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PassingCommands;
@@ -198,6 +196,7 @@ public class RobotContainer {
                 configureOperatorControllerBindings();
                 configureShortestPathBindings();
                 configureLeds();
+                configureAutoBindings();
 
                 drivetrain.registerTelemetry(logger::telemeterize);
 
@@ -220,7 +219,8 @@ public class RobotContainer {
                 driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
                                 .onFalse(shooterCommands.stopShooting());
 
-                // Use passing feed command when left trigger is pressed, and shooter feed command otherwise
+                // Use passing feed command when left trigger is pressed, and shooter feed
+                // command otherwise
                 Command shooterFeedCommand = shooterCommands.feed();
                 Command passingFeedCommand = passingCommands
                                 .feedForPassing();
@@ -264,10 +264,10 @@ public class RobotContainer {
                 operatorController.rightBumper().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
                 operatorController.a().onTrue(hood.hoodDownandReset());
-                
-                operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain.resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance()?180:0))));
-                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
 
+                operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain
+                                .resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance() ? 180 : 0))));
+                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
 
                 operatorController.povUp()
                                 .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Auto")));
@@ -288,8 +288,18 @@ public class RobotContainer {
                                 driveShortestPath.driveShortestPath(new Pose2d(9, 2, new Rotation2d(Math.PI))));
         }
 
+        private Command autoCommand = Commands.none();
+
+        private void configureAutoBindings() {
+                Command setAutoOnChange = Commands.runOnce(() -> {
+                        System.out.println("Auto changed: " + auto.getSelectedAuto());
+                        autoCommand = auto.getAuto();
+                }).ignoringDisable(true);
+                auto.autoSelectionChange().onTrue(setAutoOnChange);
+        }
+
         public Command getAutonomousCommand() {
-                return auto.getAuto();
+                return autoCommand;
         }
 
         public Command disableEverything() {
