@@ -17,7 +17,7 @@ public class IntakeSubsystem extends SubsystemBase {
     private double percentSpeed = 0;
 
     public IntakeSubsystem() {
-        motorConfig.inverted(true);
+        motorConfig.inverted(false);
         setCurrentLimit(100, 100);
     }
 
