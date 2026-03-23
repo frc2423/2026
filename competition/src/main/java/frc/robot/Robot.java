@@ -24,6 +24,10 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
+    Epilogue.configure(config -> {
+      // Change the root data path
+      config.root = "/Robot";
+    });
     Epilogue.bind(this);
     URCL.start();
     m_robotContainer = new RobotContainer();

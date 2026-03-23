@@ -15,7 +15,7 @@
             "height": 192.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/dashboardlogger/activeAlliance",
+              "topic": "/Robot/robotContainer/dashboardlogger/activeAlliance",
               "period": 0.06,
               "data_type": "string"
             }
@@ -28,7 +28,7 @@
             "height": 320.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/dashboardlogger/currentShift",
+              "topic": "/Robot/robotContainer/dashboardlogger/currentShift",
               "period": 0.06,
               "data_type": "int"
             }
@@ -41,7 +41,7 @@
             "height": 256.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "Robot/robotContainer/dashboardlogger/isAllianceActive",
+              "topic": "/Robot/robotContainer/dashboardlogger/isAllianceActive",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -58,7 +58,7 @@
             "height": 128.0,
             "type": "Match Time",
             "properties": {
-              "topic": "Robot/robotContainer/dashboardlogger/matchTime",
+              "topic": "/Robot/robotContainer/dashboardlogger/matchTime",
               "period": 0.06,
               "data_type": "double",
               "time_display_mode": "Minutes and Seconds",
@@ -74,7 +74,7 @@
             "height": 128.0,
             "type": "Match Time",
             "properties": {
-              "topic": "Robot/robotContainer/dashboardlogger/shiftTimeRemaining",
+              "topic": "/Robot/robotContainer/dashboardlogger/shiftTimeRemaining",
               "period": 0.06,
               "data_type": "double",
               "time_display_mode": "Minutes and Seconds",
@@ -119,7 +119,7 @@
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "Robot/robotContainer/twindexer/isJammed",
+              "topic": "/Robot/robotContainer/twindexer/isJammed",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4292982819,
@@ -170,7 +170,7 @@
             "height": 256.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift",
+              "topic": "/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -214,7 +214,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/hood/getAngle",
+              "topic": "/Robot/robotContainer/hood/getAngle",
               "period": 0.06,
               "data_type": "double"
             }
@@ -227,7 +227,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/hood/getSetpoint",
+              "topic": "/Robot/robotContainer/hood/getSetpoint",
               "period": 0.06,
               "data_type": "double"
             }
@@ -240,7 +240,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/shooterCommands/selectedShootingPose",
+              "topic": "/Robot/robotContainer/shooterCommands/selectedShootingPose",
               "period": 0.06,
               "data_type": "string"
             }
@@ -261,7 +261,7 @@
             "height": 256.0,
             "type": "Graph",
             "properties": {
-              "topic": "Robot/robotContainer/shooterLeft/getVelocity",
+              "topic": "/Robot/robotContainer/shooterLeft/getVelocity",
               "period": 0.033,
               "data_type": "double",
               "time_displayed": 15.0,
@@ -279,7 +279,7 @@
             "height": 256.0,
             "type": "Graph",
             "properties": {
-              "topic": "Robot/robotContainer/shooterRight/getVelocity",
+              "topic": "/Robot/robotContainer/shooterRight/getVelocity",
               "period": 0.033,
               "data_type": "double",
               "time_displayed": 15.0,
@@ -311,7 +311,7 @@
             "height": 128.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "Robot/robotContainer/twindexer/isJammed",
+              "topic": "/Robot/robotContainer/twindexer/isJammed",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
@@ -328,7 +328,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/shooterRight/getVelocity",
+              "topic": "/Robot/robotContainer/shooterRight/getVelocity",
               "period": 0.06,
               "data_type": "double"
             }
@@ -341,7 +341,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/shooterLeft/getVelocity",
+              "topic": "/Robot/robotContainer/shooterLeft/getVelocity",
               "period": 0.06,
               "data_type": "double"
             }
@@ -354,7 +354,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/shooterCommands/getDistanceToHub",
+              "topic": "/Robot/robotContainer/shooterCommands/getDistanceToHub",
               "period": 0.06,
               "data_type": "double"
             }
@@ -367,7 +367,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/hood/getAngle",
+              "topic": "/Robot/robotContainer/hood/getAngle",
               "period": 0.06,
               "data_type": "double"
             }
@@ -380,7 +380,7 @@
             "height": 128.0,
             "type": "Large Text Display",
             "properties": {
-              "topic": "Robot/robotContainer/hood/getSetpoint",
+              "topic": "/Robot/robotContainer/hood/getSetpoint",
               "period": 0.06,
               "data_type": "double"
             }
