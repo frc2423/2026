@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.Supplier;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.*;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -27,6 +29,8 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.DAS;
+import frc.robot.subsystems.DAS.MotorSettings;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.utils.sotm.ShotCalculator;
 
 public class ShooterCommands extends SubsystemBase {
@@ -34,7 +38,6 @@ public class ShooterCommands extends SubsystemBase {
   private final RobotContainer robot;
 
   public static final DAS das = new DAS();
-  public final CommandSwerveDrivetrain swerve;
   public static final ShotCalculator shotCalculator = new ShotCalculator();
   private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
       .withHeadingPID(3, 0, 0);
@@ -264,7 +267,9 @@ public class ShooterCommands extends SubsystemBase {
     // load the LUT you generated
     for (var entry : das.getEntries()) {
         // if (entry.reachable()) {
-        shotCalc.loadLUTEntry(entry.MotorSettings(velocity), entry.MotorSettings(angle), entry.MotorSettings(tof));
+        double distance = entry.getKey();
+        MotorSettings motorSettings = entry.getValue();
+        shotCalc.loadLUTEntry(distance, motorSettings.getVelocity(), motorSettings.getTof());
         // }
     }
 
@@ -272,10 +277,17 @@ public class ShooterCommands extends SubsystemBase {
     Translation2d hubCenter = new Translation2d(4.6, 4.0);  // your target
     Translation2d hubForward = new Translation2d(1, 0);       // which way the hub faces
 
+    ChassisSpeeds fieldCentric =
+          ChassisSpeeds.fromRobotRelativeSpeeds(
+              robot.drivetrain.getState().Speeds,
+              robot.drivetrain.getPose().getRotation()
+    );
+    
     ShotCalculator.ShotInputs inputs = new ShotCalculator.ShotInputs(
-        swerve.getPose(),
-        swerve.getFieldVelocity(), // ????
-        swerve.getRobotVelocity(),
+        robot.drivetrain.getPose(),
+        // drive., // ????
+        fieldCentric,
+        robot.drivetrain.getState().Speeds,
         hubCenter,
         hubForward,
         0.9  // vision confidence, 0 to 1
@@ -283,7 +295,8 @@ public class ShooterCommands extends SubsystemBase {
 
     ShotCalculator.LaunchParameters shot = shotCalc.calculate(inputs);
     if (shot.isValid() && shot.confidence() > 50) {
-        this.revSpeedFromDAS(shot.rpm());
+        robot.shooterLeft.spinWithSetpoint(shot.rpm());
+        robot.shooterRight.spinWithSetpoint(shot.rpm());
         this.lookAtAngle(shot.driveAngle());
         // shot.driveAngularVelocityRadPerSec() gives you a heading feedforward if you want it
     }
