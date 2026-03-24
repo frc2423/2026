@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import {
   useNTValue,
   useNTConnection,
@@ -31,18 +31,32 @@ function App() {
   const [quality, setQuality] = useState(50);
   const [fps, setFps] = useState(60);
 
-  const [activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "both [DEFAULT VALUE]");
-  const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "both [DEFAULT VALUE]");
+  const [activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "Active Alliance: [No NTValue Loaded]");
+  const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "Active Alliance: [No NTValue Loaded]");
   const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
   const [isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
   const [matchTime] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/matchTime", 160.0);
   const [shiftTimeRemaining] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/shiftTimeRemaining", 0.0);
   
 
+const headerStyle: React.CSSProperties = {
+  backgroundColor: "grey",
+  color: 'white',
+  fontWeight: '700',
+  textAlign: 'center'
+};
+
+const divStyle: React.CSSProperties = {
+  borderStyle: "solid",
+  borderWidth: "4px",
+  borderColor: "black",
+  fontSize: '30px',
+  width:"150px"
+}
 
   return (
     <div style={{ padding: "20px" }}>
-      <Gyro  value={50}/>
+      {/* <Gyro  value={50}/> */}
       {/* NT4 Connection Panel */}
       <div
         style={{
@@ -96,28 +110,41 @@ function App() {
 
       {/* Dashboard Content */}
       <div>WebSocket Connected: {isConnected ? "Yes" : "No"}</div>
-      <div>Alliance: {isRedAlliance ? "Red" : "Blue"}</div>
       <div>
         <BooleanBox
-          label="Alliance"
+          label={isRedAlliance ? "Red Alliance" : "Blue Alliance"}
           value={isRedAlliance}
           trueColor="red"
           falseColor="blue"
         />
       </div>
-      <div>
-        Some number: {someNumber}
-        <button onClick={() => setSomeNumber((someNumber ?? 0) + 1)}>
-          Increment
-        </button>
-        <button onClick={() => setSomeNumber((someNumber ?? 0) - 1)}>
-          Decrement
-        </button>
-        <button onClick={() => setSomeNumber(0)}>Reset</button>
-      </div>
-      <div>
+      {/* Element Container */}
+      <div style={{ display: 'flex', gap: '10px'}}>
+      {/* Active Alliance Content */}
+      <div style ={divStyle}>
+        <header style={{backgroundColor: activeAlliance === "both" ? "grey" : activeAlliance === "red" ? "red" : "blue",
+  color: 'white',
+  fontSize: '30px',
+  fontWeight: '700', textAlign: 'center'}}>Active Alliance</header>
         {activeAlliance}
       </div>
+      {/* Current Shift Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Current Shift</header>
+        {currentShift}
+      </div>
+      {/* Active? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Active?</header>
+        <BooleanBox
+          label={isAllianceActive ? "Yes" : "No"}
+          value={isAllianceActive}
+          trueColor="green"
+          falseColor="red"
+        />
+      </div>
+      </div>
+      <br></br>
       <div>
         <Canvas>
           <CanvasMjpgStream
