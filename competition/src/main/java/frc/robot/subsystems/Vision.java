@@ -476,7 +476,7 @@ public class Vision {
         new Rotation3d(0, Math.toRadians(0), Math.toRadians(-245)),
         new Translation3d(Units.inchesToMeters(-11),
             Units.inchesToMeters(13.3),
-            Units.inchesToMeters(18)),
+            Units.inchesToMeters(17.5)),
         VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
     FRONT_LEFT_CAM("april_tag_cam",

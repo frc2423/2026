@@ -48,6 +48,7 @@ public class HoodSubsystem extends SubsystemBase {
             .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
             .withIdleMode(MotorMode.BRAKE)
             .withStatorCurrentLimit(Amps.of(20))
+            .withMotorInverted(true)
             .withClosedLoopRampRate(Seconds.of(0.25))
             .withGearing(20 * 85 / 10.0)
             .withOpenLoopRampRate(Seconds.of(0.25));
