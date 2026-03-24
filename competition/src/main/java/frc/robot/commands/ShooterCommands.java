@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.Supplier;
@@ -13,6 +14,7 @@ import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.util.*;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -25,13 +27,18 @@ import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FlippingUtil;
+import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.DAS;
+import frc.robot.subsystems.DAS.MotorSettings;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.utils.sotm.ShotCalculator;
 
 public class ShooterCommands extends SubsystemBase {
 
   private final RobotContainer robot;
 
   public static final DAS das = new DAS();
+  public static final ShotCalculator shotCalculator = new ShotCalculator();
   private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
       .withHeadingPID(3, 0, 0);
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -244,4 +251,54 @@ public class ShooterCommands extends SubsystemBase {
         robot.shooterRight.spinWithSetpoint(speed));
   }
 
+  public void calculatedShootOnMove() {
+    ShotCalculator.Config config = new ShotCalculator.Config();
+
+    config.launcherOffsetX = 0.23;  // how far forward the launcher is from robot center (m)
+    config.launcherOffsetY = 0.0;   // how far left, 0 if centered
+    config.phaseDelayMs = 30.0;     // your vision pipeline latency
+    config.mechLatencyMs = 20.0;    // how long the mechanism takes to respond
+    config.maxTiltDeg = 5.0;        // suppress firing when chassis tilts past this (bumps/ramps)
+    config.headingSpeedScalar = 1.0; // heading tolerance tightens with robot speed (0 to disable)
+    config.headingReferenceDistance = 2.5; // heading tolerance scales with distance from hub
+
+    ShotCalculator shotCalc = new ShotCalculator(config);
+
+    // load the LUT you generated
+    for (var entry : das.getEntries()) {
+        // if (entry.reachable()) {
+        double distance = entry.getKey();
+        MotorSettings motorSettings = entry.getValue();
+        shotCalc.loadLUTEntry(distance, motorSettings.getVelocity(), motorSettings.getTof());
+        // }
+    }
+
+    // call this every cycle in robotPeriodic()
+    Translation2d hubCenter = new Translation2d(4.6, 4.0);  // your target
+    Translation2d hubForward = new Translation2d(1, 0);       // which way the hub faces
+
+    ChassisSpeeds fieldCentric =
+          ChassisSpeeds.fromRobotRelativeSpeeds(
+              robot.drivetrain.getState().Speeds,
+              robot.drivetrain.getPose().getRotation()
+    );
+    
+    ShotCalculator.ShotInputs inputs = new ShotCalculator.ShotInputs(
+        robot.drivetrain.getPose(),
+        // drive., // ????
+        fieldCentric,
+        robot.drivetrain.getState().Speeds,
+        hubCenter,
+        hubForward,
+        0.9  // vision confidence, 0 to 1
+    );
+
+    ShotCalculator.LaunchParameters shot = shotCalc.calculate(inputs);
+    if (shot.isValid() && shot.confidence() > 50) {
+        robot.shooterLeft.spinWithSetpoint(shot.rpm());
+        robot.shooterRight.spinWithSetpoint(shot.rpm());
+        this.lookAtAngle(shot.driveAngle());
+        // shot.driveAngularVelocityRadPerSec() gives you a heading feedforward if you want it
+    }
+  }
 }

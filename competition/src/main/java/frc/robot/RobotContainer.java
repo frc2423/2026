@@ -237,7 +237,6 @@ public class RobotContainer {
                 driverController.leftTrigger().whileTrue(passingCommands.aimToPass())
                                 .onFalse(shooterCommands.stopShooting());
 
-                driverController.povUp().onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Auto")));
                 driverController.povLeft()
                                 .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Left Bump")));
                 driverController.povRight()
