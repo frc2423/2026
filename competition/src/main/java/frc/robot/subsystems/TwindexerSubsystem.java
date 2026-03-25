@@ -17,7 +17,7 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     private SparkFlex motor = new SparkFlex(23, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
-    private double motorVoltage = 0;
+    private double motorPercent = 0;
 
     public TwindexerSubsystem() {
         motorConfig.openLoopRampRate(.3);
@@ -32,25 +32,28 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     public Command spindex() {
         return runOnce(() -> {
-            motorVoltage = 8;
+            motorPercent = 1;
+            System.out.println("Spindex");
         }).withName("spindex");
     }
 
     public Command spindexBack() {
         return runOnce(() -> {
-            motorVoltage = -8;
+            motorPercent = -1;
+            System.out.println("SpindexBack");
         }).withName("spindexBack");
     }
 
     public Command stop() {
         return runOnce(() -> {
-            motorVoltage = 0;
+            motorPercent = 0;
+            System.out.println("STOOOOOOPP");
         }).withName("stopSpindexer");
     }
 
     @Override
     public void periodic() {
-        motor.setVoltage(motorVoltage);
+        motor.set(motorPercent);
 
     }
 
@@ -69,6 +72,7 @@ public class TwindexerSubsystem extends SubsystemBase {
         return motor.getOutputCurrent();
     }
 
+    @Logged
     public double getSpeed() {
         return motor.get();
     }

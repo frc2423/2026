@@ -4,6 +4,7 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -13,17 +14,17 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class IntakeSubsystem extends SubsystemBase {
 
     private final SparkFlex motor = new SparkFlex(22, MotorType.kBrushless);
+    private final SparkFlex motor2 = new SparkFlex(38, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
     private double percentSpeed = 0;
 
     public IntakeSubsystem() {
         motorConfig.inverted(false);
-        setCurrentLimit(100, 100);
-    }
-
-    private void setCurrentLimit(int stallLimit, int freeLimit) {
-        motorConfig.smartCurrentLimit(stallLimit, freeLimit);
+        motorConfig.smartCurrentLimit(100, 100);
+        motorConfig.idleMode(IdleMode.kCoast);
+        motorConfig.openLoopRampRate(.1);
         motor.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        motor2.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
     }
 
     public Command intake() {
@@ -63,6 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         motor.set(percentSpeed);
+        motor2.set(percentSpeed);
     }
 
     public boolean isJammed() {
