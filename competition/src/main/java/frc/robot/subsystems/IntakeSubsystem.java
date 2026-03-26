@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -23,8 +23,8 @@ public class IntakeSubsystem extends SubsystemBase {
         motorConfig.smartCurrentLimit(100, 100);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.openLoopRampRate(.1);
-        motor.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
-        motor2.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motor2.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public Command intake() {

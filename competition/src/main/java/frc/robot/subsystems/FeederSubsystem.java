@@ -1,10 +1,8 @@
 package frc.robot.subsystems;
 
-import java.util.function.Supplier;
-
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -17,24 +15,24 @@ import frc.robot.NTHelper;
 public class FeederSubsystem extends SubsystemBase {
 
     private final SparkFlex motor;
-    private double motorVoltage = 0;
+    private double motorPercent = 0;
 
     public FeederSubsystem(int motorId, boolean isInverted) {
         motor = new SparkFlex(motorId, MotorType.kBrushless);
 
         SparkFlexConfig config = new SparkFlexConfig();
         config.inverted(isInverted);
-        config.openLoopRampRate(.5);
+        config.openLoopRampRate(.1);
         config.smartCurrentLimit(80, 80);
 
-        motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         NTHelper.setDouble("/shooter/speed", 1);
     }
 
     public Command spin() {
         return runOnce(() -> {
-            motorVoltage = 8;
+            motorPercent = 1;
         }).withName("spinFeeder");
     }
 
@@ -46,13 +44,13 @@ public class FeederSubsystem extends SubsystemBase {
 
     public Command stop() {
         return runOnce(() -> {
-            motorVoltage = 0;
+            motorPercent = 0;
         }).withName("stopFeeder");
     }
 
     @Override
     public void periodic() {
-        motor.setVoltage(motorVoltage);
+        motor.set(motorPercent);
     }
 
     @Logged

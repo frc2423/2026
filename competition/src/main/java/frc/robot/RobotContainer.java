@@ -144,7 +144,7 @@ public class RobotContainer {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
                         }
                         if (RobotState.isAutonomous()) {
-                                return "rainbow";
+                                return "YellowAndGreenCycle";
                         }
                         return "dark";
                 }));
