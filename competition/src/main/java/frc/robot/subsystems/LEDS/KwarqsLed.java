@@ -20,6 +20,8 @@ public class KwarqsLed extends SubsystemBase {
         ledController.add("BlueCycle", new BlueCycle());
         ledController.add("POOP", new POOP());
         ledController.add("AutoDown", new AutoDown());
+        ledController.add("YellowAndGreenCycle", new YellowAndGreenCycle());
+
         ledController.set("dark");
 
         setDefaultCommand(disable());
@@ -42,6 +44,10 @@ public class KwarqsLed extends SubsystemBase {
 
     public Command setYellow() {
         return setLeds("yellow");
+    }
+
+    public Command YellowAndGreenCycle() {
+        return setLeds("YellowAndGreenCycle");
     }
 
     public Command setAutoDown() {

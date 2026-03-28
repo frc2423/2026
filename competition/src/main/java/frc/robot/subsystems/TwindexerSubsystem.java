@@ -1,9 +1,9 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkBase.PersistMode;
 
 import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -17,40 +17,41 @@ public class TwindexerSubsystem extends SubsystemBase {
 
     private SparkFlex motor = new SparkFlex(23, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
-    private double motorVoltage = 0;
+    private double motorPercent = 0;
 
     public TwindexerSubsystem() {
-        motorConfig.openLoopRampRate(.3);
+        motorConfig.openLoopRampRate(.1);
         motorConfig.idleMode(IdleMode.kCoast);
+        motorConfig.inverted(true);
         setCurrentLimit(100, 80);
     }
 
     private void setCurrentLimit(int stallLimit, int freeLimit) {
         motorConfig.smartCurrentLimit(stallLimit, freeLimit);
-        motor.configureAsync(motorConfig, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public Command spindex() {
         return runOnce(() -> {
-            motorVoltage = 8;
+            motorPercent = 1;
         }).withName("spindex");
     }
 
     public Command spindexBack() {
         return runOnce(() -> {
-            motorVoltage = -8;
+            motorPercent = -1;
         }).withName("spindexBack");
     }
 
     public Command stop() {
         return runOnce(() -> {
-            motorVoltage = 0;
+            motorPercent = 0;
         }).withName("stopSpindexer");
     }
 
     @Override
     public void periodic() {
-        motor.setVoltage(motorVoltage);
+        motor.set(motorPercent);
 
     }
 
@@ -69,6 +70,7 @@ public class TwindexerSubsystem extends SubsystemBase {
         return motor.getOutputCurrent();
     }
 
+    @Logged
     public double getSpeed() {
         return motor.get();
     }

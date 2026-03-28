@@ -2,11 +2,12 @@ package frc.robot.subsystems;
 
 import java.util.function.Supplier;
 
+import com.revrobotics.REVLibError;
 import com.revrobotics.spark.ClosedLoopSlot;
 import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
 import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
@@ -20,34 +21,39 @@ import frc.robot.NTHelper;
 
 public class ShooterSubsystem extends SubsystemBase {
 
+    // private final SimpleMotorFeedforward feedforward = new
+    // SimpleMotorFeedforward(0, 0.0018);
     private final SimpleMotorFeedforward feedforward = new SimpleMotorFeedforward(0, 0.0018);
     private final SparkFlex motor;
     private double shooterSetpoint = 0;
 
     public ShooterSubsystem(int motorId, boolean isInverted) {
         motor = new SparkFlex(motorId, MotorType.kBrushless);
-
         SparkFlexConfig config = new SparkFlexConfig();
-        config.encoder.velocityConversionFactor(1);
-        config.encoder.positionConversionFactor(1);
-        config.encoder.uvwMeasurementPeriod(8)
+
+        config.encoder.velocityConversionFactor(1)
+                .positionConversionFactor(1)
+                .uvwMeasurementPeriod(8)
                 .quadratureAverageDepth(2)
                 .quadratureMeasurementPeriod(8);
-        config.closedLoopRampRate(.2);
-        config.openLoopRampRate(.2);
-        config.inverted(isInverted);
-        // config.encoder.countsPerRevolution(1);
+
+        config.closedLoopRampRate(.1)
+                .openLoopRampRate(.1)
+                .inverted(isInverted)
+                .idleMode(IdleMode.kCoast);
+
         config.idleMode(IdleMode.kCoast);
-        // config.closedLoop.p(.002).i(0).d(.04).outputRange(-1,1 );
-        if (!isInverted) {
-            config.closedLoop.p(100000.5).i(0).d(0).outputRange(0, 1);
-        } else {
-            config.closedLoop.p(100000.5).i(0).d(0).outputRange(-1, 0);
+        config.closedLoop
+                .p(1000.1)
+                // .p(0.01)
+                // .p(0.0)
+                .i(0)
+                .d(0)
+                .outputRange(-1, 1)
+                .allowedClosedLoopError(75, ClosedLoopSlot.kSlot0);
 
-        }
-        config.closedLoop.allowedClosedLoopError(50, ClosedLoopSlot.kSlot0);
-
-        motor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kNoPersistParameters);
+        REVLibError error = motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        System.out.println("Shooter " + motorId + " error:" + error.name());
 
         NTHelper.setDouble("/shooter/speed", 2800);
     }
@@ -70,26 +76,51 @@ public class ShooterSubsystem extends SubsystemBase {
         }).withName("spinWithSetpoint");
     }
 
+    boolean isOn = false;
+
     @Override
     public void periodic() {
 
         if (shooterSetpoint == 0) {
             motor.stopMotor();
         } else {
+            // double velocity = getVelocity();
+            // boolean isAboveSetpoint = velocity > (shooterSetpoint + 50);
+            // boolean isBelowSetpoint = velocity < (shooterSetpoint - 50);
+
+            // if (isAboveSetpoint) {
+            // isOn = false;
+            // } else if (isBelowSetpoint) {
+            // isOn = true;
+            // }
+            // double voltage = feedforward.calculate(shooterSetpoint);
+
+            // motor.set(isOn ? 1 : voltage);
+
+            // if (getVelocity() > )
+            // double signedSetpoint = isInverted ? -shooterSetpoint : shooterSetpoint;
             double voltage = feedforward.calculate(shooterSetpoint);
-            motor.getClosedLoopController().setReference(shooterSetpoint, ControlType.kVelocity, ClosedLoopSlot.kSlot0,
-                    voltage);
+            motor.getClosedLoopController().setReference(shooterSetpoint, ControlType.kVelocity, ClosedLoopSlot.kSlot0, voltage);
         }
     }
 
     @Logged
+    public double getFeedforward() {
+        return feedforward.calculate(shooterSetpoint);
+    }
+
+    @Logged
     public double getVelocity() {
-        return motor.getEncoder().getVelocity();
+        double velocity = motor.getEncoder().getVelocity();
+        // return isInverted ? -velocity : velocity;
+        return velocity;
     }
 
     @Logged
     public double getMotorSpeed() {
-        return motor.get();
+        double speed = motor.get();
+        // return isInverted ? -speed : speed;
+        return speed;
     }
 
     @Logged

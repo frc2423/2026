@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.NTHelper;
 import frc.robot.lib.BLine.*;
+import frc.robot.lib.BLine.Path.PathConstraints;
 
 public class BLine {
 
@@ -72,6 +73,7 @@ public class BLine {
 
     public Command goToPose(Pose2d pose) {
         Path testPoseProfeciency = new Path(new Path.Waypoint(pose));
+        testPoseProfeciency.setPathConstraints(new PathConstraints().setEndTranslationToleranceMeters(.1));
         return pathBuilder.build(testPoseProfeciency);
     }
 

@@ -64,6 +64,7 @@ public class RobotContainer {
 
         public final CommandXboxController driverController = new CommandXboxController(0);
         public final CommandXboxController operatorController = new CommandXboxController(1);
+        public final CommandXboxController shooterTuningController = new CommandXboxController(2);
         public final IntakeSubsystem intake = new IntakeSubsystem();
 
         @Logged
@@ -143,7 +144,7 @@ public class RobotContainer {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
                         }
                         if (RobotState.isAutonomous()) {
-                                return "rainbow";
+                                return "YellowAndGreenCycle";
                         }
                         return "dark";
                 }));
@@ -196,7 +197,7 @@ public class RobotContainer {
 
                 configureDriveControllerBindings();
                 configureOperatorControllerBindings();
-                configureShortestPathBindings();
+                configureShooterTuningControllerBindings();
                 configureLeds();
 
                 drivetrain.registerTelemetry(logger::telemeterize);
@@ -220,7 +221,8 @@ public class RobotContainer {
                 driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
                                 .onFalse(shooterCommands.stopShooting());
 
-                // Use passing feed command when left trigger is pressed, and shooter feed command otherwise
+                // Use passing feed command when left trigger is pressed, and shooter feed
+                // command otherwise
                 Command shooterFeedCommand = shooterCommands.feed();
                 Command passingFeedCommand = passingCommands
                                 .feedForPassing();
@@ -247,6 +249,7 @@ public class RobotContainer {
 
         }
 
+
         private void configureOperatorControllerBindings() {
 
                 // operatorController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(shooterCommands.feed(()
@@ -264,10 +267,10 @@ public class RobotContainer {
                 operatorController.rightBumper().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
                 operatorController.a().onTrue(hood.hoodDownandReset());
-                
-                operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain.resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance()?180:0))));
-                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
 
+                operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain
+                                .resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance() ? 180 : 0))));
+                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
 
                 operatorController.povUp()
                                 .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Auto")));
@@ -279,14 +282,15 @@ public class RobotContainer {
                                 .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Tower")));
         }
 
-        private final CommandXboxController shortestPathController = new CommandXboxController(2);
+        private void configureShooterTuningControllerBindings() {
+                shooterTuningController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(shooterCommands.feedOnly()))
+                                .onFalse(shooterCommands.stopFeeding());
 
-        private void configureShortestPathBindings() {
-                shortestPathController.a().whileTrue(
-                                driveShortestPath.driveShortestPath(new Pose2d(14.6, 1.6, new Rotation2d(Math.PI))));
-                shortestPathController.b().whileTrue(
-                                driveShortestPath.driveShortestPath(new Pose2d(9, 2, new Rotation2d(Math.PI))));
+                shooterTuningController.rightBumper()
+                                .whileTrue(shooterCommands.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
+                                .onFalse(shooterCommands.stopShooting());
         }
+
 
         public Command getAutonomousCommand() {
                 return auto.getAuto();

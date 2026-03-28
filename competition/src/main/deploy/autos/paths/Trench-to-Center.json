@@ -33,7 +33,7 @@
       },
       "rotation_target": {
         "rotation_radians": 1.5707963267948966,
-        "profiled_rotation": true
+        "profiled_rotation": false
       }
     },
     {
@@ -50,6 +50,8 @@
     }
   ],
   "constraints": {
+    "end_translation_tolerance_meters": 0.2,
+    "end_rotation_tolerance_deg": 10.0,
     "max_velocity_meters_per_sec": [
       {
         "value": 2.0,
@@ -57,14 +59,14 @@
         "end_ordinal": 2
       },
       {
-        "value": 1.2000000000000002,
-        "start_ordinal": 3,
-        "end_ordinal": 3
-      },
-      {
         "value": 4.0,
         "start_ordinal": 0,
         "end_ordinal": 1
+      },
+      {
+        "value": 1.2,
+        "start_ordinal": 3,
+        "end_ordinal": 3
       }
     ]
   }

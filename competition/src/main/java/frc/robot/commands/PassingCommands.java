@@ -92,7 +92,7 @@ public class PassingCommands extends SubsystemBase {
     public Command feedForPassing() {
         Command feed = Commands.parallel(
                 robot.hood.setAngle(() -> {
-                    return Degrees.of(40);
+                    return Degrees.of(45);
                 }),
                 robot.shooterCommands.feedOnly());
 
@@ -112,7 +112,7 @@ public class PassingCommands extends SubsystemBase {
                 }),
                 robot.shooterCommands.rev(() -> {
                     double distance = getDistanceToAimToPassPose();
-                    return Math.min(4500, 2700 + distance * 100);
+                    return Math.min(4500, 2000 + distance * 175);
                 }));
     }
 
