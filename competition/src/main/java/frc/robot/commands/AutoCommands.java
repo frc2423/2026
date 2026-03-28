@@ -362,7 +362,7 @@ public class AutoCommands {
                 Commands.sequence(
                         robot.intakeCommands.armDown(),
                         Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
-                        robot.intake.intake()));
+                        robot.intake.intake())).withTimeout(5);
 
         Command bumpToLeftoversAndIntake = Commands.deadline(
                 bumpToLeftovers,
