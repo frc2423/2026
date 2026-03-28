@@ -164,37 +164,41 @@ public class ShooterCommands extends SubsystemBase {
     return Commands.sequence(
         prepareToShoot().until(() -> isFacingHub()),
         Commands.parallel(
+            lookAtPose(),
             revSpeedFromDAS(),
             feed()).withTimeout(shootingTime));
   }
 
   public Command feedOnly() {
+
+    Command spindex = Commands.repeatingSequence(
+        robot.twindexer.spindex(),
+        Commands.waitUntil(() -> robot.twindexer.isJammed()),
+        robot.twindexer.spindexBack(),
+        Commands.waitSeconds(.5));
+
     Command feed = Commands.parallel(
         robot.feederLeft.spin(),
         robot.feederRight.spin(),
         robot.arm.wiggleArm(Degrees.of(80), Degrees.of(35), Seconds.of(.4)),
         robot.intake.intakeSlow(),
-        Commands.repeatingSequence(
-            robot.twindexer.spindex(),
-            Commands.waitUntil(() -> robot.twindexer.isJammed()),
-            robot.twindexer.spindexBack(),
-            Commands.waitSeconds(.5)));
+        Commands.waitSeconds(.5).andThen(spindex));
 
     return feed;
   }
 
   public Command feed() {
-    Command feed = Commands.parallel(
-        positionHoodFromDas(),
-        feedOnly());
 
-    return Commands.waitUntil(() -> {
+    Command waitUntilRevved = Commands.waitUntil(() -> {
       if (Robot.isSimulation()) {
         return true;
       }
       return robot.shooterLeft.isAtSetpoint();
-    }).andThen(feed);
+    });
 
+    return Commands.parallel(
+        positionHoodFromDas(),
+        waitUntilRevved.andThen(feedOnly()));
   }
 
   public Command stopFeeding() {
