@@ -153,7 +153,7 @@
             "title": "Auto Chooser",
             "x": 512.0,
             "y": 320.0,
-            "width": 448.0,
+            "width": 256.0,
             "height": 192.0,
             "type": "ComboBox Chooser",
             "properties": {
@@ -243,6 +243,19 @@
               "topic": "Robot/robotContainer/shooterCommands/selectedShootingPose",
               "period": 0.06,
               "data_type": "string"
+            }
+          },
+          {
+            "title": "velocityOffset",
+            "x": 768.0,
+            "y": 320.0,
+            "width": 192.0,
+            "height": 192.0,
+            "type": "Large Text Display",
+            "properties": {
+              "topic": "/tuning/velocityOffset",
+              "period": 0.06,
+              "data_type": "double"
             }
           }
         ]

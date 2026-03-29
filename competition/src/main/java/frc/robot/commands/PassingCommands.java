@@ -112,7 +112,7 @@ public class PassingCommands extends SubsystemBase {
                 }),
                 robot.shooterCommands.rev(() -> {
                     double distance = getDistanceToAimToPassPose();
-                    return Math.min(4500, 2000 + distance * 175);
+                    return Math.min(4500, 2000 + distance * 210);
                 }));
     }
 

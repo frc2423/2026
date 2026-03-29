@@ -20,7 +20,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public IntakeSubsystem() {
         motorConfig.inverted(false);
-        motorConfig.smartCurrentLimit(100, 100);
+        motorConfig.smartCurrentLimit(60, 60);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.openLoopRampRate(.1);
         motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);

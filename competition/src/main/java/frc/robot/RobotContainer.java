@@ -268,18 +268,16 @@ public class RobotContainer {
 
                 operatorController.a().onTrue(hood.hoodDownandReset());
 
+                
+
                 operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain
                                 .resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance() ? 180 : 0))));
                 operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
 
                 operatorController.povUp()
-                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Auto")));
-                operatorController.povLeft()
-                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Left Bump")));
-                operatorController.povRight()
-                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Right Bump")));
+                                .onTrue(ShooterCommands.das.increaseVelocityOffset());
                 operatorController.povDown()
-                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Tower")));
+                                .onTrue(ShooterCommands.das.decreaseVelocityOffset());
         }
 
         private void configureShooterTuningControllerBindings() {
