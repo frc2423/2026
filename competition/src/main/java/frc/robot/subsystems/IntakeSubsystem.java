@@ -13,18 +13,18 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    private final SparkFlex motor = new SparkFlex(22, MotorType.kBrushless);
-    private final SparkFlex motor2 = new SparkFlex(38, MotorType.kBrushless);
+    private final SparkFlex motor = new SparkFlex(38, MotorType.kBrushless);
+    // private final SparkFlex motor2 = new SparkFlex(38, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
     private double percentSpeed = 0;
 
     public IntakeSubsystem() {
-        motorConfig.inverted(false);
+        motorConfig.inverted(true);
         motorConfig.smartCurrentLimit(60, 60);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.openLoopRampRate(.1);
         motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        motor2.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // motor2.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public Command intake() {
@@ -64,7 +64,7 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
         motor.set(percentSpeed);
-        motor2.set(percentSpeed);
+        // motor2.set(percentSpeed);
     }
 
     public boolean isJammed() {

@@ -43,7 +43,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final Arm arm;
 
-    private Angle offset = Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
+    private Angle offset = Revolutions.of(.735).plus(Degrees.of(30)); // Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
 
     private Angle setpointAngle;
     private double motorPercent = 0;
