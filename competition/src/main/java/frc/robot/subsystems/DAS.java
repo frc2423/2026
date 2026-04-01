@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.NTHelper;
 
 // DAS means distance angle speed table
@@ -29,8 +31,11 @@ public class DAS {
 
     private NavigableMap<Double, MotorSettings> distanceMap; // Map from distance to settings
 
+    private double velocityOffset = 0;
+
     public DAS() {
         NTHelper.setDouble("/tuning/DASOffset", DEFAULT_DISTANCE_OFFSET);
+        NTHelper.setDouble("/tuning/velocityOffset", velocityOffset);
         distanceMap = new TreeMap<>();
         initializeMap();
     }
@@ -55,6 +60,7 @@ public class DAS {
 
     public MotorSettings calculateAS(double distance) {
         double distanceOffset = NTHelper.getDouble("/tuning/DASOffset", DEFAULT_DISTANCE_OFFSET);
+        double velocityOffset = NTHelper.getDouble("/tuning/velocityOffset", 0);
         distance = distance + distanceOffset;
         // Direct match
 
@@ -85,6 +91,24 @@ public class DAS {
         double interpolatedVoltage = lowerSettings.getVelocity()
                 + ratio * (higherSettings.getVelocity() - lowerSettings.getVelocity());
 
+        if (distance > 2.5) {
+            interpolatedVoltage += velocityOffset;
+        }
+
         return new MotorSettings(interpolatedAngle, interpolatedVoltage);
+    }
+
+    public Command increaseVelocityOffset() {
+        return Commands.runOnce(() -> {
+            velocityOffset += 50;
+            NTHelper.setDouble("/tuning/velocityOffset", velocityOffset);
+        });
+    }
+
+    public Command decreaseVelocityOffset() {
+        return Commands.runOnce(() -> {
+            velocityOffset -= 50;
+            NTHelper.setDouble("/tuning/velocityOffset", velocityOffset);
+        });
     }
 }

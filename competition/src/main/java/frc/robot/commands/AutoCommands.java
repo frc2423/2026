@@ -357,12 +357,15 @@ public class AutoCommands {
         FollowPath centerToBump = robot.bline.pathBuilder.build(centerToBumpPath);
         FollowPath bumpToLeftovers = robot.bline.pathBuilder.build(bumpToLeftoversPath);
 
-        Command goToCenterAndIntake = Commands.deadline(
-                trenchToCenter,
-                Commands.sequence(
-                        robot.intakeCommands.armDown(),
-                        Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
-                        robot.intake.intake()));
+        Command goToCenterAndIntake = Commands.sequence(
+                Commands.deadline(
+                        trenchToCenter,
+                        Commands.sequence(
+                                robot.intakeCommands.armDown(),
+                                Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
+                                robot.intake.intake()))
+                        .withTimeout(5),
+                robot.intake.intake());
 
         Command bumpToLeftoversAndIntake = Commands.deadline(
                 bumpToLeftovers,
