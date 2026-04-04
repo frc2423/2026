@@ -371,19 +371,19 @@ public class AutoCommands {
                 bumpToLeftovers,
                 Commands.sequence(
                         robot.intakeCommands.armDown(),
+                        robot.intake.intake(),
                         Commands.waitUntil(() -> bumpToLeftovers.getCurrentTranslationElementIndex() >= 6),
                         robot.intake.intake(),
                         Commands.waitUntil(() -> bumpToLeftovers.getCurrentTranslationElementIndex() >= 12),
-                        robot.intake.stop(),
                         robot.shooterCommands.rev(() -> 3000.0)));
 
         return Commands.sequence(
                 goToCenterAndIntake,
                 Commands.deadline(
                         centerToBump,
-                        robot.shooterCommands.rev(() -> 3000.0),
-                        Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >= 4)
-                                .andThen(robot.intake.stop())),
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                        // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >= 4)
+                        //         .andThen(robot.intake.stop())),
                 robot.shooterCommands.scoreDeadline(4.5),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting(),
