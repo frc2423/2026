@@ -44,6 +44,7 @@ import frc.robot.utils.ShootOnMove;
 import frc.robot.telemetry.SubsystemMechanism2d;
 import frc.robot.telemetry.Telemetry;
 import frc.robot.telemetry.DashboardTelemetry;
+import frc.robot.telemetry.RobotHealth;
 
 public class RobotContainer {
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -108,6 +109,9 @@ public class RobotContainer {
 
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
+        @Logged
+        private final RobotHealth robotHealth = new RobotHealth();
+
 
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
