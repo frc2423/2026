@@ -39,9 +39,9 @@ import yams.motorcontrollers.local.SparkWrapper;
 
 public class ArmSubsystem extends SubsystemBase {
 
-    private final SparkMax armMotor = new SparkMax(21, MotorType.kBrushless);
+    //private final SparkMax armMotor = new SparkMax(21, MotorType.kBrushless);
 
-    private final Arm arm;
+    //private final Arm arm;
 
     private Angle offset = Revolutions.of(.735).plus(Degrees.of(30)); // Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
 
@@ -49,45 +49,45 @@ public class ArmSubsystem extends SubsystemBase {
     private double motorPercent = 0;
 
     public ArmSubsystem() {
-        SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
-                .withControlMode(ControlMode.CLOSED_LOOP)
-                // Feedback Constants (PID Constants)
-                .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-                .withSimClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
-                // Feedforward Constants
-                // Telemetry name and verbosity level
-                .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
-                .withIdleMode(MotorMode.BRAKE)
-                .withStatorCurrentLimit(Amps.of(40))
-                .withClosedLoopRampRate(Seconds.of(0.25))
-                // Not sure what this should be
-                .withGearing(30);
+        // SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
+        //         .withControlMode(ControlMode.CLOSED_LOOP)
+        //         // Feedback Constants (PID Constants)
+        //         .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        //         .withSimClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
+        //         // Feedforward Constants
+        //         // Telemetry name and verbosity level
+        //         .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
+        //         .withIdleMode(MotorMode.BRAKE)
+        //         .withStatorCurrentLimit(Amps.of(40))
+        //         .withClosedLoopRampRate(Seconds.of(0.25))
+        //         // Not sure what this should be
+        //         .withGearing(30);
 
-        if (Robot.isReal()) {
-            smcConfig.withExternalEncoder(armMotor.getAbsoluteEncoder())
-                    .withExternalEncoderInverted(true)
-                    .withExternalEncoderGearing(1)
-                    .withExternalEncoderZeroOffset(offset)
-                    .withUseExternalFeedbackEncoder(true)
-                    .withOpenLoopRampRate(Seconds.of(0.25));
-        }
+        //if (Robot.isReal()) {
+        //     smcConfig.withExternalEncoder(armMotor.getAbsoluteEncoder())
+        //             .withExternalEncoderInverted(true)
+        //             .withExternalEncoderGearing(1)
+        //             .withExternalEncoderZeroOffset(offset)
+        //             .withUseExternalFeedbackEncoder(true)
+        //             .withOpenLoopRampRate(Seconds.of(0.25));
+        // }
 
-        SmartMotorController sparkSmartMotorController = new SparkWrapper(armMotor, DCMotor.getNEO(1), smcConfig);
+        //SmartMotorController sparkSmartMotorController = new SparkWrapper(armMotor, DCMotor.getNEO(1), smcConfig);
 
-        ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
-                // Soft limit is applied to the SmartMotorControllers PID
-                .withSoftLimits(Degrees.of(-10), Degrees.of(100))
-                // Hard limit is applied to the simulation.
-                .withHardLimit(Degrees.of(-20), Degrees.of(110))
-                // Starting position is where your arm starts
-                .withStartingPosition(Degrees.of(90))
-                // Length and mass of your arm for sim.
-                .withLength(Feet.of(1))
-                .withMass(Pounds.of(2))
-                // Telemetry name and verbosity for the arm.
-                .withTelemetry("Arm", TelemetryVerbosity.HIGH);
+        // ArmConfig armCfg = new ArmConfig(sparkSmartMotorController)
+        //         // Soft limit is applied to the SmartMotorControllers PID
+        //         .withSoftLimits(Degrees.of(-10), Degrees.of(100))
+        //         // Hard limit is applied to the simulation.
+        //         .withHardLimit(Degrees.of(-20), Degrees.of(110))
+        //         // Starting position is where your arm starts
+        //         .withStartingPosition(Degrees.of(90))
+        //         // Length and mass of your arm for sim.
+        //         .withLength(Feet.of(1))
+        //         .withMass(Pounds.of(2))
+        //         // Telemetry name and verbosity for the arm.
+        //         .withTelemetry("Arm", TelemetryVerbosity.HIGH);
 
-        arm = new Arm(armCfg);
+        //arm = new Arm(armCfg);
     }
 
     ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
@@ -119,51 +119,57 @@ public class ArmSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        arm.updateTelemetry();
+        //arm.updateTelemetry();
 
-        if (setpointAngle != null) {
-            double armAngle = arm.getAngle().in(Radians);
-            double setAngle = setpointAngle.in(Radians);
-            double motorSpeed = feedforward.calculate(armAngle, setAngle - armAngle);
-            armMotor.set(motorSpeed);
-        } else {
-            double motorSpeed = motorPercent;
-            armMotor.set(motorSpeed);
-        }
+        // if (setpointAngle != null) {
+        //     double armAngle = arm.getAngle().in(Radians);
+        //     double setAngle = setpointAngle.in(Radians);
+        //     double motorSpeed = feedforward.calculate(armAngle, setAngle - armAngle);
+        //    // armMotor.set(motorSpeed);
+        // } else {
+        //     double motorSpeed = motorPercent;
+        //     //armMotor.set(motorSpeed);
+        // }
 
     }
 
     @Override
     public void simulationPeriodic() {
-        arm.simIterate();
+      //  arm.simIterate();
     }
 
     @Logged
     public double getAngle() {
-        return arm.getAngle().in(Degrees);
+        //return arm.getAngle().in(Degrees);
+        return 0;
     }
 
     @Logged
     public double getVoltage() {
-        return arm.getMotor().getVoltage().in(Volts);
+       // return arm.getMotor().getVoltage().in(Volts);
+       return 0;
     }
 
     @Logged
     public double getSetpoint() {
-        Angle angle = arm.getMechanismSetpoint().orElse(Degrees.of(0));
-        return angle.in(Degrees);
+        // Angle angle = arm.getMechanismSetpoint().orElse(Degrees.of(0));
+        // return angle.in(Degrees);
+        return 0;
     }
 
     @Logged
     public double getMotorPercent() {
-        return armMotor.get();
+       // return armMotor.get();
+       return 0;
     }
 
     public boolean isNear(Angle angle, Angle tolerance) {
-        return arm.getAngle().isNear(angle, tolerance);
+        //return arm.getAngle().isNear(angle, tolerance);
+        return true;
     }
 
     public boolean isDown() {
-        return isNear(Degrees.of(15), Degrees.of(20));
+        //return isNear(Degrees.of(15), Degrees.of(20));
+        return true;
     }
 }

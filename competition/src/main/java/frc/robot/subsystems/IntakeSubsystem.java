@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    private final SparkFlex motor = new SparkFlex(38, MotorType.kBrushless);
+   // private final SparkFlex motor = new SparkFlex(38, MotorType.kBrushless);
     // private final SparkFlex motor2 = new SparkFlex(38, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
     private double percentSpeed = 0;
@@ -23,7 +23,7 @@ public class IntakeSubsystem extends SubsystemBase {
         motorConfig.smartCurrentLimit(60, 60);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.openLoopRampRate(.1);
-        motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+       // motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         // motor2.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
@@ -58,24 +58,26 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public double getSpeed() {
-        return motor.get();
+        //return motor.get();
+        return 0;
     }
 
     @Override
     public void periodic() {
-        motor.set(percentSpeed);
+       // motor.set(percentSpeed);
         // motor2.set(percentSpeed);
     }
 
     public boolean isJammed() {
-        return motor.getOutputCurrent() > 90 && motor.getEncoder().getVelocity() < 100;
+        //return motor.getOutputCurrent() > 90 && motor.getEncoder().getVelocity() < 100;
+        return false;
     }
 
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
-        builder.addDoubleProperty("current", () -> motor.getOutputCurrent(), null);
-        builder.addDoubleProperty("motor_speed", () -> motor.get(), null);
+        //builder.addDoubleProperty("current", () -> motor.getOutputCurrent(), null);
+        //builder.addDoubleProperty("motor_speed", () -> motor.get(), null);
 
     }
 
