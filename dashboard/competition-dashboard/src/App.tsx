@@ -35,8 +35,11 @@ function App() {
   const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "Active Alliance: [No NTValue Loaded]");
   const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
   const [isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
+  const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
+  const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
   const [matchTime] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/matchTime", 160.0);
   const [shiftTimeRemaining] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/shiftTimeRemaining", 0.0);
+  const [shootingPose] = useNTValue<string>("/Robot/robotContainer/shooterCommands/selectedShootingPose", "Selected Shooting Pose: [No NTValue Loaded]");
   
 
 const headerStyle: React.CSSProperties = {
@@ -135,12 +138,47 @@ const divStyle: React.CSSProperties = {
       </div>
       {/* Active? Content */}
       <div style ={divStyle}>
-        <header style={headerStyle}>Active?</header>
+        <header style={headerStyle}>Is our alliance active?</header>
         <BooleanBox
           label={isAllianceActive ? "Yes" : "No"}
           value={isAllianceActive}
           trueColor="green"
           falseColor="red"
+        />
+      </div>
+      {/* Active? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Is our alliance active next shift?</header>
+        <BooleanBox
+          label={isAllianceActiveNextShift ? "Yes" : "No"}
+          value={isAllianceActiveNextShift}
+          trueColor="green"
+          falseColor="red"
+        />
+      </div>
+      {/* Cameras Connected? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Cameras Connected?</header>
+        <BooleanBox
+          label={camerasConnected ? "Yes" : "No"}
+          value={camerasConnected}
+          trueColor="green"
+          falseColor="red"
+        />
+      </div>
+      {/* Selected Shooting Pose Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Selected Shooting Pose</header>
+        {shootingPose}
+      </div>
+      {/* Twindexer Jammed? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Twindexer Jammed?</header>
+        <BooleanBox
+          label={twindexerJammed ? "Yes" : "No"}
+          value={twindexerJammed}
+          trueColor="#ddba34"
+          falseColor="#333539"
         />
       </div>
       </div>
