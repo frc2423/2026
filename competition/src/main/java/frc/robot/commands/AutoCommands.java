@@ -44,6 +44,7 @@ public class AutoCommands {
     private final Path trenchToOutpostPath = new Path("Trench-to-Outpost");
     private final Path outpostToDepotPath = new Path("Outpost-to-Depot");
     private final Path depotToDepotPath = new Path("Depot-to-Outpost");
+    private final Path shootToTrenchPath = new Path("Shoot-to-Trench");
 
     public AutoCommands(RobotContainer robot) {
         this.robot = robot;
@@ -56,14 +57,18 @@ public class AutoCommands {
         m_chooser.addOption("Center Twice Trench Auto", "Center Twice Trench Auto");
         m_chooser.addOption("Center Twice Trench Auto with Breif Delay", "Center Twice Trench Auto with Breif Delay");
         m_chooser.addOption("Center Twice Trench Auto with Shoot Delay", "Center Twice Trench Auto with Shoot Delay");
-        m_chooser.addOption("Center Twice Trench Auto with Long Shoot Delay", "Center Twice Trench Auto with Long Shoot Delay");
+        m_chooser.addOption("Center Twice Trench Auto with Long Shoot Delay",
+                "Center Twice Trench Auto with Long Shoot Delay");
         m_chooser.addOption("Center Twice Bump Auto", "Center Twice Bump Auto");
         m_chooser.addOption("Center Twice Bump Auto with Breif Delay", "Center Twice Bump Auto with Breif Delay");
         m_chooser.addOption("Center Twice Bump Auto with Shoot Delay", "Center Twice Bump Auto with Shoot Delay");
-        m_chooser.addOption("Center Twice Bump Auto with Long Shoot Delay", "Center Twice Bump Auto with Long Shoot Delay");
-        m_chooser.addOption("Center Twice Bump Auto with Outpost or Depot Delay", "Center Twice Bump Auto with Outpost or Depot Delay");
+        m_chooser.addOption("Center Twice Bump Auto with Long Shoot Delay",
+                "Center Twice Bump Auto with Long Shoot Delay");
+        m_chooser.addOption("Center Twice Bump Auto with Outpost or Depot Delay",
+                "Center Twice Bump Auto with Outpost or Depot Delay");
         m_chooser.addOption("Center Once Bump Depot or Outpost Auto", "Center Once Bump Depot or Outpost Auto");
         m_chooser.addOption("Center Once Bump Depot and Outpost Auto", "Center Once Bump Depot and Outpost Auto");
+        m_chooser.addOption("Custom", "Custom");
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
@@ -569,8 +574,9 @@ public class AutoCommands {
                 Commands.deadline(
                         centerToBump,
                         robot.shooterCommands.rev(() -> 3000.0)),
-                        // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >= 4)
-                        //         .andThen(robot.intake.stop())),
+                // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >=
+                // 4)
+                // .andThen(robot.intake.stop())),
                 robot.shooterCommands.scoreDeadline(4.5),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting(),
@@ -624,8 +630,9 @@ public class AutoCommands {
                 Commands.deadline(
                         centerToBump,
                         robot.shooterCommands.rev(() -> 3000.0)),
-                        // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >= 4)
-                        //         .andThen(robot.intake.stop())),
+                // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >=
+                // 4)
+                // .andThen(robot.intake.stop())),
                 robot.shooterCommands.scoreDeadline(4.5),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting(),
@@ -679,14 +686,199 @@ public class AutoCommands {
                 Commands.deadline(
                         centerToBump,
                         robot.shooterCommands.rev(() -> 3000.0)),
-                        // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >= 4)
-                        //         .andThen(robot.intake.stop())),
+                // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >=
+                // 4)
+                // .andThen(robot.intake.stop())),
                 robot.shooterCommands.scoreDeadline(4),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting(),
                 // robot.shooterCommands.lookAtAngle(Rotation2d.fromDegrees(0),
                 bumpToLeftoversAndIntake,
                 robot.shooterCommands.scoreDeadline(10));
+    }
+
+    // individual part commands to build a custom auto
+
+    public Command shootDelay(double seconds) {
+        return robot.shooterCommands.scoreDeadline(seconds);
+    }
+
+    public Command breifDelay(double seconds) {
+        return Commands.waitSeconds(seconds);
+    }
+
+    public Command outpostOrDepot() {
+        boolean outpost = true;
+        Path bumpToDepotOrOutpostPath = bumpToOutpostPath;
+
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
+            bumpToDepotOrOutpostPath = bumpToDepotPath;
+            outpost = false;
+            FloppingUtil.flopPath(shootToTrenchPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            bumpToDepotOrOutpostPath.flip();
+            shootToTrenchPath.flip();
+        }
+
+        FollowPath bumpToDepotOrOutpost = robot.bline.pathBuilder.build(bumpToDepotOrOutpostPath);
+        FollowPath shootToTrench = robot.bline.pathBuilder.build(shootToTrenchPath);
+
+        Command bumpToDepotOrOutpostAndWait = bumpToDepotOrOutpost;
+        if (outpost) {
+            bumpToDepotOrOutpostAndWait = Commands.sequence(bumpToDepotOrOutpost, Commands.waitSeconds(2));
+        }
+        return Commands.sequence(
+                robot.intakeCommands.armDown(),
+                robot.intake.intake(),
+                bumpToDepotOrOutpostAndWait,
+                robot.intake.stop(),
+                goToHubAndShoot().withTimeout(3),
+                shootToTrench);
+    }
+
+    public Command centerTrench() {
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
+            FloppingUtil.flopPath(trenchToCenterPath);
+            FloppingUtil.flopPath(centerToLeftoversPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            trenchToCenterPath.flip();
+            centerToLeftoversPath.flip();
+        }
+
+        FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
+        FollowPath centerToLeftovers = robot.bline.pathBuilder.build(centerToLeftoversPath);
+
+        Command goToCenterAndIntake = Commands.deadline(
+                trenchToCenter,
+                Commands.sequence(
+                        robot.intakeCommands.armDown(),
+                        Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
+                        robot.intake.intake()));
+
+        return Commands.sequence(
+                goToCenterAndIntake,
+                Commands.deadline(
+                        centerToLeftovers,
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                robot.intake.stop(),
+                robot.shooterCommands.scoreDeadline(3),
+                robot.shooterCommands.stopFeeding(),
+                robot.shooterCommands.stopShooting());
+    }
+
+    public Command centerBump() {
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
+            FloppingUtil.flopPath(trenchToCenterPath);
+            FloppingUtil.flopPath(bumpToLeftoversPath);
+
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            trenchToCenterPath.flip();
+            bumpToLeftoversPath.flip();
+        }
+
+        FollowPath trenchToCenter = robot.bline.pathBuilder.build(trenchToCenterPath);
+        FollowPath centerToLeftovers = robot.bline.pathBuilder.build(bumpToLeftoversPath);
+
+        Command goToCenterAndIntake = Commands.deadline(
+                trenchToCenter,
+                Commands.sequence(
+                        Commands.waitUntil(() -> trenchToCenter.getCurrentTranslationElementIndex() >= 4),
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake()));
+
+        return Commands.sequence(
+                goToCenterAndIntake,
+                Commands.deadline(
+                        centerToLeftovers,
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                robot.intake.stop(),
+                robot.shooterCommands.scoreDeadline(3),
+                robot.shooterCommands.stopFeeding(),
+                robot.shooterCommands.stopShooting());
+    }
+
+    public Command secondCenterTrench() {
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
+            FloppingUtil.flopPath(trenchToLeftoversPath);
+            FloppingUtil.flopPath(leftoversToTrenchPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+            trenchToLeftoversPath.flip();
+            leftoversToTrenchPath.flip();
+        }
+
+        FollowPath trenchToLeftovers = robot.bline.pathBuilder.build(trenchToLeftoversPath);
+        FollowPath leftoversToTrench = robot.bline.pathBuilder.build(leftoversToTrenchPath);
+
+        Command trenchToLeftoversAndIntake = Commands.deadline(
+                trenchToLeftovers,
+                Commands.sequence(
+                        Commands.waitUntil(() -> trenchToLeftovers.getCurrentTranslationElementIndex() >= 2),
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake()));
+
+        Command leftoversToTrenchAndIntake = Commands.deadline(
+                leftoversToTrench,
+                Commands.waitUntil(() -> leftoversToTrench.getCurrentTranslationElementIndex() >= 3)
+                        .andThen(robot.intake.stop()));
+
+        return Commands.sequence(
+                trenchToLeftoversAndIntake,
+                leftoversToTrenchAndIntake,
+                robot.shooterCommands.scoreDeadline(3));
+    }
+
+    public Command secondCenterBump() {
+        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
+                .isRedAlliance()) {
+            FloppingUtil.flopPath(bumpToLeftoversPath);
+        }
+        if (PoseTransformUtils.isRedAlliance()) {
+
+            bumpToLeftoversPath.flip();
+        }
+
+        FollowPath bumpToLeftovers = robot.bline.pathBuilder.build(bumpToLeftoversPath);
+
+        Command bumpToLeftoversAndIntake = Commands.deadline(
+                bumpToLeftovers,
+                Commands.sequence(
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake(),
+                        Commands.waitUntil(() -> bumpToLeftovers.getCurrentTranslationElementIndex() >= 6),
+                        robot.intake.intake(),
+                        Commands.waitUntil(() -> bumpToLeftovers.getCurrentTranslationElementIndex() >= 12),
+                        robot.shooterCommands.rev(() -> 3000.0)));
+
+        return Commands.sequence(
+                bumpToLeftoversAndIntake,
+                robot.shooterCommands.scoreDeadline(10));
+    }
+
+    public Command StringArrayToCommand(String[] steps) {
+        if (steps.length != 3) {
+            return Commands.none();
+        }
+        Command step1 = Commands.none();
+        Command step2 = Commands.none();
+        Command step3 = Commands.none();
+        if (steps[0].equals("shoot")) {
+            step1 = shootAuto();
+        } else if (steps[0].equals("brief")) {
+            step1 = breifDelay(1.5);
+        } else if (steps[0].equals("outpost or depot")) {
+            step1 = outpostOrDepot();
+        }
+        return Commands.sequence(step1.until(null),
+        step2.until(null),
+        step3.until(null));
     }
 
     public Command getAuto() {
@@ -724,6 +916,11 @@ public class AutoCommands {
             return centerOnceBumpDepotOrOutpostAuto();
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot and Outpost Auto")) {
             return centerOnceBumpDepotAndOutpostAuto();
+        } else if (m_chooser.getSelected().equals("Custom")) {
+            return Commands.sequence(
+                outpostOrDepot(),
+                centerTrench(),
+                secondCenterBump());
         } else {
             return Commands.none();
         }
