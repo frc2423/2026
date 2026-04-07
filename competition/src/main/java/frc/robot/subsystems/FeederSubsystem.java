@@ -48,6 +48,10 @@ public class FeederSubsystem extends SubsystemBase {
         }).withName("stopFeeder");
     }
 
+    public SparkFlex getSparkFlex(){
+        return this.motor;
+    }
+
     @Override
     public void periodic() {
         motor.set(motorPercent);

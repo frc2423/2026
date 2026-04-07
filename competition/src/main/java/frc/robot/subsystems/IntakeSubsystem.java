@@ -71,6 +71,11 @@ public class IntakeSubsystem extends SubsystemBase {
         return motor.getOutputCurrent() > 90 && motor.getEncoder().getVelocity() < 100;
     }
 
+    public SparkFlex getSparkFlex(){
+        return this.motor;
+    }
+
+
     @Override
     public void initSendable(SendableBuilder builder) {
         super.initSendable(builder);
