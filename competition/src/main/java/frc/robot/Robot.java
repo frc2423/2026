@@ -16,6 +16,8 @@ import frc.robot.utils.DataLogManager;
 
 import org.littletonrobotics.urcl.URCL;
 
+import com.ctre.phoenix6.SignalLogger;
+
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
@@ -29,7 +31,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
     DriverStation.silenceJoystickConnectionWarning(true);
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
-
+    SignalLogger.stop();
   }
 
   @Override

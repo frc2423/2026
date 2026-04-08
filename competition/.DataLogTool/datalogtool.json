@@ -1,6 +1,8 @@
 {
   "download": {
+    "deleteAfter": false,
     "localDir": "C:\\Users\\amory\\OneDrive\\Desktop\\riologs",
+    "remoteDir": "/u/logs",
     "serverTeam": "2423"
   }
 }

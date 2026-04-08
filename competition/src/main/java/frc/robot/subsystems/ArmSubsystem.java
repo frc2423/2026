@@ -15,8 +15,12 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Revolutions;
 
+import com.revrobotics.PersistMode;
+import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
@@ -43,14 +47,18 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final Arm arm;
 
-    private Angle offset = Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
+    private Angle offset = Degrees.of(0);//Revolutions.of(.735).plus(Degrees.of(30)); // Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
 
     private Angle setpointAngle;
     private double motorPercent = 0;
 
     public ArmSubsystem() {
+        // SparkMaxConfig config = new SparkMaxConfig();
+        // armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
         SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
                 .withControlMode(ControlMode.CLOSED_LOOP)
+                // .withEncoderInverted(true)
                 // Feedback Constants (PID Constants)
                 .withClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
                 .withSimClosedLoopController(0, 0, 0, DegreesPerSecond.of(90), DegreesPerSecondPerSecond.of(45))
@@ -58,14 +66,14 @@ public class ArmSubsystem extends SubsystemBase {
                 // Telemetry name and verbosity level
                 .withTelemetry("ArmMotor", TelemetryVerbosity.HIGH)
                 .withIdleMode(MotorMode.BRAKE)
-                .withStatorCurrentLimit(Amps.of(40))
+                .withStatorCurrentLimit(Amps.of(20))
                 .withClosedLoopRampRate(Seconds.of(0.25))
                 // Not sure what this should be
                 .withGearing(30);
 
         if (Robot.isReal()) {
             smcConfig.withExternalEncoder(armMotor.getAbsoluteEncoder())
-                    .withExternalEncoderInverted(true)
+                    .withExternalEncoderInverted(false)
                     .withExternalEncoderGearing(1)
                     .withExternalEncoderZeroOffset(offset)
                     .withUseExternalFeedbackEncoder(true)
@@ -90,7 +98,7 @@ public class ArmSubsystem extends SubsystemBase {
         arm = new Arm(armCfg);
     }
 
-    ArmFeedforward feedforward = new ArmFeedforward(0, .05, .3);
+    ArmFeedforward feedforward = new ArmFeedforward(0, .05, .45);
 
     public Command armUp() {
         return setAngle(Degrees.of(80)).withName("armUp");
@@ -121,49 +129,62 @@ public class ArmSubsystem extends SubsystemBase {
     public void periodic() {
         arm.updateTelemetry();
 
-        if (setpointAngle != null) {
-            double armAngle = arm.getAngle().in(Radians);
-            double setAngle = setpointAngle.in(Radians);
-            double motorSpeed = feedforward.calculate(armAngle, setAngle - armAngle);
-            armMotor.set(motorSpeed);
-        } else {
-            double motorSpeed = motorPercent;
-            armMotor.set(motorSpeed);
-        }
+        double motorSpeed = 0;
 
+        if (setpointAngle != null) {
+            Angle armAngle = arm.getAngle();
+            if (armAngle.gt(Degrees.of(300))) {
+                armAngle = armAngle.minus(Degrees.of(360));
+            }
+            double armAngleRadians = armAngle.in(Radians);
+            double setAngleRadians = setpointAngle.in(Radians);
+            motorSpeed = feedforward.calculate(armAngleRadians, setAngleRadians - armAngleRadians);
+        } else {
+            motorSpeed = motorPercent;
+        }
+        if (motorSpeed < -.4) {
+            motorSpeed = -.4;
+        }
+        armMotor.set(motorSpeed);
     }
 
     @Override
     public void simulationPeriodic() {
-        arm.simIterate();
+       arm.simIterate();
     }
 
     @Logged
     public double getAngle() {
         return arm.getAngle().in(Degrees);
+        // return 0;
     }
 
     @Logged
     public double getVoltage() {
-        return arm.getMotor().getVoltage().in(Volts);
+       return arm.getMotor().getVoltage().in(Volts);
+    //    return 0;
     }
 
     @Logged
     public double getSetpoint() {
         Angle angle = arm.getMechanismSetpoint().orElse(Degrees.of(0));
         return angle.in(Degrees);
+        // return 0;
     }
 
     @Logged
     public double getMotorPercent() {
-        return armMotor.get();
+       return armMotor.get();
+    //    return 0;
     }
 
     public boolean isNear(Angle angle, Angle tolerance) {
         return arm.getAngle().isNear(angle, tolerance);
+        // return true;
     }
 
     public boolean isDown() {
         return isNear(Degrees.of(15), Degrees.of(20));
+        // return true;
     }
 }

@@ -16,14 +16,15 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PassingCommands;
@@ -112,6 +113,8 @@ public class RobotContainer {
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
+        // private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
@@ -121,6 +124,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
                 SmartDashboard.putData("subsystems/hood", hood);
+                // SmartDashboard.putData("pdh", pdh);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
