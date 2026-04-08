@@ -1,7 +1,11 @@
 package frc.robot.commands;
 
+import java.util.function.BooleanSupplier;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -69,6 +73,7 @@ public class AutoCommands {
         m_chooser.addOption("Center Once Bump Depot or Outpost Auto", "Center Once Bump Depot or Outpost Auto");
         m_chooser.addOption("Center Once Bump Depot and Outpost Auto", "Center Once Bump Depot and Outpost Auto");
         m_chooser.addOption("Custom", "Custom");
+        m_chooser.addOption("Custom Arrays", "Custom Arrays");
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
@@ -106,6 +111,16 @@ public class AutoCommands {
                 Commands.deadline(driveToHub,
                         robot.shooterCommands.rev(() -> 3000.0)),
                 robot.shooterCommands.scoreDeadline(20),
+                robot.shooterCommands.stopFeeding(),
+                robot.shooterCommands.stopShooting());
+    }
+
+    public Command goToHubAndShootUntil(BooleanSupplier condition) {
+        Command driveToHub = driveToPose(shootInFrontOfHubPose);
+        return Commands.sequence(
+                Commands.deadline(driveToHub,
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                robot.shooterCommands.scoreUntil(condition),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting());
     }
@@ -697,17 +712,27 @@ public class AutoCommands {
                 robot.shooterCommands.scoreDeadline(10));
     }
 
+    double autoStartTime;
+
+    public void autonomousInit() {
+        autoStartTime = Timer.getFPGATimestamp();
+    }
+
+    private boolean timeElapsed(double time) {
+        return (Timer.getFPGATimestamp() - autoStartTime) >= time;
+    }
+
     // individual part commands to build a custom auto
 
-    public Command shootDelay(double seconds) {
-        return robot.shooterCommands.scoreDeadline(seconds);
+    public Command shootDelay(double deadline) {
+        return robot.shooterCommands.scoreUntil(() -> timeElapsed(deadline));
     }
 
-    public Command breifDelay(double seconds) {
-        return Commands.waitSeconds(seconds);
+    public Command breifDelay(double deadline) {
+        return Commands.waitUntil(() -> timeElapsed(deadline));
     }
 
-    public Command outpostOrDepot() {
+    public Command outpostOrDepot(double deadline) {
         boolean outpost = true;
         Path bumpToDepotOrOutpostPath = bumpToOutpostPath;
 
@@ -734,11 +759,11 @@ public class AutoCommands {
                 robot.intake.intake(),
                 bumpToDepotOrOutpostAndWait,
                 robot.intake.stop(),
-                goToHubAndShoot().withTimeout(3),
+                goToHubAndShootUntil(() -> timeElapsed(deadline)),
                 shootToTrench);
     }
 
-    public Command centerTrench() {
+    public Command centerTrench(double deadline) {
         if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
                 .isRedAlliance()) {
             FloppingUtil.flopPath(trenchToCenterPath);
@@ -765,12 +790,12 @@ public class AutoCommands {
                         centerToLeftovers,
                         robot.shooterCommands.rev(() -> 3000.0)),
                 robot.intake.stop(),
-                robot.shooterCommands.scoreDeadline(3),
+                robot.shooterCommands.scoreUntil(() -> timeElapsed(deadline)),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting());
     }
 
-    public Command centerBump() {
+    public Command centerBump(double deadline) {
         if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
                 .isRedAlliance()) {
             FloppingUtil.flopPath(trenchToCenterPath);
@@ -798,7 +823,7 @@ public class AutoCommands {
                         centerToLeftovers,
                         robot.shooterCommands.rev(() -> 3000.0)),
                 robot.intake.stop(),
-                robot.shooterCommands.scoreDeadline(3),
+                robot.shooterCommands.scoreUntil(() -> timeElapsed(deadline)),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting());
     }
@@ -832,7 +857,7 @@ public class AutoCommands {
         return Commands.sequence(
                 trenchToLeftoversAndIntake,
                 leftoversToTrenchAndIntake,
-                robot.shooterCommands.scoreDeadline(3));
+                robot.shooterCommands.scoreDeadline(10));
     }
 
     public Command secondCenterBump() {
@@ -862,23 +887,38 @@ public class AutoCommands {
                 robot.shooterCommands.scoreDeadline(10));
     }
 
-    public Command StringArrayToCommand(String[] steps) {
-        if (steps.length != 3) {
+    public Command StringArrayToCommand(String[] steps, double[] times) {
+        if (steps.length != 3 || times.length != 3) {
             return Commands.none();
         }
         Command step1 = Commands.none();
         Command step2 = Commands.none();
         Command step3 = Commands.none();
         if (steps[0].equals("shoot")) {
-            step1 = shootAuto();
+            step1 = shootDelay(times[0]);
         } else if (steps[0].equals("brief")) {
-            step1 = breifDelay(1.5);
+            step1 = breifDelay(times[0]);
         } else if (steps[0].equals("outpost or depot")) {
-            step1 = outpostOrDepot();
+            step1 = outpostOrDepot(times[0]);
         }
-        return Commands.sequence(step1.until(null),
-        step2.until(null),
-        step3.until(null));
+        if (steps[1].equals("trench")) {
+            step2 = centerTrench(times[1]);
+        } else if (steps[1].equals("bump")) {
+            step2 = centerBump(times[1]);
+        }
+        if (steps[2].equals("trench")) {
+            step3 = secondCenterTrench();
+        } else if (steps[2].equals("bump")) {
+            step3 = secondCenterBump();
+        } else if (steps[2].equals("outpost or depot")) {
+            step3 = outpostOrDepot(30);
+        } else if (steps[2].equals("shoot")) {
+            step3 = goToHubAndShoot();
+        }
+        return Commands.sequence(
+                step1,
+                step2,
+                step3);
     }
 
     public Command getAuto() {
@@ -916,11 +956,9 @@ public class AutoCommands {
             return centerOnceBumpDepotOrOutpostAuto();
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot and Outpost Auto")) {
             return centerOnceBumpDepotAndOutpostAuto();
-        } else if (m_chooser.getSelected().equals("Custom")) {
-            return Commands.sequence(
-                outpostOrDepot(),
-                centerTrench(),
-                secondCenterBump());
+        } else if (m_chooser.getSelected().equals("Custom Arrays")) {
+            return StringArrayToCommand(new String[] { "shoot", "trench", "outpost or depot" },
+                    new double[] { 5, 10, 200 });
         } else {
             return Commands.none();
         }

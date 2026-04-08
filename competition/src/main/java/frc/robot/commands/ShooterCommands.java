@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Seconds;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -167,6 +168,15 @@ public class ShooterCommands extends SubsystemBase {
             lookAtPose(),
             revSpeedFromDAS(),
             feed()).withTimeout(shootingTime));
+  }
+
+  public Command scoreUntil(BooleanSupplier stopCondition) {
+    return Commands.sequence(
+        prepareToShoot().until(() -> isFacingHub()),
+        Commands.parallel(
+            lookAtPose(),
+            revSpeedFromDAS(),
+            feed()).until(stopCondition));
   }
 
   public Command feedOnly() {
