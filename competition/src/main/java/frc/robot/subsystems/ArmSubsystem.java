@@ -15,6 +15,7 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Revolutions;
 
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
@@ -131,6 +132,10 @@ public class ArmSubsystem extends SubsystemBase {
             armMotor.set(motorSpeed);
         }
 
+    }
+
+    public SparkMax getSparkMax(){
+        return this.armMotor;
     }
 
     @Override

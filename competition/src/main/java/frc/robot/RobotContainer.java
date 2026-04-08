@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -37,6 +39,7 @@ import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TwindexerSubsystem;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDS.KwarqsLed;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -77,6 +80,8 @@ public class RobotContainer {
                         .withHeadingPID(10, 0, 0);
         private Rotation2d lastHeading = new Rotation2d();
 
+        private Supplier<Pose2d> currentPose;
+
         @Logged
         public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35, true);
         @Logged
@@ -87,6 +92,8 @@ public class RobotContainer {
         public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
         @Logged
         public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
+        // @Logged
+        public final Vision vision = new Vision(currentPose);
 
         @Logged
         public final HoodSubsystem hood = new HoodSubsystem(this);
@@ -109,8 +116,8 @@ public class RobotContainer {
 
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
-        @Logged
-        private final RobotHealth robotHealth = new RobotHealth();
+        // @Logged
+        private final RobotHealth robotHealth = new RobotHealth(vision,drivetrain,twindexer,intake,shooterRight,hood,arm,feederRight); //If one feeder / shooter isn't working the other one likely isn't
 
 
         @SuppressWarnings("unused")

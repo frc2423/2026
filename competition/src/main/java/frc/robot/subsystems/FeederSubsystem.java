@@ -7,6 +7,7 @@ import com.revrobotics.spark.config.SparkFlexConfig;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -16,6 +17,9 @@ public class FeederSubsystem extends SubsystemBase {
 
     private final SparkFlex motor;
     private double motorPercent = 0;
+
+    private static final int CURRENT_FILTER_SIZE = 30;
+    private final MedianFilter currentFilter = new MedianFilter(CURRENT_FILTER_SIZE);
 
     public FeederSubsystem(int motorId, boolean isInverted) {
         motor = new SparkFlex(motorId, MotorType.kBrushless);
@@ -50,6 +54,18 @@ public class FeederSubsystem extends SubsystemBase {
 
     public SparkFlex getSparkFlex(){
         return this.motor;
+    }
+
+    public double getCurrentInAmps() {
+        return motor.getOutputCurrent();
+    }
+
+    public double getSampledCurrentInAmps() {
+        return currentFilter.calculate(getCurrentInAmps());
+    }
+
+    public boolean isStalled() {
+        return getSampledCurrentInAmps() > 10;
     }
 
     @Override

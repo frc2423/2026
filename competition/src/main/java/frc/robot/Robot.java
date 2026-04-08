@@ -18,6 +18,7 @@ import org.littletonrobotics.urcl.URCL;
 
 import com.ctre.phoenix6.SignalLogger;
 
+@Logged
 public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 

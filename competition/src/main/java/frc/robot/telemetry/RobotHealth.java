@@ -1,8 +1,10 @@
 package frc.robot.telemetry;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.utils.HubTracker;
 import frc.robot.generated.TunerConstants;
@@ -17,9 +19,11 @@ import frc.robot.subsystems.TwindexerSubsystem;
 
 public class RobotHealth {
 
+    private Supplier<Pose2d> currentPose;
+
     private CommandSwerveDrivetrain drivetrain;
 
-    private Vision vision;// = new Vision(() -> drivetrain.getState().Pose);
+    private Vision vision; //= new Vision(() -> drivetrain.getState().Pose);
 
     private TwindexerSubsystem twindexer;
 
@@ -33,10 +37,10 @@ public class RobotHealth {
 
     private FeederSubsystem feeder;
 
-    @Logged
-    boolean isCameraConnected = vision.isCameraConnected();
+    // @Logged
+    // boolean isCameraConnected = vision.isCameraConnected();
 
-    @Logged
+    // @Logged
     private HashMap<String, HashMap<String, Boolean>> motorLogs = new HashMap<>();
 
     // {
@@ -51,7 +55,7 @@ public class RobotHealth {
 
     private Notifier notifier = new Notifier(this::update);
 
-    public RobotHealth(Vision vision, CommandSwerveDrivetrain drivetrain, TwindexerSubsystem twindexer) {
+    public RobotHealth(Vision vision, CommandSwerveDrivetrain drivetrain, TwindexerSubsystem twindexer, IntakeSubsystem intake, ShooterSubsystem shooter, HoodSubsystem hood, ArmSubsystem arm, FeederSubsystem feeder) {
         notifier.startPeriodic(.02);
         this.drivetrain = drivetrain;
         this.vision = vision;
@@ -85,6 +89,10 @@ public class RobotHealth {
         motorLogs.get("arm").put("isConnected", arm.getSparkMax().getFirmwareVersion()!=0);
         motorLogs.get("feeder").put("isConnected", feeder.getSparkFlex().getFirmwareVersion()!=0);
 
+        motorLogs.get("intake").put("isStalled", intake.isStalled()==true);
+        motorLogs.get("hood").put("isStalled", hood.isStalled()==true);
+        motorLogs.get("feeder").put("isStalled", feeder.isStalled()==true);
+        motorLogs.get("twindexer").put("isStalled", twindexer.isJammed()==true);
     }
 
      private static void addDefinition(Map<String, List<String>> dict, String word, String definition) {
@@ -93,7 +101,7 @@ public class RobotHealth {
 
     private void update() {
         
-        isCameraConnected = vision.isCameraConnected();
+        //isCameraConnected = vision.isCameraConnected();
 
     }
 
