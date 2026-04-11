@@ -17,9 +17,10 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-    private final SparkFlex motor = new SparkFlex(38, MotorType.kBrushless);
-    // private final SparkFlex motor2 = new SparkFlex(38, MotorType.kBrushless);
+   private final SparkFlex motor = new SparkFlex(24, MotorType.kBrushless);
+    private final SparkFlex motor2 = new SparkFlex(38, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
+    private final SparkFlexConfig motorConfig2 = new SparkFlexConfig();
     private double percentSpeed = 0;
 
     private static final int CURRENT_FILTER_SIZE = 30;
@@ -30,8 +31,14 @@ public class IntakeSubsystem extends SubsystemBase {
         motorConfig.smartCurrentLimit(60, 60);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.openLoopRampRate(.1);
-        motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        // motor2.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+       
+        motorConfig2.inverted(false);
+        motorConfig2.smartCurrentLimit(60, 60);
+        motorConfig2.idleMode(IdleMode.kCoast);
+        motorConfig2.openLoopRampRate(.1);
+        
+       motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        motor2.configureAsync(motorConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
     public Command intake() {
@@ -66,16 +73,18 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public double getSpeed() {
         return motor.get();
+        // return 0;
     }
 
     @Override
     public void periodic() {
-        motor.set(percentSpeed);
-        // motor2.set(percentSpeed);
+       motor.set(percentSpeed * .75);
+        motor2.set(percentSpeed * .75);
     }
 
     public boolean isJammed() {
         return motor.getOutputCurrent() > 90 && motor.getEncoder().getVelocity() < 100;
+        // return false;
     }
 
     public SparkFlex getSparkFlex(){

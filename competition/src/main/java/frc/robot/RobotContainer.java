@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -123,7 +124,7 @@ public class RobotContainer {
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
-        private final PowerDistribution pdh = new PowerDistribution();
+        // private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
 
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
@@ -134,7 +135,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
                 SmartDashboard.putData("subsystems/hood", hood);
-                SmartDashboard.putData("pdh", pdh);
+                // SmartDashboard.putData("pdh", pdh);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);

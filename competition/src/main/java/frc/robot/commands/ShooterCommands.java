@@ -180,7 +180,7 @@ public class ShooterCommands extends SubsystemBase {
     Command feed = Commands.parallel(
         robot.feederLeft.spin(),
         robot.feederRight.spin(),
-        robot.arm.wiggleArm(Degrees.of(80), Degrees.of(35), Seconds.of(.4)),
+        robot.arm.wiggleArm(Degrees.of(110), Degrees.of(35), Seconds.of(.55)),
         robot.intake.intakeSlow(),
         Commands.waitSeconds(.5).andThen(spindex));
 
