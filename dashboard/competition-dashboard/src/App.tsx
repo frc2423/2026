@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, type FormEvent } from "react";
 import {
   useNTValue,
   useNTConnection,
@@ -10,6 +10,7 @@ import {
   Gyro
 } from "@frc-web-components/react";
 
+
 function App() {
   // Monitor connection status
   const { isConnected, address, connect } = useNTConnection();
@@ -17,11 +18,34 @@ function App() {
   // Local state for address input
   const [addressInput, setAddressInput] = useState(address);
 
-  // Get/Set a number value
+  // Get/Set a number/String[]/number[] value
   const [someNumber, setSomeNumber] = useNTValue<number>(
     "/SmartDashboard/someNumber",
     0
   );
+  const [someStringArray, setSomeStringArray] = useNTValue<string[]>(
+    "/SmartDashboard/someStringArray"
+  );
+  const [someNumberArray, setSomeNumberArray] = useNTValue<number[]>(
+    "/SmartDashboard/setSomeNumberArray"
+  );
+  
+   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // 1. Grab the form element
+    const formData = new FormData(e.currentTarget);
+
+    // 2. Extract values into arrays
+    // getAll() picks up every element with that specific name
+    const stepNames = formData.getAll('stepName') as string[];
+    const stepDelays = formData.getAll('stepDelay').map(val => parseFloat(val as string));
+
+    // console.log("String Array:", stepNames);
+    // console.log("Double Array:", stepDelays);
+    setSomeStringArray(stepNames);
+    setSomeNumberArray(stepDelays);
+  };
 
   const [isRedAlliance] = useNTValue<boolean>("/FMSInfo/IsRedAlliance", false);
   const [streams] = useNTValue<string[]>(
@@ -184,20 +208,43 @@ const divStyle: React.CSSProperties = {
       </div>
       <br></br>
       {/* Dropdown Element Container */}
+      <form onSubmit={handleSubmit}>
       <div style={{ display: 'flex', gap: '10px'}}>
-          <label>Select an auto category:</label>
-          <select>
-
+          <label htmlFor="step1">AUTO Step 1:</label>
+          <select name="stepName">
+            <option value="shoot">Shoot</option>
+            <option value="brief">Brief Delay</option>
+            <option value="outpost or depot">Go to Outpost or Depot</option>
+            <option value="none">None</option>
           </select>
-          <label>Select an auto delay:</label>
-          <select>
+          <label htmlFor="step1delay">Move to Step 2 By:</label>
+          <input type="number" name="stepDelay" min="1" max="20"></input>sec
+          </div>
 
+          <div style={{ display: 'flex', gap: '10px'}}>
+          <label htmlFor="step2">AUTO Step 2:</label>
+          <select name="stepName">
+            <option value="trench">Go Under Trench</option>
+            <option value="bump">Go Over Bump</option>
           </select>
-          <label>Select an auto path:</label>
-          <select>
-
+          <label htmlFor="step2delay">Move to Step 3 By:</label>
+          <input type="number" name="stepDelay" min="1" max="20"></input>sec
+          </div>
+          
+          <div style={{ display: 'flex', gap: '10px'}}>
+          <label htmlFor="step3">AUTO Step 3:</label>
+          <select name="stepName">
+            <option value="trench">Go Under Trench</option>
+            <option value="bump">Go Over Bump</option>
+            <option value="outpost or depot">Go to Outpost or Depot</option>
+            <option value="shoot">Shoot</option>
+            <option value="collect">Collect Fuel</option>
           </select>
-      </div>
+          <label htmlFor="step3delay">Finish by:</label>
+          <input type="number" name="stepDelay" min="1" max="20"></input>sec
+          </div>
+          <button type="submit">Submit</button>
+          </form>
       <div>
         <Canvas>
           <CanvasMjpgStream
