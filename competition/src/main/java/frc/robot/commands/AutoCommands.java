@@ -76,6 +76,9 @@ public class AutoCommands {
         m_chooser.addOption("Center Once Bump Depot or Outpost Auto", "Center Once Bump Depot or Outpost Auto");
         m_chooser.addOption("Center Once Bump Depot and Outpost Auto", "Center Once Bump Depot and Outpost Auto");
         m_chooser.addOption("Custom", "Custom");
+        m_chooser.addOption("Center Once Bump Collect Auto", "Center Once Bump Collect Auto");
+        m_chooser.addOption("Mechanical Advantage Delay", "Mechanical Advantage Delay");
+        m_chooser.addOption("Custom Center Once Bump Collect Auto with Outpost or Depot Delay", "Custom Center Once Bump Collect Auto with Outpost or Depot Delay");
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
@@ -719,7 +722,10 @@ public class AutoCommands {
     // individual part commands to build a custom auto
 
     public Command shootDelay(double deadline) {
-        return robot.shooterCommands.scoreUntil(() -> timer.hasElapsed(deadline));
+        return Commands.sequence(
+                robot.shooterCommands.scoreUntil(() -> timer.hasElapsed(deadline-0.5)),
+                robot.bline.pathBuilder.build(new Path(new Waypoint(robot.drivetrain.getPose().getTranslation(),
+                        new Rotation2d(PoseTransformUtils.isRedAlliance() ? 0 : Math.PI)))));
     }
 
     public Command breifDelay(double deadline) {
@@ -939,57 +945,64 @@ public class AutoCommands {
         if (m_chooser.getSelected().equals("Center Once Trench Auto")) {
             return centerOnceTrenchAuto();
         } else if (m_chooser.getSelected().equals("Outpost Auto")) {
-            //return outpostAuto();
-            return customAuto(new String[] {"outpost or depot", "", ""}, new double[] {20, 20});
+            // return outpostAuto();
+            return customAuto(new String[] { "outpost or depot", "", "" }, new double[] { 20, 20 });
         } else if (m_chooser.getSelected().equals("Outpost and Depot Auto")) {
             return outpostAndDepotAuto();
         } else if (m_chooser.getSelected().equals("Depot Auto")) {
-            //return depotAuto();
-            return customAuto(new String[] {"outpost or depot", "", ""}, new double[] {20, 20});
+            // return depotAuto();
+            return customAuto(new String[] { "outpost or depot", "", "" }, new double[] { 20, 20 });
 
         } else if (m_chooser.getSelected().equals("Shoot Auto")) {
-            //return shootAuto();
-            return customAuto(new String[] {"", "", "shoot"}, new double[] {20, 20});
+            // return shootAuto();
+            return customAuto(new String[] { "", "", "shoot" }, new double[] { 20, 20 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto")) {
-            //return centerTwiceTrenchAuto();
-            return customAuto(new String[] {"", "trench", "trench"}, new double[] {0, 10});
+            // return centerTwiceTrenchAuto();
+            return customAuto(new String[] { "", "trench", "trench" }, new double[] { 0, 10 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Breif Delay")) {
-            //return centerTwiceTrenchAutoWithBreifDelay(1.5);
-            return customAuto(new String[] {"brief", "trench", "trench"}, new double[] {1.5, 11.5});
+            // return centerTwiceTrenchAutoWithBreifDelay(1.5);
+            return customAuto(new String[] { "brief", "trench", "trench" }, new double[] { 1.5, 11.5 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Shoot Delay")) {
-            //return centerTwiceTrenchAutoWithShootDelay(3);
-            return customAuto(new String[] {"shoot", "trench", "trench"}, new double[] {3, 13});
+            // return centerTwiceTrenchAutoWithShootDelay(3);
+            return customAuto(new String[] { "shoot", "trench", "trench" }, new double[] { 3, 13 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Long Shoot Delay")) {
-            //return centerTwiceTrenchAutoWithShootDelay(4);
-            return customAuto(new String[] {"shoot", "trench", "trench"}, new double[] {4.5, 10});
+            // return centerTwiceTrenchAutoWithShootDelay(4);
+            return customAuto(new String[] { "shoot", "trench", "trench" }, new double[] { 4.5, 10 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Outpost or Depot Delay")) {
-            //return centerTwiceTrenchAuto();
-            return customAuto(new String[] {"outpost or depot", "trench", "trench"}, new double[] {6, 16});
+            // return centerTwiceTrenchAuto();
+            return customAuto(new String[] { "outpost or depot", "trench", "trench" }, new double[] { 6, 16 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto")) {
             return centerTwiceBumpAuto();
         } else if (m_chooser.getSelected().equals("Custom Center Twice Bump Auto")) {
-            return customAuto(new String[] {"", "bump", "bump"}, new double[] {0, 10});
+            return customAuto(new String[] { "", "bump", "bump" }, new double[] { 0, 10 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Breif Delay")) {
-            //return centerTwiceBumpAutoWithBreifDelay(1.5);
-            return customAuto(new String[] {"brief", "bump", "bump"}, new double[] {1.5, 11.5});
+            // return centerTwiceBumpAutoWithBreifDelay(1.5);
+            return customAuto(new String[] { "brief", "bump", "bump" }, new double[] { 1.5, 11.5 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Shoot Delay")) {
-            //return centerTwiceBumpAutoWithShootDelay(3);
-            return customAuto(new String[] {"shoot", "bump", "bump"}, new double[] {3, 13});
+            // return centerTwiceBumpAutoWithShootDelay(3);
+            return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 3, 13 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Long Shoot Delay")) {
-            //return centerTwiceBumpAutoWithShootDelay(4);
-            return customAuto(new String[] {"shoot", "bump", "bump"}, new double[] {4.5, 14.5});
+            // return centerTwiceBumpAutoWithShootDelay(4);
+            return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 4.5, 14.5 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Outpost or Depot Delay")) {
-            //return centerTwiceBumpAuto();
-            return customAuto(new String[] {"outpost or depot", "bump", "bump"}, new double[] {6, 16});
+            // return centerTwiceBumpAuto();
+            return customAuto(new String[] { "outpost or depot", "bump", "bump" }, new double[] { 6, 16 });
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot or Outpost Auto")) {
-            //return centerOnceBumpDepotOrOutpostAuto();
-            return customAuto(new String[] {"","bump","depot or outpost"}, new double[] {0,10});
+            // return centerOnceBumpDepotOrOutpostAuto();
+            return customAuto(new String[] { "", "bump", "outpost or depot" }, new double[] { 0, 12 });
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot and Outpost Auto")) {
             return centerOnceBumpDepotAndOutpostAuto();
         } else if (m_chooser.getSelected().equals("Custom")) {
-            return customAuto(NTHelper.getStringArray("autos", new String[] { "outpost or depot", "trench", "collect" }),
+            return customAuto(
+                    NTHelper.getStringArray("autos", new String[] { "outpost or depot", "trench", "collect" }),
                     NTHelper.getDoubleArray("deadlines", new double[] { 3, 10 }));
-        } else {
+        } else if (m_chooser.getSelected().equals("Center Once Bump Collect Auto")) {
+            return customAuto(new String[] { "", "bump", "collect" }, new double[] { 0, 12 });
+        } else if (m_chooser.getSelected().equals("Mechanical Advantage Delay")) {
+            return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 5, 14 });
+        } else if (m_chooser.getSelected().equals("Custom Center Once Bump Collect Auto with Outpost or Depot Delay")) {
+            return customAuto(new String[] { "outpost or depot", "trench", "collect" }, new double[] { 5, 14 });
+        } else{
             return Commands.none();
         }
     }
