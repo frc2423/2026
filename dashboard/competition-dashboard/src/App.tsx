@@ -240,8 +240,6 @@ const divStyle: React.CSSProperties = {
             <option value="shoot">Shoot</option>
             <option value="collect">Collect Fuel</option>
           </select>
-          <label htmlFor="step3delay">Finish by:</label>
-          <input type="number" name="stepDelay" min="1" max="20"></input>sec
           </div>
           <button type="submit">Submit</button>
           </form>
