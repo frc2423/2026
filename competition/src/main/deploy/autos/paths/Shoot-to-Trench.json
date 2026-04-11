@@ -29,12 +29,12 @@
     "end_translation_tolerance_meters": 0.075,
     "max_velocity_meters_per_sec": [
       {
-        "value": 2.5,
+        "value": 2.25,
         "start_ordinal": 1,
         "end_ordinal": 1
       },
       {
-        "value": 3.5,
+        "value": 3.0,
         "start_ordinal": 0,
         "end_ordinal": 0
       }

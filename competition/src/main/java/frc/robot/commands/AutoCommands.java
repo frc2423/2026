@@ -724,8 +724,9 @@ public class AutoCommands {
     public Command shootDelay(double deadline) {
         return Commands.sequence(
                 robot.shooterCommands.scoreUntil(() -> timer.hasElapsed(deadline-0.5)),
-                robot.bline.pathBuilder.build(new Path(new Waypoint(robot.drivetrain.getPose().getTranslation(),
-                        new Rotation2d(PoseTransformUtils.isRedAlliance() ? 0 : Math.PI)))));
+                robot.shooterCommands.lookAtAngle(new Rotation2d(PoseTransformUtils.isRedAlliance() ? Math.PI : 0)).withTimeout(1),
+                robot.shooterCommands.stopShooting(),
+                robot.shooterCommands.stopFeeding());
     }
 
     public Command breifDelay(double deadline) {
@@ -891,15 +892,19 @@ public class AutoCommands {
         if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
                 .isRedAlliance()) {
             FloppingUtil.flopPath(trenchToCollectPath);
+            FloppingUtil.flopPath(shootToTrenchPath);
         }
         if (PoseTransformUtils.isRedAlliance()) {
-
+            shootToTrenchPath.flip();
             trenchToCollectPath.flip();
         }
 
         FollowPath trenchToCollect = robot.bline.pathBuilder.build(trenchToCollectPath);
+        FollowPath shootToTrench = robot.bline.pathBuilder.build(shootToTrenchPath);
+
 
         return Commands.sequence(
+                shootToTrench,
                 robot.intakeCommands.armDown(),
                 robot.intake.intake(),
                 trenchToCollect);
