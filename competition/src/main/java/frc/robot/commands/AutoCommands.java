@@ -66,6 +66,7 @@ public class AutoCommands {
         m_chooser.addOption("Center Twice Trench Auto with Long Shoot Delay",
                 "Center Twice Trench Auto with Long Shoot Delay");
         m_chooser.addOption("Center Twice Bump Auto", "Center Twice Bump Auto");
+        m_chooser.addOption("Custom Center Twice Bump Auto", "Custom Center Twice Bump Auto");
         m_chooser.addOption("Center Twice Bump Auto with Breif Delay", "Center Twice Bump Auto with Breif Delay");
         m_chooser.addOption("Center Twice Bump Auto with Shoot Delay", "Center Twice Bump Auto with Shoot Delay");
         m_chooser.addOption("Center Twice Bump Auto with Long Shoot Delay",
@@ -965,7 +966,8 @@ public class AutoCommands {
             //return centerTwiceTrenchAuto();
             return customAuto(new String[] {"outpost or depot", "trench", "trench"}, new double[] {6, 16});
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto")) {
-            //return centerTwiceBumpAuto();
+            return centerTwiceBumpAuto();
+        } else if (m_chooser.getSelected().equals("Custom Center Twice Bump Auto")) {
             return customAuto(new String[] {"", "bump", "bump"}, new double[] {0, 10});
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Breif Delay")) {
             //return centerTwiceBumpAutoWithBreifDelay(1.5);
