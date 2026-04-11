@@ -183,6 +183,21 @@ const divStyle: React.CSSProperties = {
       </div>
       </div>
       <br></br>
+      {/* Dropdown Element Container */}
+      <div style={{ display: 'flex', gap: '10px'}}>
+          <label>Select an auto category:</label>
+          <select>
+
+          </select>
+          <label>Select an auto delay:</label>
+          <select>
+
+          </select>
+          <label>Select an auto path:</label>
+          <select>
+
+          </select>
+      </div>
       <div>
         <Canvas>
           <CanvasMjpgStream
