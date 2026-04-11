@@ -86,6 +86,9 @@ public class AutoCommands {
         SmartDashboard.putData("setPoseToRightTrench", resetRobotPose(rightTrenchPose));
         SmartDashboard.putData("setPoseToHub", resetRobotPose(hubPose));
 
+        NTHelper.setStringArray("/SmartDashboard/someStringArray", new String[]{"Default"});
+        NTHelper.setDoubleArray("/SmartDashboard/setSomeNumberArray", new double[]{0.0});
+
     }
 
     private Command resetRobotPose(Pose2d pose) {
@@ -994,8 +997,8 @@ public class AutoCommands {
             return centerOnceBumpDepotAndOutpostAuto();
         } else if (m_chooser.getSelected().equals("Custom")) {
             return customAuto(
-                    NTHelper.getStringArray("autos", new String[] { "outpost or depot", "trench", "collect" }),
-                    NTHelper.getDoubleArray("deadlines", new double[] { 3, 10 }));
+                    NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[]{"Default"}),
+                    NTHelper.getDoubleArray("/SmartDashboard/setSomeNumberArray", new double[]{0.0}));
         } else if (m_chooser.getSelected().equals("Center Once Bump Collect Auto")) {
             return customAuto(new String[] { "", "bump", "collect" }, new double[] { 0, 12 });
         } else if (m_chooser.getSelected().equals("Mechanical Advantage Delay")) {
