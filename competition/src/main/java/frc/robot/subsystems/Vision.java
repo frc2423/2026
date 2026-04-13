@@ -473,7 +473,7 @@ public class Vision {
    */
   enum Cameras {
     FRONT_RIGHT_CAM("april_tag_cam_right",
-        new Rotation3d(0, Math.toRadians(0), Math.toRadians(-245)),
+        new Rotation3d(0, Math.toRadians(Math.PI/2), Math.toRadians(-290)),
         new Translation3d(Units.inchesToMeters(-11),
             Units.inchesToMeters(13.3),
             Units.inchesToMeters(17.5)),
