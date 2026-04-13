@@ -218,7 +218,7 @@ const divStyle: React.CSSProperties = {
             <option value="none">None</option>
           </select>
           <label htmlFor="step1delay">Move to Step 2 By:</label>
-          <input type="number" name="stepDelay" min="1" max="20"></input>sec
+          <input type="number" name="stepDelay" min="0" max="20"></input>sec
           </div>
 
           <div style={{ display: 'flex', gap: '10px'}}>
@@ -228,7 +228,7 @@ const divStyle: React.CSSProperties = {
             <option value="bump">Go Over Bump</option>
           </select>
           <label htmlFor="step2delay">Move to Step 3 By:</label>
-          <input type="number" name="stepDelay" min="1" max="20"></input>sec
+          <input type="number" name="stepDelay" min="0" max="20"></input>sec
           </div>
           
           <div style={{ display: 'flex', gap: '10px'}}>
