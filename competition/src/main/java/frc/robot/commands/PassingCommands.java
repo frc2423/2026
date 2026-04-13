@@ -16,6 +16,7 @@ import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
 import frc.robot.generated.PoseTransformUtils;
 import frc.robot.subsystems.DAS;
+import frc.robot.subsystems.DAS.MotorSettings;
 
 public class PassingCommands extends SubsystemBase {
 
@@ -92,7 +93,7 @@ public class PassingCommands extends SubsystemBase {
     public Command feedForPassing() {
         Command feed = Commands.parallel(
                 robot.hood.setAngle(() -> {
-                    return Degrees.of(45);
+                    return Degrees.of(55);
                 }),
                 robot.shooterCommands.feedOnly());
 
@@ -112,7 +113,8 @@ public class PassingCommands extends SubsystemBase {
                 }),
                 robot.shooterCommands.rev(() -> {
                     double distance = getDistanceToAimToPassPose();
-                    return Math.min(4500, 2000 + distance * 210);
+                    MotorSettings motorSettings = ShooterCommands.das.calculatePassingAS(distance);
+                    return motorSettings.velocity;
                 }));
     }
 
