@@ -117,8 +117,7 @@ public class RobotContainer {
 
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
-        // @Logged
-        private final RobotHealth robotHealth = new RobotHealth(vision,drivetrain,twindexer,intake,shooterRight,hood,arm,feederRight); //If one feeder / shooter isn't working the other one likely isn't
+        private final RobotHealth robotHealth = new RobotHealth(this);
 
 
         @SuppressWarnings("unused")
