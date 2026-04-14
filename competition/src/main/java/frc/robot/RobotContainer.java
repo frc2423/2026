@@ -227,7 +227,7 @@ public class RobotContainer {
 
                 // Intake commands
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
-                driverController.button(10).whileTrue(intakeCommands.armDown().andThen(intake.intake()))
+                driverController.button(10).whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake()))
                                 .onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
                 driverController.a().onTrue(intakeCommands.armDown());

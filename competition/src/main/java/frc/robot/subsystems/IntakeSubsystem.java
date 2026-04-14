@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-   private final SparkFlex motor = new SparkFlex(24, MotorType.kBrushless);
+    private final SparkFlex motor = new SparkFlex(24, MotorType.kBrushless);
     private final SparkFlex motor2 = new SparkFlex(38, MotorType.kBrushless);
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
     private final SparkFlexConfig motorConfig2 = new SparkFlexConfig();
@@ -31,13 +31,13 @@ public class IntakeSubsystem extends SubsystemBase {
         motorConfig.smartCurrentLimit(60, 60);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.openLoopRampRate(.1);
-       
+
         motorConfig2.inverted(false);
         motorConfig2.smartCurrentLimit(60, 60);
         motorConfig2.idleMode(IdleMode.kCoast);
         motorConfig2.openLoopRampRate(.1);
-        
-       motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        motor.configureAsync(motorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         motor2.configureAsync(motorConfig2, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
@@ -46,7 +46,7 @@ public class IntakeSubsystem extends SubsystemBase {
             percentSpeed = 1;
         }).withName("intake");
     }
-    
+
     public Command intakeSlow() {
         return runOnce(() -> {
             percentSpeed = .5;
@@ -67,7 +67,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public Command stop() {
         return runOnce(() -> {
-            percentSpeed = 0;
+            percentSpeed = .1;
         }).withName("intakeStop");
     }
 
@@ -78,9 +78,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-       motor.set(percentSpeed * .75);
-       motor2.disable();
-        // motor2.set(percentSpeed * .75);
+        motor.set(percentSpeed * .75);
+        motor2.set(percentSpeed * .75);
     }
 
     public boolean isJammed() {
@@ -88,10 +87,11 @@ public class IntakeSubsystem extends SubsystemBase {
         // return false;
     }
 
-    public SparkFlex getSparkFlex1(){
+    public SparkFlex getSparkFlex1() {
         return this.motor;
     }
-    public SparkFlex getSparkFlex2(){
+
+    public SparkFlex getSparkFlex2() {
         return this.motor2;
     }
 

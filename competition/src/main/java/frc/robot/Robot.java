@@ -30,8 +30,15 @@ public class Robot extends TimedRobot {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
     Epilogue.bind(this);
     URCL.start(Map.of(
-      21, "arm"
-
+      21, "arm",
+      23, "twindexer",
+      24, "intakeMotor1",
+      32, "hood",
+      34, "feederLeft",
+      35, "shootLeft",
+      36, "feederRight",
+      37, "shooterRight",
+      38, "intakeMotor2"
     ));
     m_robotContainer = new RobotContainer();
     DriverStation.silenceJoystickConnectionWarning(true);
