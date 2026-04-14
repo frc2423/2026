@@ -134,7 +134,7 @@ function App() {
       <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, md: 4 } }}>
         
         {/* Top Navigation / Status Bar */}
-        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={3} sx={{ mb: 4 }}>
+        <Stack spacing={3} sx={{ mb: 4, flexDirection: { xs: 'column', md: 'row' }, justifyContent: 'space-between', alignItems: 'center' }}>
           <Card sx={{ p: 1.5, px: 3, display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', md: '500px' }, background: gradients.glass }}>
             <Box sx={{ 
               width: 18, height: 18, borderRadius: '50%', 
@@ -163,32 +163,32 @@ function App() {
 
         {/* Telemetry Dashboard - VIBRANT UTILITY BLOCKS */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <StatCard title="Active Alliance" bgGradient={allianceGradient}>
               <Typography variant="h4" sx={{ textTransform: 'uppercase' }}>{activeAlliance}</Typography>
             </StatCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <StatCard title="Current Shift">
               <Typography variant="h6" sx={{ opacity: 0.9 }}>{currentShift}</Typography>
             </StatCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <StatCard title="Alliance Active" bgGradient={isAllianceActive ? gradients.green : gradients.red}>
               <Typography variant="h4">{isAllianceActive ? "YES" : "NO"}</Typography>
             </StatCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <StatCard title="Active Next Shift" bgGradient={isAllianceActiveNextShift ? gradients.green : gradients.red}>
               <Typography variant="h4">{isAllianceActiveNextShift ? "YES" : "NO"}</Typography>
             </StatCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             <StatCard title="Camera Status" bgGradient={camerasConnected ? gradients.green : gradients.red}>
               <Typography variant="h4">{camerasConnected ? "ONLINE" : "OFFLINE"}</Typography>
             </StatCard>
           </Grid>
-          <Grid item xs={12} sm={6} md={2}>
+          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
             {/* Extremely obvious warning if jammed */}
             <StatCard title="Twindexer" bgGradient={twindexerJammed ? gradients.warning : gradients.glass}>
               <Typography variant="h4" sx={{ color: twindexerJammed ? '#000' : '#fff', textShadow: twindexerJammed ? 'none' : undefined }}>
@@ -202,7 +202,7 @@ function App() {
         <Grid container spacing={4}>
           
           {/* Auto Routine Form */}
-          <Grid item xs={12} lg={5}>
+          <Grid size={{ xs: 12, lg: 5 }}>
             <Card sx={{ p: 4, height: '100%', background: gradients.glass }}>
               <Typography variant="h6" sx={{ mb: 4 }}>Autonomous Routine Setup</Typography>
               <form onSubmit={handleSubmit}>
@@ -219,7 +219,7 @@ function App() {
                         <MenuItem value="none">None</MenuItem>
                       </Select>
                     </FormControl>
-                    <NumberField name="stepDelay" label="Delay (s)" min={0} max={20} defaultValue={0} sx={{ width: 150 }} />
+                    <Box sx={{ width: 150 }}><NumberField name="stepDelay" label="Delay (s)" min={0} max={20} defaultValue={0} /></Box>
                   </Stack>
 
                   {/* Step 2 */}
@@ -231,7 +231,7 @@ function App() {
                         <MenuItem value="bump">Go Over Bump</MenuItem>
                       </Select>
                     </FormControl>
-                    <NumberField name="stepDelay" label="Delay (s)" min={0} max={20} defaultValue={14} sx={{ width: 150 }} />
+                    <Box sx={{ width: 150 }}><NumberField name="stepDelay" label="Delay (s)" min={0} max={20} defaultValue={14} /></Box>
                   </Stack>
 
                   {/* Step 3 */}
@@ -263,7 +263,7 @@ function App() {
           </Grid>
 
           {/* Camera Feed & Settings */}
-          <Grid item xs={12} lg={7}>
+          <Grid size={{ xs: 12, lg: 7 }}>
             <Card sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%', background: gradients.glass }}>
               <Box sx={{ 
                 flexGrow: 1, 
@@ -289,13 +289,13 @@ function App() {
               </Box>
               
               <Grid container spacing={4} sx={{ px: 2, pb: 1 }}>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="subtitle2" gutterBottom>
                     Stream Quality: {quality}%
                   </Typography>
                   <Slider value={quality} onChange={(_, val) => setQuality(val as number)} min={0} max={100} sx={{ color: '#ec4899', height: 8 }} />
                 </Grid>
-                <Grid item xs={6}>
+                <Grid size={6}>
                   <Typography variant="subtitle2" gutterBottom>
                     Target FPS: {fps}
                   </Typography>
