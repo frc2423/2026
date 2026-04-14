@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 import static edu.wpi.first.units.Units.Degrees;
 
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
@@ -112,7 +113,15 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public Current getCurrent() {
-        return hoodMotor.getStatorCurrent();
+        Current current = hoodMotor.getStatorCurrent();
+        if (current == null) {
+            return Amps.of(0);
+        }
+        return current;
+    }
+
+    public SparkMax getSparkMax(){
+        return this.hoodMotorBase;
     }
 
     @Logged

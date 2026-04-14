@@ -1,12 +1,12 @@
 package frc.robot.subsystems;
 
 
-import com.revrobotics.spark.SparkFlex;
-import com.revrobotics.ResetMode;
 import com.revrobotics.PersistMode;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.spark.SparkFlex;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkFlexConfig;
 
 import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.util.sendable.SendableBuilder;
@@ -35,6 +35,12 @@ public class TwindexerSubsystem extends SubsystemBase {
         return runOnce(() -> {
             motorPercent = 1;
         }).withName("spindex");
+    }
+
+    public SparkFlex getSparkFlex(){
+
+        return this.motor;
+
     }
 
     public Command spindexBack() {
