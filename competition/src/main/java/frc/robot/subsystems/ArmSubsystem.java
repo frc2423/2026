@@ -15,12 +15,9 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Revolutions;
 
-import com.revrobotics.PersistMode;
-import com.revrobotics.ResetMode;
+
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkFlexConfig;
-import com.revrobotics.spark.config.SparkMaxConfig;
 
 import yams.mechanisms.config.ArmConfig;
 import yams.mechanisms.positional.Arm;
@@ -148,6 +145,10 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor.set(motorSpeed);
     }
 
+    public SparkMax getSparkMax(){
+        return this.armMotor;
+    }
+
     @Override
     public void simulationPeriodic() {
        arm.simIterate();
@@ -167,9 +168,10 @@ public class ArmSubsystem extends SubsystemBase {
 
     @Logged
     public double getSetpoint() {
-        Angle angle = arm.getMechanismSetpoint().orElse(Degrees.of(0));
-        return angle.in(Degrees);
-        // return 0;
+        if (setpointAngle != null) {
+            return setpointAngle.in(Degrees);
+        }
+        return 0;
     }
 
     @Logged

@@ -104,6 +104,10 @@ public class ShooterSubsystem extends SubsystemBase {
         }
     }
 
+    public SparkFlex getSparkFlex(){
+        return this.motor;
+    }
+    
     @Logged
     public double getFeedforward() {
         return feedforward.calculate(shooterSetpoint);

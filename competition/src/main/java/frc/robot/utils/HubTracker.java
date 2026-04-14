@@ -101,7 +101,7 @@ public class HubTracker {
     public static boolean isActive() {
         Shift currentShift = getCurrentShift();
         Optional<Alliance> alliance = DriverStation.getAlliance();
-        return isActive(alliance.get(), currentShift);
+        return isActive(alliance.orElse(Alliance.Red), currentShift);
     }
 
     /**
@@ -120,7 +120,7 @@ public class HubTracker {
     public static boolean isActiveNext() {
         Shift nextShift = getNextShift();
         Optional<Alliance> alliance = DriverStation.getAlliance();
-        return isActive(alliance.get(), nextShift);
+        return isActive(alliance.orElse(Alliance.Red), nextShift);
     }
 
     /**
