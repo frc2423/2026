@@ -1,282 +1,312 @@
 import React, { useState, type FormEvent } from "react";
+import { useNTValue, useNTConnection } from "./store/useNetworktables";
+import { BooleanBox, Canvas, CanvasMjpgStream } from "@frc-web-components/react";
 import {
-  useNTValue,
-  useNTConnection,
-} from "./store/useNetworktables";
-import {
-  BooleanBox,
-  Canvas,
-  CanvasMjpgStream,
-  Gyro
-} from "@frc-web-components/react";
+  Box,
+  Button,
+  Card,
+  Container,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  Slider,
+  Stack,
+  TextField,
+  Typography,
+  ThemeProvider,
+  createTheme,
+  CssBaseline
+} from "@mui/material";
 
+// 1. Bubbly, Vibrant Theme
+const bubblyTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    primary: { main: '#a855f7' }, // Fun purple accent
+    background: { default: '#0f172a', paper: 'rgba(30, 41, 59, 0.6)' }, // Deep navy glass
+  },
+  shape: { borderRadius: 32 }, // Maximum "bubbly" pill shapes
+  typography: {
+    fontFamily: '"Nunito", "Inter", sans-serif', // Nunito is a highly readable, rounded/bubbly font
+    h4: { fontWeight: 800, letterSpacing: '-0.5px' },
+    h6: { fontWeight: 700 },
+    subtitle2: { textTransform: 'uppercase', letterSpacing: '1.5px', fontSize: '0.8rem', opacity: 0.9, fontWeight: 700 }
+  },
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          // A deep, vibrant mesh gradient background for the whole app
+          background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4c1d95 100%)',
+          backgroundAttachment: 'fixed',
+          minHeight: '100vh',
+        }
+      }
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          backdropFilter: 'blur(16px)', // Glassmorphism
+          border: '2px solid rgba(255, 255, 255, 0.1)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+        }
+      }
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: { 
+          borderRadius: '50px', 
+          fontWeight: 800, 
+          fontSize: '1.1rem',
+          textTransform: 'none', 
+          padding: '14px 28px',
+          boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
+        }
+      }
+    },
+    MuiOutlinedInput: {
+      styleOverrides: { root: { borderRadius: '20px', backgroundColor: 'rgba(0,0,0,0.2)' } }
+    }
+  }
+});
+
+// Vibrant Gradients for Utility States
+const gradients = {
+  glass: 'rgba(255, 255, 255, 0.05)',
+  red: 'linear-gradient(135deg, #ff0844 0%, #ffb199 100%)',
+  blue: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+  green: 'linear-gradient(135deg, #0ba360 0%, #3cba92 100%)',
+  warning: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+};
+
+// 2. Bubbly StatCard: Takes a gradient background for active states
+const StatCard = ({ title, children, bgGradient = gradients.glass }: { title: string, children: React.ReactNode, bgGradient?: string }) => (
+  <Card sx={{ 
+    height: "100%", p: 3, display: "flex", flexDirection: "column", justifyContent: "space-between",
+    background: bgGradient,
+    transition: 'transform 0.2s ease-in-out',
+    '&:hover': { transform: 'translateY(-4px)' }
+  }}>
+    <Typography variant="subtitle2" sx={{ mb: 2, textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>{title}</Typography>
+    <Box sx={{ display: "flex", alignItems: "center", textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
+      {children}
+    </Box>
+  </Card>
+);
 
 function App() {
-  // Monitor connection status
   const { isConnected, address, connect } = useNTConnection();
-
-  // Local state for address input
   const [addressInput, setAddressInput] = useState(address);
 
-  // Get/Set a number/String[]/number[] value
-  const [someNumber, setSomeNumber] = useNTValue<number>(
-    "/SmartDashboard/someNumber",
-    0
-  );
-  const [someStringArray, setSomeStringArray] = useNTValue<string[]>(
-    "/SmartDashboard/someStringArray"
-  );
-  const [someNumberArray, setSomeNumberArray] = useNTValue<number[]>(
-    "/SmartDashboard/setSomeNumberArray"
-  );
-  
-   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const [someStringArray, setSomeStringArray] = useNTValue<string[]>("/SmartDashboard/someStringArray");
+  const [someNumberArray, setSomeNumberArray] = useNTValue<number[]>("/SmartDashboard/setSomeNumberArray");
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // 1. Grab the form element
     const formData = new FormData(e.currentTarget);
+    const stepNames = formData.getAll("stepName") as string[];
+    const stepDelays = formData.getAll("stepDelay").map((val) => parseFloat(val as string));
 
-    // 2. Extract values into arrays
-    // getAll() picks up every element with that specific name
-    const stepNames = formData.getAll('stepName') as string[];
-    const stepDelays = formData.getAll('stepDelay').map(val => parseFloat(val as string));
-
-    // console.log("String Array:", stepNames);
-    // console.log("Double Array:", stepDelays);
     setSomeStringArray(stepNames);
     setSomeNumberArray(stepDelays);
   };
 
   const [isRedAlliance] = useNTValue<boolean>("/FMSInfo/IsRedAlliance", false);
-  const [streams] = useNTValue<string[]>(
-    "/CameraPublisher/USB Camera 0/streams",
-    []
-  );
+  const [streams] = useNTValue<string[]>("/CameraPublisher/USB Camera 0/streams", []);
   const [quality, setQuality] = useState(50);
   const [fps, setFps] = useState(60);
 
-  const [activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "Active Alliance: [No NTValue Loaded]");
-  const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "Active Alliance: [No NTValue Loaded]");
+  const [activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "No Data");
+  const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "No Data");
   const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
   const [isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
   const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
   const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
-  const [matchTime] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/matchTime", 160.0);
-  const [shiftTimeRemaining] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/shiftTimeRemaining", 0.0);
-  const [shootingPose] = useNTValue<string>("/Robot/robotContainer/shooterCommands/selectedShootingPose", "Selected Shooting Pose: [No NTValue Loaded]");
-  
 
-const headerStyle: React.CSSProperties = {
-  backgroundColor: "grey",
-  color: 'white',
-  fontWeight: '700',
-  textAlign: 'center'
-};
-
-const divStyle: React.CSSProperties = {
-  borderStyle: "solid",
-  borderWidth: "4px",
-  borderColor: "black",
-  fontSize: '30px',
-  width:"150px"
-}
+  const allianceGradient = activeAlliance === "both" ? gradients.glass : activeAlliance === "red" ? gradients.red : gradients.blue;
 
   return (
-    <div style={{ padding: "20px" }}>
-      {/* <Gyro  value={50}/> */}
-      {/* NT4 Connection Panel */}
-      <div
-        style={{
-          display: "flex",
-          gap: "15px",
-          alignItems: "center",
-          marginBottom: "20px",
-          padding: "10px",
-          backgroundColor: "#f5f5f5",
-          borderRadius: "4px",
-        }}
-      >
-        {/* Connection Status */}
-        <div>
-          <span
-            style={{
-              color: isConnected ? "green" : "red",
-              fontWeight: "bold",
-              fontSize: "18px",
-            }}
-          >
-            {isConnected ? "●" : "○"}
-          </span>
-        </div>
+    <ThemeProvider theme={bubblyTheme}>
+      <CssBaseline />
+      <Container maxWidth={false} sx={{ py: 4, px: { xs: 2, md: 4 } }}>
+        
+        {/* Top Navigation / Status Bar */}
+        <Stack direction={{ xs: 'column', md: 'row' }} justifyContent="space-between" alignItems="center" spacing={3} sx={{ mb: 4 }}>
+          <Card sx={{ p: 1.5, px: 3, display: 'flex', alignItems: 'center', gap: 2, width: { xs: '100%', md: '500px' }, background: gradients.glass }}>
+            <Box sx={{ 
+              width: 18, height: 18, borderRadius: '50%', 
+              background: isConnected ? gradients.green : gradients.red,
+              boxShadow: isConnected ? '0 0 15px #0ba360' : '0 0 15px #ff0844'
+            }} />
+            <TextField
+              size="small"
+              fullWidth
+              placeholder="NT4 Address (10.TE.AM.2)"
+              value={addressInput}
+              onChange={(e) => {
+                setAddressInput(e.target.value);
+                connect(e.target.value);
+              }}
+              sx={{ '& .MuiOutlinedInput-notchedOutline': { border: 'none' } }}
+            />
+          </Card>
 
-        {/* Address Input */}
-        <div style={{ flex: 1 }}>
-          <input
-            type="text"
-            value={addressInput}
-            onChange={(e) => {
-              setAddressInput(e.target.value);
-              connect(e.target.value);
-            }}
-            placeholder="NT4 Address (localhost, 10.TE.AM.2, or team number)"
-            style={{
-              width: "100%",
-              padding: "8px",
-              fontSize: "14px",
-              border: "1px solid #ccc",
-              borderRadius: "4px",
-            }}
-          />
-        </div>
+          <Card sx={{ p: 2, px: 4, background: isRedAlliance ? gradients.red : gradients.blue }}>
+            <Typography variant="h6" sx={{ textTransform: 'uppercase', textShadow: '0 2px 5px rgba(0,0,0,0.4)' }}>
+              {isRedAlliance ? "Red Alliance" : "Blue Alliance"}
+            </Typography>
+          </Card>
+        </Stack>
 
-        {/* Current Address Display */}
-        <div style={{ fontSize: "12px", color: "#666" }}>
-          Connected to: <span style={{ fontFamily: "monospace" }}>{address}</span>
-        </div>
-      </div>
+        {/* Telemetry Dashboard - VIBRANT UTILITY BLOCKS */}
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} sm={6} md={2}>
+            <StatCard title="Active Alliance" bgGradient={allianceGradient}>
+              <Typography variant="h4" sx={{ textTransform: 'uppercase' }}>{activeAlliance}</Typography>
+            </StatCard>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <StatCard title="Current Shift">
+              <Typography variant="h6" sx={{ opacity: 0.9 }}>{currentShift}</Typography>
+            </StatCard>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <StatCard title="Alliance Active" bgGradient={isAllianceActive ? gradients.green : gradients.red}>
+              <Typography variant="h4">{isAllianceActive ? "YES" : "NO"}</Typography>
+            </StatCard>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <StatCard title="Active Next Shift" bgGradient={isAllianceActiveNextShift ? gradients.green : gradients.red}>
+              <Typography variant="h4">{isAllianceActiveNextShift ? "YES" : "NO"}</Typography>
+            </StatCard>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            <StatCard title="Camera Status" bgGradient={camerasConnected ? gradients.green : gradients.red}>
+              <Typography variant="h4">{camerasConnected ? "ONLINE" : "OFFLINE"}</Typography>
+            </StatCard>
+          </Grid>
+          <Grid item xs={12} sm={6} md={2}>
+            {/* Extremely obvious warning if jammed */}
+            <StatCard title="Twindexer" bgGradient={twindexerJammed ? gradients.warning : gradients.glass}>
+              <Typography variant="h4" sx={{ color: twindexerJammed ? '#000' : '#fff', textShadow: twindexerJammed ? 'none' : undefined }}>
+                {twindexerJammed ? "JAMMED" : "CLEAR"}
+              </Typography>
+            </StatCard>
+          </Grid>
+        </Grid>
 
-      {/* Dashboard Content */}
-      <div>WebSocket Connected: {isConnected ? "Yes" : "No"}</div>
-      <div>
-        <BooleanBox
-          label={isRedAlliance ? "Red Alliance" : "Blue Alliance"}
-          value={isRedAlliance}
-          trueColor="red"
-          falseColor="blue"
-        />
-      </div>
-      {/* Element Container */}
-      <div style={{ display: 'flex', gap: '10px'}}>
-      {/* Active Alliance Content */}
-      <div style ={divStyle}>
-        <header style={{backgroundColor: activeAlliance === "both" ? "grey" : activeAlliance === "red" ? "red" : "blue",
-  color: 'white',
-  fontSize: '30px',
-  fontWeight: '700', textAlign: 'center'}}>Active Alliance</header>
-        {activeAlliance}
-      </div>
-      {/* Current Shift Content */}
-      <div style ={divStyle}>
-        <header style={headerStyle}>Current Shift</header>
-        {currentShift}
-      </div>
-      {/* Active? Content */}
-      <div style ={divStyle}>
-        <header style={headerStyle}>Is our alliance active?</header>
-        <BooleanBox
-          label={isAllianceActive ? "Yes" : "No"}
-          value={isAllianceActive}
-          trueColor="green"
-          falseColor="red"
-        />
-      </div>
-      {/* Active? Content */}
-      <div style ={divStyle}>
-        <header style={headerStyle}>Is our alliance active next shift?</header>
-        <BooleanBox
-          label={isAllianceActiveNextShift ? "Yes" : "No"}
-          value={isAllianceActiveNextShift}
-          trueColor="green"
-          falseColor="red"
-        />
-      </div>
-      {/* Cameras Connected? Content */}
-      <div style ={divStyle}>
-        <header style={headerStyle}>Cameras Connected?</header>
-        <BooleanBox
-          label={camerasConnected ? "Yes" : "No"}
-          value={camerasConnected}
-          trueColor="green"
-          falseColor="red"
-        />
-      </div>
-      {/* Selected Shooting Pose Content */}
-      <div style ={divStyle}>
-        <header style={headerStyle}>Selected Shooting Pose</header>
-        {shootingPose}
-      </div>
-      {/* Twindexer Jammed? Content */}
-      <div style ={divStyle}>
-        <header style={headerStyle}>Twindexer Jammed?</header>
-        <BooleanBox
-          label={twindexerJammed ? "Yes" : "No"}
-          value={twindexerJammed}
-          trueColor="#ddba34"
-          falseColor="#333539"
-        />
-      </div>
-      </div>
-      <br></br>
-      {/* Dropdown Element Container */}
-      <form onSubmit={handleSubmit}>
-      <div style={{ display: 'flex', gap: '10px'}}>
-          <label htmlFor="step1">AUTO Step 1:</label>
-          <select name="stepName">
-            <option value="shoot">Shoot</option>
-            <option value="brief">Brief Delay</option>
-            <option value="outpost or depot">Go to Outpost or Depot</option>
-            <option value="none">None</option>
-          </select>
-          <label htmlFor="step1delay">Move to Step 2 By:</label>
-          <input type="number" name="stepDelay" min="0" max="20"></input>sec
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px'}}>
-          <label htmlFor="step2">AUTO Step 2:</label>
-          <select name="stepName">
-            <option value="trench">Go Under Trench</option>
-            <option value="bump">Go Over Bump</option>
-          </select>
-          <label htmlFor="step2delay">Move to Step 3 By:</label>
-          <input type="number" name="stepDelay" min="0" max="20"></input>sec
-          </div>
+        {/* Lower Section: Controls & Camera Feed */}
+        <Grid container spacing={4}>
           
-          <div style={{ display: 'flex', gap: '10px'}}>
-          <label htmlFor="step3">AUTO Step 3:</label>
-          <select name="stepName">
-            <option value="trench">Go Under Trench</option>
-            <option value="bump">Go Over Bump</option>
-            <option value="outpost or depot">Go to Outpost or Depot</option>
-            <option value="shoot">Shoot</option>
-            <option value="collect">Collect Fuel</option>
-          </select>
-          </div>
-          <button type="submit">Submit</button>
-          </form>
-      <div>
-        <Canvas>
-          <CanvasMjpgStream
-            srcs={streams}
-            resolutionWidth={320}
-            resolutionHeight={160}
-            fps={fps}
-            quality={quality}
-          />
-        </Canvas>
-      </div>
-      <div>
-        <span>
-          Quality: {quality}
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={quality}
-            onChange={(e) => setQuality(parseInt(e.target.value))}
-          />
-        </span>
-        <span>
-          FPS: {fps}
-          <input
-            type="range"
-            min="1"
-            max="60"
-            value={fps}
-            onChange={(e) => setFps(parseInt(e.target.value))}
-          />
-        </span>
-      </div>
-    </div>
+          {/* Auto Routine Form */}
+          <Grid item xs={12} lg={5}>
+            <Card sx={{ p: 4, height: '100%', background: gradients.glass }}>
+              <Typography variant="h6" sx={{ mb: 4 }}>Autonomous Routine Setup</Typography>
+              <form onSubmit={handleSubmit}>
+                <Stack spacing={4}>
+                  
+                  {/* Step 1 */}
+                  <Stack direction="row" spacing={2}>
+                    <FormControl fullWidth>
+                      <InputLabel>Step 1 Action</InputLabel>
+                      <Select name="stepName" label="Step 1 Action" defaultValue="none" sx={{ borderRadius: '20px' }}>
+                        <MenuItem value="shoot">Shoot</MenuItem>
+                        <MenuItem value="brief">Brief Delay</MenuItem>
+                        <MenuItem value="outpost or depot">Go to Outpost/Depot</MenuItem>
+                        <MenuItem value="none">None</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <TextField type="number" name="stepDelay" label="Delay (s)" InputProps={{ inputProps: { min: 0, max: 20 } }} defaultValue={0} sx={{ width: 120 }} />
+                  </Stack>
+
+                  {/* Step 2 */}
+                  <Stack direction="row" spacing={2}>
+                    <FormControl fullWidth>
+                      <InputLabel>Step 2 Action</InputLabel>
+                      <Select name="stepName" label="Step 2 Action" defaultValue="trench" sx={{ borderRadius: '20px' }}>
+                        <MenuItem value="trench">Go Under Trench</MenuItem>
+                        <MenuItem value="bump">Go Over Bump</MenuItem>
+                      </Select>
+                    </FormControl>
+                    <TextField type="number" name="stepDelay" label="Delay (s)" InputProps={{ inputProps: { min: 0, max: 20 } }} defaultValue={14} sx={{ width: 120 }} />
+                  </Stack>
+
+                  {/* Step 3 */}
+                  <Stack direction="row" spacing={2}>
+                    <FormControl fullWidth>
+                      <InputLabel>Step 3 Action</InputLabel>
+                      <Select name="stepName" label="Step 3 Action" defaultValue="bump" sx={{ borderRadius: '20px' }}>
+                        <MenuItem value="trench">Go Under Trench</MenuItem>
+                        <MenuItem value="bump">Go Over Bump</MenuItem>
+                        <MenuItem value="outpost or depot">Go to Outpost/Depot</MenuItem>
+                        <MenuItem value="shoot">Shoot</MenuItem>
+                        <MenuItem value="collect">Collect Fuel</MenuItem>
+                      </Select>
+                    </FormControl>
+                  </Stack>
+
+                  <Box sx={{ pt: 2 }}>
+                    <Button type="submit" variant="contained" fullWidth sx={{ 
+                      background: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+                      color: 'white',
+                      '&:hover': { background: 'linear-gradient(135deg, #9333ea 0%, #db2777 100%)' }
+                    }}>
+                      Deploy Routine
+                    </Button>
+                  </Box>
+                </Stack>
+              </form>
+            </Card>
+          </Grid>
+
+          {/* Camera Feed & Settings */}
+          <Grid item xs={12} lg={7}>
+            <Card sx={{ p: 3, display: 'flex', flexDirection: 'column', height: '100%', background: gradients.glass }}>
+              <Box sx={{ 
+                flexGrow: 1, 
+                minHeight: 360, 
+                background: 'rgba(0,0,0,0.5)', 
+                borderRadius: '24px', 
+                overflow: 'hidden', 
+                mb: 3,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.5)'
+              }}>
+                <Canvas>
+                  <CanvasMjpgStream
+                    srcs={streams}
+                    resolutionWidth={320}
+                    resolutionHeight={160}
+                    fps={fps}
+                    quality={quality}
+                  />
+                </Canvas>
+              </Box>
+              
+              <Grid container spacing={4} sx={{ px: 2, pb: 1 }}>
+                <Grid item xs={6}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Stream Quality: {quality}%
+                  </Typography>
+                  <Slider value={quality} onChange={(_, val) => setQuality(val as number)} min={0} max={100} sx={{ color: '#ec4899', height: 8 }} />
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant="subtitle2" gutterBottom>
+                    Target FPS: {fps}
+                  </Typography>
+                  <Slider value={fps} onChange={(_, val) => setFps(val as number)} min={1} max={60} sx={{ color: '#a855f7', height: 8 }} />
+                </Grid>
+              </Grid>
+            </Card>
+          </Grid>
+
+        </Grid>
+      </Container>
+    </ThemeProvider>
   );
 }
 
