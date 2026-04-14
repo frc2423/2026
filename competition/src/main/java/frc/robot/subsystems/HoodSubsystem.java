@@ -113,7 +113,11 @@ public class HoodSubsystem extends SubsystemBase {
     }
 
     public Current getCurrent() {
-        return hoodMotor.getStatorCurrent();
+        Current current = hoodMotor.getStatorCurrent();
+        if (current == null) {
+            return Amps.of(0);
+        }
+        return current;
     }
 
     public SparkMax getSparkMax(){

@@ -56,14 +56,14 @@ public class RobotHealth {
     private void update() {
         
         //isCameraConnected = vision.isCameraConnected();
-        motorLogs.get("twindexer").put("isConnected", robot.twindexer.getSparkFlex().getFirmwareVersion()!=0);
-        motorLogs.get("intake").put("isConnected", robot.intake.getSparkFlex().getFirmwareVersion()!=0);
-        motorLogs.get("shooterLeft").put("isConnected", robot.shooterLeft.getSparkFlex().getFirmwareVersion()!=0);
-        motorLogs.get("shooterRight").put("isConnected", robot.shooterRight.getSparkFlex().getFirmwareVersion()!=0);
-        motorLogs.get("hood").put("isConnected", robot.hood.getSparkMax().getFirmwareVersion()!=0);
-        motorLogs.get("arm").put("isConnected", robot.arm.getSparkMax().getFirmwareVersion()!=0);
-        motorLogs.get("feederLeft").put("isConnected", robot.feederLeft.getSparkFlex().getFirmwareVersion()!=0);
-        motorLogs.get("feederRight").put("isConnected", robot.feederRight.getSparkFlex().getFirmwareVersion()!=0);
+        motorLogs.get("twindexer").put("isConnected", robot.twindexer.getSparkFlex().getBusVoltage()!=0);
+        motorLogs.get("intake").put("isConnected", robot.intake.getSparkFlex().getBusVoltage()!=0);
+        motorLogs.get("shooterLeft").put("isConnected", robot.shooterLeft.getSparkFlex().getBusVoltage()!=0);
+        motorLogs.get("shooterRight").put("isConnected", robot.shooterRight.getSparkFlex().getBusVoltage()!=0);
+        motorLogs.get("hood").put("isConnected", robot.hood.getSparkMax().getBusVoltage()!=0);
+        motorLogs.get("arm").put("isConnected", robot.arm.getSparkMax().getBusVoltage()!=0);
+        motorLogs.get("feederLeft").put("isConnected", robot.feederLeft.getSparkFlex().getBusVoltage()!=0);
+        motorLogs.get("feederRight").put("isConnected", robot.feederRight.getSparkFlex().getBusVoltage()!=0);
 
         motorLogs.get("intake").put("isStalled", robot.intake.isStalled()==true);
         motorLogs.get("hood").put("isStalled", robot.hood.isStalled()==true);
