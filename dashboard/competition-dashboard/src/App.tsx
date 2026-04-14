@@ -19,6 +19,7 @@ import {
   createTheme,
   CssBaseline
 } from "@mui/material";
+import NumberField from "./components/NumberField";
 
 // 1. Bubbly, Vibrant Theme
 const bubblyTheme = createTheme({
@@ -218,7 +219,7 @@ function App() {
                         <MenuItem value="none">None</MenuItem>
                       </Select>
                     </FormControl>
-                    <TextField type="number" name="stepDelay" label="Delay (s)" InputProps={{ inputProps: { min: 0, max: 20 } }} defaultValue={0} sx={{ width: 120 }} />
+                    <NumberField name="stepDelay" label="Delay (s)" min={0} max={20} defaultValue={0} sx={{ width: 150 }} />
                   </Stack>
 
                   {/* Step 2 */}
@@ -230,7 +231,7 @@ function App() {
                         <MenuItem value="bump">Go Over Bump</MenuItem>
                       </Select>
                     </FormControl>
-                    <TextField type="number" name="stepDelay" label="Delay (s)" InputProps={{ inputProps: { min: 0, max: 20 } }} defaultValue={14} sx={{ width: 120 }} />
+                    <NumberField name="stepDelay" label="Delay (s)" min={0} max={20} defaultValue={14} sx={{ width: 150 }} />
                   </Stack>
 
                   {/* Step 3 */}
