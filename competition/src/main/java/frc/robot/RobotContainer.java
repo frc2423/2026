@@ -125,7 +125,7 @@ public class RobotContainer {
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
-        // private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+        private final PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
@@ -136,7 +136,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
                 SmartDashboard.putData("subsystems/hood", hood);
-                // SmartDashboard.putData("pdh", pdh);
+                SmartDashboard.putData("pdh", pdh);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
