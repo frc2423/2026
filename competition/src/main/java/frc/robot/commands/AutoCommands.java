@@ -78,6 +78,7 @@ public class AutoCommands {
         m_chooser.addOption("Custom", "Custom");
         m_chooser.addOption("Center Once Bump Collect Auto", "Center Once Bump Collect Auto");
         m_chooser.addOption("Mechanical Advantage Delay", "Mechanical Advantage Delay");
+        m_chooser.addOption("Test", "Test");
         m_chooser.addOption("Custom Center Once Bump Collect Auto with Outpost or Depot Delay", "Custom Center Once Bump Collect Auto with Outpost or Depot Delay");
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
@@ -729,7 +730,8 @@ public class AutoCommands {
                 robot.shooterCommands.scoreUntil(() -> timer.hasElapsed(deadline-0.5)),
                 robot.shooterCommands.lookAtAngle(new Rotation2d(PoseTransformUtils.isRedAlliance() ? Math.PI : 0)).withTimeout(1),
                 robot.shooterCommands.stopShooting(),
-                robot.shooterCommands.stopFeeding());
+                robot.shooterCommands.stopFeeding(),
+                robot.intakeCommands.armDown());
     }
 
     public Command breifDelay(double deadline) {
@@ -1007,10 +1009,12 @@ public class AutoCommands {
         } else if (m_chooser.getSelected().equals("Center Once Bump Collect Auto")) {
             return customAuto(new String[] { "", "bump", "collect" }, new double[] { 0, 12 });
         } else if (m_chooser.getSelected().equals("Mechanical Advantage Delay")) {
-            return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 5, 14 });
+            return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 4.5, 14 });
         } else if (m_chooser.getSelected().equals("Custom Center Once Bump Collect Auto with Outpost or Depot Delay")) {
             return customAuto(new String[] { "outpost or depot", "trench", "collect" }, new double[] { 5, 14 });
-        } else{
+        } else if (m_chooser.getSelected().equals("Test")) {
+            return customAuto(new String[] { "none", "trench", "bump" }, new double[] { 0, 14 });
+        }else{
             return Commands.none();
         }
     }
