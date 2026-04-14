@@ -79,7 +79,8 @@ public class IntakeSubsystem extends SubsystemBase {
     @Override
     public void periodic() {
        motor.set(percentSpeed * .75);
-        motor2.set(percentSpeed * .75);
+       motor2.disable();
+        // motor2.set(percentSpeed * .75);
     }
 
     public boolean isJammed() {
@@ -87,8 +88,11 @@ public class IntakeSubsystem extends SubsystemBase {
         // return false;
     }
 
-    public SparkFlex getSparkFlex(){
+    public SparkFlex getSparkFlex1(){
         return this.motor;
+    }
+    public SparkFlex getSparkFlex2(){
+        return this.motor2;
     }
 
     public double getCurrentInAmps() {
@@ -101,6 +105,11 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public boolean isStalled() {
         return getSampledCurrentInAmps() > 10;
+    }
+
+    @Logged
+    public double getPercentSpeed() {
+        return percentSpeed;
     }
 
     @Override

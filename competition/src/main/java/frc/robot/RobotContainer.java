@@ -70,6 +70,8 @@ public class RobotContainer {
         public final CommandXboxController driverController = new CommandXboxController(0);
         public final CommandXboxController operatorController = new CommandXboxController(1);
         public final CommandXboxController shooterTuningController = new CommandXboxController(2);
+        
+        @Logged
         public final IntakeSubsystem intake = new IntakeSubsystem();
 
         @Logged

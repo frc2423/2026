@@ -14,6 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.DataLogManager;
 
+import java.util.Map;
+
 import org.littletonrobotics.urcl.URCL;
 
 import com.ctre.phoenix6.SignalLogger;
@@ -27,7 +29,10 @@ public class Robot extends TimedRobot {
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
     Epilogue.bind(this);
-    URCL.start();
+    URCL.start(Map.of(
+      21, "arm"
+
+    ));
     m_robotContainer = new RobotContainer();
     DriverStation.silenceJoystickConnectionWarning(true);
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());

@@ -56,14 +56,15 @@ public class RobotHealth {
     private void update() {
         
         //isCameraConnected = vision.isCameraConnected();
-        motorLogs.get("twindexer").put("isConnected", robot.twindexer.getSparkFlex().getBusVoltage()!=0);
-        motorLogs.get("intake").put("isConnected", robot.intake.getSparkFlex().getBusVoltage()!=0);
-        motorLogs.get("shooterLeft").put("isConnected", robot.shooterLeft.getSparkFlex().getBusVoltage()!=0);
-        motorLogs.get("shooterRight").put("isConnected", robot.shooterRight.getSparkFlex().getBusVoltage()!=0);
-        motorLogs.get("hood").put("isConnected", robot.hood.getSparkMax().getBusVoltage()!=0);
-        motorLogs.get("arm").put("isConnected", robot.arm.getSparkMax().getBusVoltage()!=0);
-        motorLogs.get("feederLeft").put("isConnected", robot.feederLeft.getSparkFlex().getBusVoltage()!=0);
-        motorLogs.get("feederRight").put("isConnected", robot.feederRight.getSparkFlex().getBusVoltage()!=0);
+        motorLogs.get("twindexer").put("isConnected", isConnected(robot.twindexer.getSparkFlex().getBusVoltage()));
+        motorLogs.get("intake").put("isOneConnected", isConnected(robot.intake.getSparkFlex1().getBusVoltage()));
+        motorLogs.get("intake").put("isTwoConnected", isConnected(robot.intake.getSparkFlex2().getBusVoltage()));
+        motorLogs.get("shooterLeft").put("isConnected", isConnected(robot.shooterLeft.getSparkFlex().getBusVoltage()));
+        motorLogs.get("shooterRight").put("isConnected", isConnected(robot.shooterRight.getSparkFlex().getBusVoltage()));
+        motorLogs.get("hood").put("isConnected", isConnected(robot.hood.getSparkMax().getBusVoltage()));
+        motorLogs.get("arm").put("isConnected", isConnected(robot.arm.getSparkMax().getBusVoltage()));
+        motorLogs.get("feederLeft").put("isConnected", isConnected(robot.feederLeft.getSparkFlex().getBusVoltage()));
+        motorLogs.get("feederRight").put("isConnected", isConnected(robot.feederRight.getSparkFlex().getBusVoltage()));
 
         motorLogs.get("intake").put("isStalled", robot.intake.isStalled()==true);
         motorLogs.get("hood").put("isStalled", robot.hood.isStalled()==true);
@@ -83,6 +84,22 @@ public class RobotHealth {
                 NTHelper.setBoolean(key,value.getValue()); 
             }
         }
+
+        // double voltage = robot.feederRight.getSparkFlex().getBusVoltage();
+
+        // System.out.println("bus voltage: " + isConnected(voltage) + ", " + voltage);
+
+        // NTHelper.setDouble("/RobotHealth/feederRight/busVoltage", robot.feederRight.getSparkFlex().getBusVoltage());
+    }
+
+    private boolean isConnected(double voltage) {
+        if (Double.isNaN(voltage)) {
+            return false;
+        }
+        if (Math.abs(voltage) < .001) {
+            return false;
+        }
+        return true;
     }
 
 }
