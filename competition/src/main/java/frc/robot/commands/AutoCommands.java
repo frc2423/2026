@@ -37,22 +37,41 @@ public class AutoCommands {
 
     private static final Pose2d shootInFrontOfHubPose = new Pose2d(2.5, 4, Rotation2d.fromDegrees(-180));
 
-    private final Path trenchToCenterPath = new Path("Trench-to-Center");
-    private final Path centerToTrenchPath = new Path("Center-to-Trench");
-    private final Path trenchToLeftoversPath = new Path("Trench-to-Leftovers");
-    private final Path leftoversToTrenchPath = new Path("Leftovers-to-Trench");
-    private final Path centerToBumpPath = new Path("Center-to-Bump");
-    private final Path bumpToLeftoversPath = new Path("Bump-to-Leftovers");
-    private final Path centerToLeftoversPath = new Path("Center-to-Leftovers");
-    private final Path bumpToOutpostPath = new Path("Bump-to-Outpost");
-    private final Path bumpToDepotPath = new Path("Bump-to-Depot");
-    private final Path trenchToOutpostPath = new Path("Trench-to-Outpost");
-    private final Path outpostToDepotPath = new Path("Outpost-to-Depot");
-    private final Path depotToDepotPath = new Path("Depot-to-Outpost");
-    private final Path shootToTrenchPath = new Path("Shoot-to-Trench");
-    private final Path trenchToCollectPath = new Path("Trench-to-Collect");
+    private Path trenchToCenterPath;
+    private Path centerToTrenchPath;
+    private Path trenchToLeftoversPath;
+    private Path leftoversToTrenchPath;
+    private Path centerToBumpPath;
+    private Path bumpToLeftoversPath;
+    private Path centerToLeftoversPath;
+    private Path bumpToOutpostPath;
+    private Path bumpToDepotPath;
+    private Path trenchToOutpostPath;
+    private Path outpostToDepotPath;
+    private Path depotToDepotPath;
+    private Path shootToTrenchPath;
+    private Path trenchToCollectPath;
+
+    public void resetPaths() {
+        System.out.println("Auto paths reset");
+        trenchToCenterPath = AutoPaths.getTrenchToCenterPath();
+        centerToTrenchPath = AutoPaths.getCenterToTrenchPath();
+        trenchToLeftoversPath = AutoPaths.getTrenchToLeftoversPath();
+        leftoversToTrenchPath = AutoPaths.getLeftoversToTrenchPath();
+        centerToBumpPath = AutoPaths.getCenterToBumpPath();
+        bumpToLeftoversPath = AutoPaths.getBumpToLeftoversPath();
+        centerToLeftoversPath = AutoPaths.getCenterToLeftoversPath();
+        bumpToOutpostPath = AutoPaths.getBumpToOutpostPath();
+        bumpToDepotPath = AutoPaths.getBumpToDepotPath();
+        trenchToOutpostPath = AutoPaths.getTrenchToOutpostPath();
+        outpostToDepotPath = AutoPaths.getOutpostToDepotPath();
+        depotToDepotPath = AutoPaths.getDepotToDepotPath();
+        shootToTrenchPath = AutoPaths.getShootToTrenchPath();
+        trenchToCollectPath = AutoPaths.getTrenchToCollectPath();
+    }
 
     public AutoCommands(RobotContainer robot) {
+        resetPaths();
         this.robot = robot;
 
         m_chooser.addOption("Center Once Trench Auto", "Center Once Trench Auto");

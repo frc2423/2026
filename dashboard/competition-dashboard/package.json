@@ -14,7 +14,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@frc-web-components/app": "^1.4.0",
-    "@frc-web-components/react": "^2.1.2",
+    "@frc-web-components/react": "^2.1.3",
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
     "install": "^0.13.0",

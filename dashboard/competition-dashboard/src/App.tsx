@@ -22,6 +22,7 @@ import {
   CssBaseline
 } from "@mui/material";
 import NumberField from "./components/NumberField";
+import SendableChooser from "./components/SendableChooser";
 
 // 1. Bubbly, Vibrant Theme
 // KWARQS 2423 — mallard teal-green & yellow
@@ -60,7 +61,20 @@ const bubblyTheme = createTheme({
           backgroundAttachment: 'fixed',
           height: '100vh',
           overflow: 'hidden',
-        }
+        },
+        '*::-webkit-scrollbar': {
+          width: '6px',
+        },
+        '*::-webkit-scrollbar-track': {
+          background: 'transparent',
+        },
+        '*::-webkit-scrollbar-thumb': {
+          background: 'rgba(255,255,255,0.2)',
+          borderRadius: '3px',
+        },
+        '*::-webkit-scrollbar-thumb:hover': {
+          background: 'rgba(255,255,255,0.35)',
+        },
       }
     },
     MuiCard: {
@@ -167,7 +181,7 @@ function App() {
   const [isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
   const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
   const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
-  const [robotPose] = useNTValue<number[]>("/SmartDashboard/Field/Robot", [0, 0, 0]);
+  const [robotPose] = useNTValue<number[]>("/Pose/Robot", [0, 0, 0]);
   const [matchTime] = useNTValue<number>("/Robot/robotContainer/dashboardlogger/matchTime", -1);
 
   // matchTime = remaining seconds in the *current* phase (resets each phase).
@@ -328,22 +342,11 @@ function App() {
                 </Card>
               </Grid>
 
-              {/* Auto Chooser Placeholder */}
+              {/* Auto Chooser */}
               <Grid size={{ xs: 12, lg: 2 }}>
-                <Card sx={{ p: 2, height: '100%', background: gradients.glass, border: '1px dashed rgba(255,255,255,0.2)' }}>
+                <Card sx={{ p: 2, height: '100%', background: gradients.glass }}>
                   <Typography variant="subtitle2" sx={{ mb: 1.5, fontSize: '0.75rem', opacity: 0.7 }}>Auto Chooser</Typography>
-                  <Box sx={{
-                    height: 40,
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.04)',
-                    border: '1px dashed rgba(255,255,255,0.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    px: 1.5,
-                  }}>
-                    <Typography sx={{ fontSize: '0.75rem', opacity: 0.35, fontStyle: 'italic' }}>Not connected</Typography>
-                  </Box>
+                  <SendableChooser ntKey="/SmartDashboard/autoChooser" />
                 </Card>
               </Grid>
 
@@ -363,9 +366,8 @@ function App() {
                     p: 0.5,
                   }}>
                     <Field
-                      game="Reefscape"
+                      game="Rebuilt"
                       rotationUnit="deg"
-                      origin={isRedAlliance ? "red" : "blue"}
                       style={{ width: '100%', height: '300px' }}
                     >
                       <FieldRobot
