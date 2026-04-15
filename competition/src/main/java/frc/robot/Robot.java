@@ -28,6 +28,10 @@ public class Robot extends TimedRobot {
 
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
+    Epilogue.configure(config -> {
+      // Change the root data path
+      config.root = "/Robot";
+    });
     Epilogue.bind(this);
     URCL.start(Map.of(
       21, "arm",
@@ -66,8 +70,8 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
     if (m_autonomousCommand != null) {
+      m_robotContainer.auto.timer.start();
       m_autonomousCommand.schedule();
     }
   }

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, type FormEvent } from "react";
 import {
   useNTValue,
   useNTConnection,
@@ -10,6 +10,7 @@ import {
   Gyro
 } from "@frc-web-components/react";
 
+
 function App() {
   // Monitor connection status
   const { isConnected, address, connect } = useNTConnection();
@@ -17,11 +18,34 @@ function App() {
   // Local state for address input
   const [addressInput, setAddressInput] = useState(address);
 
-  // Get/Set a number value
+  // Get/Set a number/String[]/number[] value
   const [someNumber, setSomeNumber] = useNTValue<number>(
     "/SmartDashboard/someNumber",
     0
   );
+  const [someStringArray, setSomeStringArray] = useNTValue<string[]>(
+    "/SmartDashboard/someStringArray"
+  );
+  const [someNumberArray, setSomeNumberArray] = useNTValue<number[]>(
+    "/SmartDashboard/setSomeNumberArray"
+  );
+  
+   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    // 1. Grab the form element
+    const formData = new FormData(e.currentTarget);
+
+    // 2. Extract values into arrays
+    // getAll() picks up every element with that specific name
+    const stepNames = formData.getAll('stepName') as string[];
+    const stepDelays = formData.getAll('stepDelay').map(val => parseFloat(val as string));
+
+    // console.log("String Array:", stepNames);
+    // console.log("Double Array:", stepDelays);
+    setSomeStringArray(stepNames);
+    setSomeNumberArray(stepDelays);
+  };
 
   const [isRedAlliance] = useNTValue<boolean>("/FMSInfo/IsRedAlliance", false);
   const [streams] = useNTValue<string[]>(
@@ -31,9 +55,35 @@ function App() {
   const [quality, setQuality] = useState(50);
   const [fps, setFps] = useState(60);
 
+  const [activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "Active Alliance: [No NTValue Loaded]");
+  const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "Active Alliance: [No NTValue Loaded]");
+  const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
+  const [isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
+  const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
+  const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
+  const [matchTime] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/matchTime", 160.0);
+  const [shiftTimeRemaining] = useNTValue<Number>("/Robot/robotContainer/dashboardlogger/shiftTimeRemaining", 0.0);
+  const [shootingPose] = useNTValue<string>("/Robot/robotContainer/shooterCommands/selectedShootingPose", "Selected Shooting Pose: [No NTValue Loaded]");
+  
+
+const headerStyle: React.CSSProperties = {
+  backgroundColor: "grey",
+  color: 'white',
+  fontWeight: '700',
+  textAlign: 'center'
+};
+
+const divStyle: React.CSSProperties = {
+  borderStyle: "solid",
+  borderWidth: "4px",
+  borderColor: "black",
+  fontSize: '30px',
+  width:"150px"
+}
+
   return (
     <div style={{ padding: "20px" }}>
-      <Gyro  value={50}/>
+      {/* <Gyro  value={50}/> */}
       {/* NT4 Connection Panel */}
       <div
         style={{
@@ -87,25 +137,112 @@ function App() {
 
       {/* Dashboard Content */}
       <div>WebSocket Connected: {isConnected ? "Yes" : "No"}</div>
-      <div>Alliance: {isRedAlliance ? "Red" : "Blue"}</div>
       <div>
         <BooleanBox
-          label="Alliance"
+          label={isRedAlliance ? "Red Alliance" : "Blue Alliance"}
           value={isRedAlliance}
           trueColor="red"
           falseColor="blue"
         />
       </div>
-      <div>
-        Some number: {someNumber}
-        <button onClick={() => setSomeNumber((someNumber ?? 0) + 1)}>
-          Increment
-        </button>
-        <button onClick={() => setSomeNumber((someNumber ?? 0) - 1)}>
-          Decrement
-        </button>
-        <button onClick={() => setSomeNumber(0)}>Reset</button>
+      {/* Element Container */}
+      <div style={{ display: 'flex', gap: '10px'}}>
+      {/* Active Alliance Content */}
+      <div style ={divStyle}>
+        <header style={{backgroundColor: activeAlliance === "both" ? "grey" : activeAlliance === "red" ? "red" : "blue",
+  color: 'white',
+  fontSize: '30px',
+  fontWeight: '700', textAlign: 'center'}}>Active Alliance</header>
+        {activeAlliance}
       </div>
+      {/* Current Shift Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Current Shift</header>
+        {currentShift}
+      </div>
+      {/* Active? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Is our alliance active?</header>
+        <BooleanBox
+          label={isAllianceActive ? "Yes" : "No"}
+          value={isAllianceActive}
+          trueColor="green"
+          falseColor="red"
+        />
+      </div>
+      {/* Active? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Is our alliance active next shift?</header>
+        <BooleanBox
+          label={isAllianceActiveNextShift ? "Yes" : "No"}
+          value={isAllianceActiveNextShift}
+          trueColor="green"
+          falseColor="red"
+        />
+      </div>
+      {/* Cameras Connected? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Cameras Connected?</header>
+        <BooleanBox
+          label={camerasConnected ? "Yes" : "No"}
+          value={camerasConnected}
+          trueColor="green"
+          falseColor="red"
+        />
+      </div>
+      {/* Selected Shooting Pose Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Selected Shooting Pose</header>
+        {shootingPose}
+      </div>
+      {/* Twindexer Jammed? Content */}
+      <div style ={divStyle}>
+        <header style={headerStyle}>Twindexer Jammed?</header>
+        <BooleanBox
+          label={twindexerJammed ? "Yes" : "No"}
+          value={twindexerJammed}
+          trueColor="#ddba34"
+          falseColor="#333539"
+        />
+      </div>
+      </div>
+      <br></br>
+      {/* Dropdown Element Container */}
+      <form onSubmit={handleSubmit}>
+      <div style={{ display: 'flex', gap: '10px'}}>
+          <label htmlFor="step1">AUTO Step 1:</label>
+          <select name="stepName">
+            <option value="shoot">Shoot</option>
+            <option value="brief">Brief Delay</option>
+            <option value="outpost or depot">Go to Outpost or Depot</option>
+            <option value="none">None</option>
+          </select>
+          <label htmlFor="step1delay">Move to Step 2 By:</label>
+          <input type="number" name="stepDelay" min="0" max="20"></input>sec
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px'}}>
+          <label htmlFor="step2">AUTO Step 2:</label>
+          <select name="stepName">
+            <option value="trench">Go Under Trench</option>
+            <option value="bump">Go Over Bump</option>
+          </select>
+          <label htmlFor="step2delay">Move to Step 3 By:</label>
+          <input type="number" name="stepDelay" min="0" max="20"></input>sec
+          </div>
+          
+          <div style={{ display: 'flex', gap: '10px'}}>
+          <label htmlFor="step3">AUTO Step 3:</label>
+          <select name="stepName">
+            <option value="trench">Go Under Trench</option>
+            <option value="bump">Go Over Bump</option>
+            <option value="outpost or depot">Go to Outpost or Depot</option>
+            <option value="shoot">Shoot</option>
+            <option value="collect">Collect Fuel</option>
+          </select>
+          </div>
+          <button type="submit">Submit</button>
+          </form>
       <div>
         <Canvas>
           <CanvasMjpgStream

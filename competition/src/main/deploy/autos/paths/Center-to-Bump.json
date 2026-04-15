@@ -8,7 +8,7 @@
         "intermediate_handoff_radius_meters": 0.2
       },
       "rotation_target": {
-        "rotation_radians": 3.5779249665883754,
+        "rotation_radians": 4.101523742186674,
         "profiled_rotation": false
       }
     },
@@ -30,8 +30,13 @@
     "end_rotation_tolerance_deg": 10.0,
     "max_velocity_meters_per_sec": [
       {
-        "value": 3.0,
+        "value": 2.2,
         "start_ordinal": 0,
+        "end_ordinal": 0
+      },
+      {
+        "value": 5.0,
+        "start_ordinal": 1,
         "end_ordinal": 1
       }
     ]
