@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.util.function.Supplier;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -38,6 +40,7 @@ import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.TwindexerSubsystem;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDS.KwarqsLed;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -45,6 +48,7 @@ import frc.robot.utils.ShootOnMove;
 import frc.robot.telemetry.SubsystemMechanism2d;
 import frc.robot.telemetry.Telemetry;
 import frc.robot.telemetry.DashboardTelemetry;
+import frc.robot.telemetry.RobotHealth;
 
 public class RobotContainer {
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -66,6 +70,8 @@ public class RobotContainer {
         public final CommandXboxController driverController = new CommandXboxController(0);
         public final CommandXboxController operatorController = new CommandXboxController(1);
         public final CommandXboxController shooterTuningController = new CommandXboxController(2);
+        
+        @Logged
         public final IntakeSubsystem intake = new IntakeSubsystem();
 
         @Logged
@@ -77,6 +83,8 @@ public class RobotContainer {
                         .withHeadingPID(10, 0, 0);
         private Rotation2d lastHeading = new Rotation2d();
 
+        private Supplier<Pose2d> currentPose;
+
         @Logged
         public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35, true);
         @Logged
@@ -87,6 +95,8 @@ public class RobotContainer {
         public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
         @Logged
         public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
+        // @Logged
+        public final Vision vision = new Vision(currentPose);
 
         @Logged
         public final HoodSubsystem hood = new HoodSubsystem(this);
@@ -109,11 +119,13 @@ public class RobotContainer {
 
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
+        private final RobotHealth robotHealth = new RobotHealth(this);
+
 
         @SuppressWarnings("unused")
         private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
-        // private final PowerDistribution pdh = new PowerDistribution(1, ModuleType.kRev);
+        private final PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
@@ -124,7 +136,7 @@ public class RobotContainer {
                 SmartDashboard.putData("subsystems/shooterRight", shooterRight);
                 SmartDashboard.putData("subsystems/twindexer", twindexer);
                 SmartDashboard.putData("subsystems/hood", hood);
-                // SmartDashboard.putData("pdh", pdh);
+                SmartDashboard.putData("pdh", pdh);
 
                 configureBindings();
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
@@ -215,7 +227,7 @@ public class RobotContainer {
 
                 // Intake commands
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
-                driverController.button(10).whileTrue(intakeCommands.armDown().andThen(intake.intake()))
+                driverController.button(10).whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake()))
                                 .onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
                 driverController.a().onTrue(intakeCommands.armDown());

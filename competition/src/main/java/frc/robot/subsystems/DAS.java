@@ -30,6 +30,7 @@ public class DAS {
     }
 
     private NavigableMap<Double, MotorSettings> distanceMap; // Map from distance to settings
+    private NavigableMap<Double, MotorSettings> passingDistanceMap;
 
     private double velocityOffset = 0;
 
@@ -37,6 +38,7 @@ public class DAS {
         NTHelper.setDouble("/tuning/DASOffset", DEFAULT_DISTANCE_OFFSET);
         NTHelper.setDouble("/tuning/velocityOffset", velocityOffset);
         distanceMap = new TreeMap<>();
+        passingDistanceMap = new TreeMap<>();
         initializeMap();
     }
 
@@ -51,21 +53,26 @@ public class DAS {
         distanceMap.put(4.0, new MotorSettings(30, 3125));
         distanceMap.put(4.3, new MotorSettings(30,3200));
 
-        // distanceMap.put(1.4, new MotorSettings(5, 2900));
-        // distanceMap.put(2.0, new MotorSettings(14, 2900));
-        // distanceMap.put(2.6, new MotorSettings(18.75, 3100));
-        // distanceMap.put(3.2, new MotorSettings(23, 3100));
-        // distanceMap.put(3.8, new MotorSettings(23.5, 3250));
-        // distanceMap.put(4.4, new MotorSettings(27, 3450));
-        // distanceMap.put(5.0, new MotorSettings(32, 3550));
+
+        passingDistanceMap.put(5.5, new MotorSettings(55,3300));
+        passingDistanceMap.put(6.7, new MotorSettings(55,4000));
+        passingDistanceMap.put(8.0, new MotorSettings(55,5000));
+    }
+
+     public MotorSettings calculatePassingAS(double distance) {
+        return calculateAS(distance, passingDistanceMap, 0, 0);
     }
 
     public MotorSettings calculateAS(double distance) {
         double distanceOffset = NTHelper.getDouble("/tuning/DASOffset", DEFAULT_DISTANCE_OFFSET);
         double velocityOffset = NTHelper.getDouble("/tuning/velocityOffset", 0);
-        distance = distance + distanceOffset;
-        // Direct match
+        return calculateAS(distance, distanceMap, distanceOffset, velocityOffset);
+    }
 
+    public MotorSettings calculateAS(double distance, NavigableMap<Double, MotorSettings> distanceMap, double distanceOffset, double velocityOffset) {
+        distance = distance + distanceOffset;
+        
+        // Direct match
         if (distanceMap.containsKey(distance)) {
             return distanceMap.get(distance);
         }
