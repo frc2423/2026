@@ -28,18 +28,13 @@ import NumberField from "./components/NumberField";
 const KWARQS_GREEN  = '#2596be';
 const KWARQS_YELLOW = '#f5c400';
 
-// Overlapping feather / duck-wing scale pattern (fish-scale tiling)
-const DUCK_WING_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns='http://www.w3.org/2000/svg' width='60' height='60'>` +
-  // bottom feather
-  `<path d='M0 60 Q30 34 60 60' fill='rgba(37,150,190,0.06)' stroke='rgba(37,150,190,0.22)' stroke-width='1.2'/>` +
-  // top-left feather (tiles with right neighbour)
-  `<path d='M-30 30 Q0 4 30 30' fill='rgba(37,150,190,0.06)' stroke='rgba(37,150,190,0.22)' stroke-width='1.2'/>` +
-  // top-right feather (tiles with left neighbour)
-  `<path d='M30 30 Q60 4 90 30' fill='rgba(37,150,190,0.06)' stroke='rgba(37,150,190,0.22)' stroke-width='1.2'/>` +
-  // speculum flash — a couple of yellow accent lines like a mallard's wing patch
-  `<path d='M18 48 Q30 38 42 48' fill='none' stroke='rgba(245,196,0,0.18)' stroke-width='1'/>` +
-  `<path d='M3 18 Q15 8 27 18' fill='none' stroke='rgba(245,196,0,0.18)' stroke-width='1'/>` +
+// 🦆 Checkerboard duck emoji background pattern
+const DUCK_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>` +
+  `<g opacity='0.25' font-size='28' font-family='Apple Color Emoji,Segoe UI Emoji,Noto Color Emoji,sans-serif'>` +
+  `<text x='10' y='40'>🦆</text>` +
+  `<text x='60' y='90'>🦆</text>` +
+  `</g>` +
   `</svg>`
 )}")`;
 
@@ -61,7 +56,7 @@ const bubblyTheme = createTheme({
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          background: `linear-gradient(135deg, #1a1a1a 0%, #212121 100%)`,
+          background: `${DUCK_PATTERN} repeat, linear-gradient(135deg, #1a1a1a 0%, #212121 100%)`,
           backgroundAttachment: 'fixed',
           height: '100vh',
           overflow: 'hidden',
