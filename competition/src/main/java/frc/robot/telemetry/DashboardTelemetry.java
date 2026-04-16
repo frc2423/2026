@@ -1,6 +1,7 @@
 package frc.robot.telemetry;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.utils.HubTracker;
@@ -25,6 +26,9 @@ public class DashboardTelemetry {
 
     @Logged
     private String activeAlliance = "both";
+
+    @Logged
+    private String winningAutoAlliance = "both";
 
     private Notifier notifier = new Notifier(this::update);
 
@@ -51,11 +55,20 @@ public class DashboardTelemetry {
     }
 
     private void updateMatchTime() {
+        matchTime = 160 - HubTracker.getMatchTime();
+        // if (DriverStation.isDisabled()) {
+        //     matchTime = 160;
+        // } else {
+        //     matchTime = 160 - HubTracker.getMatchTime();
+        // }
+    }
+
+    private void updateWinningAutoAlliance() {
         if (HubTracker.getCurrentShift() == Shift.AUTO) {
-            matchTime = 20 - HubTracker.getMatchTime();
-        } else {
-            matchTime = 160 - HubTracker.getMatchTime();
+            winningAutoAlliance = "both";
         }
+        Alliance alliance = HubTracker.getAutoWinner();
+        winningAutoAlliance = alliance == Alliance.Red ? "red" : "blue";
     }
 
     private void update() {
@@ -66,7 +79,7 @@ public class DashboardTelemetry {
         updateActiveAlliance();
         updateCurrentShift();
         updateMatchTime();
-
+        updateWinningAutoAlliance();
     }
 
 }

@@ -1,6 +1,9 @@
 package frc.robot.commands;
 
+import javax.lang.model.element.Element;
+
 import frc.robot.lib.BLine.Path;
+import frc.robot.lib.BLine.Path.Waypoint;
 
 public class AutoPaths {
     private static final Path trenchToCenterPath = new Path("Trench-to-Center");
