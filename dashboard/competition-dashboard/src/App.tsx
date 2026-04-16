@@ -11,7 +11,6 @@ import {
   InputLabel,
   MenuItem,
   Select,
-  Slider,
   Stack,
   Tab,
   Tabs,
@@ -168,9 +167,9 @@ function getShifts(autoWinner: 'red' | 'blue' | 'both') {
   const SHIFTS: Shift[] = [
     { name: 'Auto', startSec: 0, endSec: 20, alliance: 'both' },
     { name: 'Transition', startSec: 20, endSec: 30, alliance: 'both' },
-    { name: 'Shift 1', startSec: 30, endSec: 55, alliance: autoLoser },
+    { name: 'Shift 1', startSec: 30, endSec: 55, alliance: autoLoser as any },
     { name: 'Shift 2', startSec: 55, endSec: 80, alliance: autoWinner },
-    { name: 'Shift 3', startSec: 80, endSec: 105, alliance: autoLoser },
+    { name: 'Shift 3', startSec: 80, endSec: 105, alliance: autoLoser as any },
     { name: 'Shift 4', startSec: 105, endSec: 130, alliance: autoWinner },
     { name: 'Endgame', startSec: 130, endSec: 160, alliance: 'both' },
   ];
@@ -197,25 +196,26 @@ function App() {
 
   const [isRedAllianceRaw] = useNTValue<boolean>("/FMSInfo/IsRedAlliance", false);
   const isRedAlliance = isRedAllianceRaw ?? false;
-  const [streams] = useNTValue<string[]>("/CameraPublisher/USB Camera 0/streams", []);
-  const [quality, setQuality] = useState(50);
-  const [fps, setFps] = useState(60);
+  const [streams] = useNTValue<string[]>("/CameraPublisher/photonvision_Port_1184_Output_MJPEG_Server/streams", []);
+  const [streamsRight] = useNTValue<string[]>("/CameraPublisher/photonvision_Port_1182_Output_MJPEG_Server/streams", []);
+  // const [quality, setQuality] = useState(50);
+  // const [fps, setFps] = useState(60);
 
   const [_activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "No Data");
   const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "No Data");
   const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
-  const [_isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
-  const [winningAutoAlliance] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/winningAutoAlliance", 'red');
+  // const [_isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
+  const [winningAutoAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/winningAutoAlliance", 'red');
     
     
   const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
   const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
   const [robotPose] = useNTValue<number[]>("/Pose/Robot", [0, 0, 0]);
-  const [matchTime] = useNTValue<number>("/Robot/robotContainer/dashboardlogger/matchTime", -1);
+  const [matchTime] = useNTValue<number>("/Robot/robotContainer/dashboardlogger/matchTime", 160);
 
 
   const shifts = useMemo(() => {
-    return getShifts(winningAutoAlliance);
+    return getShifts(winningAutoAlliance as any);
   }, [winningAutoAlliance]);
 
   // matchTime = remaining seconds in the *current* phase (resets each phase).
@@ -460,29 +460,41 @@ function App() {
             <Card sx={{ p: 2, display: 'flex', flexDirection: 'column', background: gradients.glass }}>
               <Typography variant="h6" sx={{ mb: 1, fontSize: '0.95rem' }}>Camera Feed</Typography>
               <Box sx={{
-                flexGrow: 1,
-                minHeight: 280,
-                background: 'rgba(0,0,0,0.5)',
-                borderRadius: '16px',
-                overflow: 'hidden',
-                mb: 1.5,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.5)'
+                // flexGrow: 1,
+                // minHeight: 280,
+                // background: 'rgba(0,0,0,0.5)',
+                // borderRadius: '16px',
+                // overflow: 'hidden',
+                // mb: 1.5,
+                // display: 'flex',
+                // alignItems: 'center',
+                // justifyContent: 'center',
+                // boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.5)'
               }}>
                 <Canvas>
                   <CanvasMjpgStream
                     srcs={streams}
-                    width={320}
-                    height={160}
+                    // width={320}
+                    // height={160}
                   // fps={fps}
                   // quality={quality}
                   />
+                 
                 </Canvas>
+                <Canvas>
+                  <CanvasMjpgStream
+                    srcs={streamsRight}
+                    // width={320}
+                    // height={160}
+                  // fps={fps}
+                  // quality={quality}
+                  />
+                 
+                </Canvas>
+              
               </Box>
 
-              <Grid container spacing={2} sx={{ px: 1 }}>
+              {/* <Grid container spacing={2} sx={{ px: 1 }}>
                 <Grid size={6}>
                   <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '0.7rem' }}>Stream Quality: {quality}%</Typography>
                   <Slider value={quality} onChange={(_, val) => setQuality(val as number)} min={0} max={100} sx={{ color: KWARQS_YELLOW, height: 6 }} />
@@ -491,7 +503,7 @@ function App() {
                   <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '0.7rem' }}>Target FPS: {fps}</Typography>
                   <Slider value={fps} onChange={(_, val) => setFps(val as number)} min={1} max={60} sx={{ color: KWARQS_GREEN, height: 6 }} />
                 </Grid>
-              </Grid>
+              </Grid> */}
             </Card>
           </Stack>
         )}

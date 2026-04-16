@@ -1044,7 +1044,7 @@ public class AutoCommands {
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot and Outpost Auto")) {
             return centerOnceBumpDepotAndOutpostAuto();
         } else if (m_chooser.getSelected().equals("Custom")) {
-            NTHelper.setDoubleArray("/SmartDashboard/someDoubleArray",getCombinedPath(NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" })));s
+            NTHelper.setDoubleArray("/SmartDashboard/someDoubleArray",getCombinedPath(NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" })));
             return customAuto(
                     NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" }),
                     NTHelper.getDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 }));

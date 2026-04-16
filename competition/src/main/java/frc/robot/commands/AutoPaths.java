@@ -81,17 +81,17 @@ public class AutoPaths {
 
     public static double[] getDoubleArrayFromPath(Path path) {
         ArrayList<Double> poses = new ArrayList<Double>();
-        for (int i = 0; i < path.getPathElements().size(); i+=3) {
+        for (int i = 0; i < path.getPathElements().size(); i += 3) {
             if (path.getPathElements().get(i).getClass() == Waypoint.class) {
                 poses.set(i, ((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getX());
-                poses.set(i+1, ((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getX());
-                poses.set(i+2, ((Waypoint) path.getPathElements().get(i)).rotationTarget().rotation().getDegrees()); 
+                poses.set(i + 1, ((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getX());
+                poses.set(i + 2, ((Waypoint) path.getPathElements().get(i)).rotationTarget().rotation().getDegrees());
+            }
         }
-    }
         double[] posesArray = new double[poses.size()];
         for (int j = 0; j < poses.size(); j++) {
             posesArray[j] = poses.get(j);
         }
         return posesArray;
-}
+    }
 }
