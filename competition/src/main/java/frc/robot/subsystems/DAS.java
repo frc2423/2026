@@ -100,9 +100,9 @@ public class DAS {
         double interpolatedVoltage = lowerSettings.getVelocity()
                 + ratio * (higherSettings.getVelocity() - lowerSettings.getVelocity());
 
-        if (distance > 2.5) {
+        // if (distance > 2.5) {
             interpolatedVoltage += velocityOffset;
-        }
+        // }
 
         return new MotorSettings(interpolatedAngle, interpolatedVoltage);
     }

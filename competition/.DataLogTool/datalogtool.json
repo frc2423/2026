@@ -1,7 +1,7 @@
 {
   "download": {
     "deleteAfter": false,
-    "localDir": "C:\\Users\\amory\\OneDrive\\Desktop\\riologs",
+    "localDir": "C:\\Users\\amory\\OneDrive\\Desktop\\riologs\\dcmp",
     "remoteDir": "/u/logs",
     "serverTeam": "2423"
   }

@@ -53,13 +53,14 @@ export default function ShiftTimeline({
       {/* ── Alliance Active Button ── */}
       <Card
         sx={{
-          minWidth: 130,
+          minWidth: 100,
           flexShrink: 0,
           display: 'flex',
-          flexDirection: 'column',
+          flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'center',
-          p: 2,
+          gap: 0.75,
+          p: 1,
           cursor: 'default',
           userSelect: 'none',
           background: isAllianceActive
@@ -71,15 +72,15 @@ export default function ShiftTimeline({
           animation: `${pulseGlow} 2s ease-in-out infinite`,
         }}
       >
-        <Typography sx={{ fontSize: '2.4rem', lineHeight: 1, mb: 0.5 }}>
+        <Typography sx={{ fontSize: '1.2rem', lineHeight: 1 }}>
           {isAllianceActive ? '✓' : '✗'}
         </Typography>
         <Typography
           sx={{
             fontWeight: 900,
-            fontSize: '0.9rem',
+            fontSize: '0.7rem',
             textTransform: 'uppercase',
-            letterSpacing: '2px',
+            letterSpacing: '1.5px',
             textShadow: '0 2px 8px rgba(0,0,0,0.4)',
           }}
         >
@@ -115,7 +116,7 @@ export default function ShiftTimeline({
         <Box
           sx={{
             position: 'relative',
-            height: 56,
+            height: 40,
             borderRadius: '12px',
             overflow: 'hidden',
             display: 'flex',

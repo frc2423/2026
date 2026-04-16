@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, type FormEvent } from "react";
+import { useState, useEffect, useRef, useMemo, type FormEvent } from "react";
 import { useNTValue, useNTConnection } from "./store/useNetworktables";
 import { Canvas, CanvasMjpgStream, Field, FieldRobot, FieldPath } from "@frc-web-components/react";
 import {
@@ -125,19 +125,19 @@ const gradients = {
 };
 
 // 2. Bubbly StatCard: Takes a gradient background for active states
-const StatCard = ({ title, children, bgGradient = gradients.glass }: { title: string, children: React.ReactNode, bgGradient?: string }) => (
-  <Card sx={{
-    height: "100%", p: 1.5, display: "flex", flexDirection: "column", justifyContent: "space-between",
-    background: bgGradient,
-    transition: 'transform 0.2s ease-in-out',
-    '&:hover': { transform: 'translateY(-2px)' }
-  }}>
-    <Typography variant="subtitle2" sx={{ mb: 1, textShadow: '0 2px 4px rgba(0,0,0,0.3)', fontSize: '0.7rem' }}>{title}</Typography>
-    <Box sx={{ display: "flex", alignItems: "center", textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
-      {children}
-    </Box>
-  </Card>
-);
+// const StatCard = ({ title, children, bgGradient = gradients.glass }: { title: string, children: React.ReactNode, bgGradient?: string }) => (
+//   <Card sx={{
+//     height: "100%", p: 1.5, display: "flex", flexDirection: "column", justifyContent: "space-between",
+//     background: bgGradient,
+//     transition: 'transform 0.2s ease-in-out',
+//     '&:hover': { transform: 'translateY(-2px)' }
+//   }}>
+//     <Typography variant="subtitle2" sx={{ mb: 1, textShadow: '0 2px 4px rgba(0,0,0,0.3)', fontSize: '0.7rem' }}>{title}</Typography>
+//     <Box sx={{ display: "flex", alignItems: "center", textShadow: '0 2px 10px rgba(0,0,0,0.4)' }}>
+//       {children}
+//     </Box>
+//   </Card>
+// );
 
 // Alliance indicator — compact pill for top bar
 const AllianceIndicator = ({ isRedAlliance }: { isRedAlliance: boolean }) => (
@@ -206,12 +206,15 @@ function App() {
   const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
   // const [_isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
   const [winningAutoAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/winningAutoAlliance", 'red');
+  
+  const [velocityOffset] = useNTValue<number>("/tuning/velocityOffset", 0);
     
     
-  const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
-  const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
+  // const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
+  // const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
   const [robotPose] = useNTValue<number[]>("/Pose/Robot", [0, 0, 0]);
   const [matchTime] = useNTValue<number>("/Robot/robotContainer/dashboardlogger/matchTime", 160);
+  const [poses] = useNTValue<number[]>("/SmartDashboard/someDoubleArray", [0, 0, 0]);
 
 
   const shifts = useMemo(() => {
@@ -293,6 +296,14 @@ function App() {
               textShadow: totalRemaining >= 0 && totalRemaining <= 15 ? `0 0 12px ${KWARQS_YELLOW}` : 'none',
             }}>
               {formatMatchTime(totalRemaining)}
+            </Typography>
+          </Card>
+
+          {/* Velocity Offset */}
+          <Card sx={{ py: 0.5, px: 2, background: gradients.glass, display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0 }}>
+            <Typography sx={{ fontSize: '0.6rem', opacity: 0.5, textTransform: 'uppercase', letterSpacing: '1px', lineHeight: 1.2 }}>Vel Offset</Typography>
+            <Typography sx={{ fontSize: '1.1rem', fontWeight: 800, letterSpacing: '2px', lineHeight: 1.2, fontVariantNumeric: 'tabular-nums' }}>
+              {(velocityOffset ?? 0).toFixed(2)}
             </Typography>
           </Card>
 
@@ -410,7 +421,7 @@ function App() {
                         color={isRedAlliance ? "#ff4444" : "#4488ff"}
                       />
                       <FieldPath
-                        poses={[1, 1, 0, 2, 2, 0, 2, 5, 0]}
+                        poses={poses}
                       />
                     </Field>
                   </Box>
@@ -430,7 +441,7 @@ function App() {
           <Stack spacing={1.5}>
 
             {/* Shift Timeline */}
-            <Card sx={{ p: 2, background: gradients.glass }}>
+            <Card sx={{ p: 1, background: gradients.glass }}>
               <ShiftTimeline
                 totalDuration={MATCH_DURATION}
                 totalRemaining={totalRemaining}
@@ -441,7 +452,7 @@ function App() {
             </Card>
 
             {/* Status Cards */}
-            <Grid container spacing={1.5}>
+            {/* <Grid container spacing={1.5}>
               <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                 <StatCard title="Camera Status" bgGradient={camerasConnected ? gradients.green : gradients.red}>
                   <Typography variant="h6" sx={{ fontSize: '1rem' }}>{camerasConnected ? "ONLINE" : "OFFLINE"}</Typography>
@@ -454,56 +465,48 @@ function App() {
                   </Typography>
                 </StatCard>
               </Grid>
-            </Grid>
+            </Grid> */}
 
-            {/* Camera Feed */}
+            {/* Camera Feed + Field */}
             <Card sx={{ p: 2, display: 'flex', flexDirection: 'column', background: gradients.glass }}>
-              <Typography variant="h6" sx={{ mb: 1, fontSize: '0.95rem' }}>Camera Feed</Typography>
-              <Box sx={{
-                // flexGrow: 1,
-                // minHeight: 280,
-                // background: 'rgba(0,0,0,0.5)',
-                // borderRadius: '16px',
-                // overflow: 'hidden',
-                // mb: 1.5,
-                // display: 'flex',
-                // alignItems: 'center',
-                // justifyContent: 'center',
-                // boxShadow: 'inset 0 4px 15px rgba(0,0,0,0.5)'
-              }}>
-                <Canvas>
-                  <CanvasMjpgStream
-                    srcs={streams}
-                    // width={320}
-                    // height={160}
-                  // fps={fps}
-                  // quality={quality}
-                  />
-                 
-                </Canvas>
-                <Canvas>
-                  <CanvasMjpgStream
-                    srcs={streamsRight}
-                    // width={320}
-                    // height={160}
-                  // fps={fps}
-                  // quality={quality}
-                  />
-                 
-                </Canvas>
-              
-              </Box>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start' }}>
 
-              {/* <Grid container spacing={2} sx={{ px: 1 }}>
-                <Grid size={6}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '0.7rem' }}>Stream Quality: {quality}%</Typography>
-                  <Slider value={quality} onChange={(_, val) => setQuality(val as number)} min={0} max={100} sx={{ color: KWARQS_YELLOW, height: 6 }} />
-                </Grid>
-                <Grid size={6}>
-                  <Typography variant="subtitle2" gutterBottom sx={{ fontSize: '0.7rem' }}>Target FPS: {fps}</Typography>
-                  <Slider value={fps} onChange={(_, val) => setFps(val as number)} min={1} max={60} sx={{ color: KWARQS_GREEN, height: 6 }} />
-                </Grid>
-              </Grid> */}
+                {/* Camera streams */}
+                <Box>
+                  <Typography variant="h6" sx={{ mb: 1, fontSize: '0.95rem' }}>Camera Feed</Typography>
+                  <Canvas width={320}>
+                    <CanvasMjpgStream srcs={streams} />
+                  </Canvas>
+                  <Canvas width={320}>
+                    <CanvasMjpgStream srcs={streamsRight} />
+                  </Canvas>
+                </Box>
+
+                {/* Field map */}
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="h6" sx={{ mb: 1, fontSize: '0.95rem' }}>Field</Typography>
+                  <Box sx={{ borderRadius: '12px', overflow: 'hidden', boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}>
+                    <Field
+                      game="Rebuilt"
+                      rotationUnit="deg"
+                      style={{ width: '100%', height: '240px' }}
+                    >
+                      <FieldRobot
+                        pose={robotPose ?? [0, 0, 0]}
+                        width={0.85}
+                        length={0.85}
+                        color={isRedAlliance ? "#ff4444" : "#4488ff"}
+                      />
+                    </Field>
+                  </Box>
+                  <Stack direction="row" spacing={2} sx={{ mt: 0.5 }}>
+                    <Typography variant="subtitle2" sx={{ fontSize: '0.7rem' }}>X: {(robotPose?.[0] ?? 0).toFixed(2)} m</Typography>
+                    <Typography variant="subtitle2" sx={{ fontSize: '0.7rem' }}>Y: {(robotPose?.[1] ?? 0).toFixed(2)} m</Typography>
+                    <Typography variant="subtitle2" sx={{ fontSize: '0.7rem' }}>θ: {(robotPose?.[2] ?? 0).toFixed(1)}°</Typography>
+                  </Stack>
+                </Box>
+
+              </Box>
             </Card>
           </Stack>
         )}
