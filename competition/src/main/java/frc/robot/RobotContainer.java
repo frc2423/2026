@@ -221,7 +221,7 @@ public class RobotContainer {
 
                 RobotModeTriggers.disabled().onTrue(disableEverything());
 
-                RobotModeTriggers.autonomous().onTrue(hood.hoodDownandReset());
+                // RobotModeTriggers.autonomous().onTrue(hood.hoodDownandReset());
                 RobotModeTriggers.teleop().onTrue(hood.hoodDownandReset());
         }
 
