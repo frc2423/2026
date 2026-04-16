@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, type FormEvent } from "react";
+import React, { useState, useEffect, useRef, useMemo, type FormEvent } from "react";
 import { useNTValue, useNTConnection } from "./store/useNetworktables";
-import { Canvas, CanvasMjpgStream, Field, FieldRobot } from "@frc-web-components/react";
+import { Canvas, CanvasMjpgStream, Field, FieldRobot, FieldPath } from "@frc-web-components/react";
 import {
   Box,
   Button,
@@ -23,11 +23,12 @@ import {
 } from "@mui/material";
 import NumberField from "./components/NumberField";
 import SendableChooser from "./components/SendableChooser";
+import ShiftTimeline, { type Shift } from "./components/ShiftTimeline";
 
 // 1. Bubbly, Vibrant Theme
 // KWARQS 2423 — mallard teal-green & yellow
-const KWARQS_GREEN  = '#2596be';
-const KWARQS_YELLOW = '#f5c400';
+const KWARQS_GREEN = '#1d7c68';
+const KWARQS_YELLOW = '#ffd426';
 
 // 🦆 Checkerboard duck emoji background pattern
 const DUCK_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(
@@ -152,6 +153,31 @@ const AllianceIndicator = ({ isRedAlliance }: { isRedAlliance: boolean }) => (
   </Card>
 );
 
+// ── Shift schedule (edit to match the actual game shift schedule) ─────────────
+// Total match = 15 s auto + 135 s teleop = 150 s.
+// Alliance values: 'red' | 'blue' | 'both'
+const MATCH_DURATION = 160;
+
+function getShifts(autoWinner: 'red' | 'blue' | 'both') {
+  let autoLoser = 'both';
+  if (autoWinner === 'red') {
+    autoLoser = 'blue';
+  } else if (autoWinner === 'blue') {
+    autoLoser = 'red';
+  }
+  const SHIFTS: Shift[] = [
+    { name: 'Auto', startSec: 0, endSec: 20, alliance: 'both' },
+    { name: 'Transition', startSec: 20, endSec: 30, alliance: 'both' },
+    { name: 'Shift 1', startSec: 30, endSec: 55, alliance: autoLoser },
+    { name: 'Shift 2', startSec: 55, endSec: 80, alliance: autoWinner },
+    { name: 'Shift 3', startSec: 80, endSec: 105, alliance: autoLoser },
+    { name: 'Shift 4', startSec: 105, endSec: 130, alliance: autoWinner },
+    { name: 'Endgame', startSec: 130, endSec: 160, alliance: 'both' },
+  ];
+
+  return SHIFTS;
+}
+
 function App() {
   const { isConnected, address, connect } = useNTConnection();
   const [addressInput, setAddressInput] = useState(address);
@@ -175,14 +201,22 @@ function App() {
   const [quality, setQuality] = useState(50);
   const [fps, setFps] = useState(60);
 
-  const [activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "No Data");
+  const [_activeAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/activeAlliance", "No Data");
   const [currentShift] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/currentShift", "No Data");
   const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
-  const [isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
+  const [_isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
+  const [winningAutoAlliance] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/winningAutoAlliance", 'red');
+    
+    
   const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
   const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
   const [robotPose] = useNTValue<number[]>("/Pose/Robot", [0, 0, 0]);
   const [matchTime] = useNTValue<number>("/Robot/robotContainer/dashboardlogger/matchTime", -1);
+
+
+  const shifts = useMemo(() => {
+    return getShifts(winningAutoAlliance);
+  }, [winningAutoAlliance]);
 
   // matchTime = remaining seconds in the *current* phase (resets each phase).
   // Track phase transitions so we can add future-phase time during auto.
@@ -221,7 +255,6 @@ function App() {
     return `${m}:${String(s).padStart(2, "0")}`;
   };
 
-  const allianceGradient = activeAlliance === "both" ? gradients.glass : activeAlliance === "red" ? gradients.red : gradients.blue;
 
   return (
     <ThemeProvider theme={bubblyTheme}>
@@ -376,6 +409,9 @@ function App() {
                         length={0.85}
                         color={isRedAlliance ? "#ff4444" : "#4488ff"}
                       />
+                      <FieldPath
+                        poses={[1, 1, 0, 2, 2, 0, 2, 5, 0]}
+                      />
                     </Field>
                   </Box>
                   <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
@@ -392,34 +428,26 @@ function App() {
         {/* ── TELEOP TAB ── */}
         {activeTab === "teleop" && (
           <Stack spacing={1.5}>
-            {/* Telemetry Stat Cards */}
+
+            {/* Shift Timeline */}
+            <Card sx={{ p: 2, background: gradients.glass }}>
+              <ShiftTimeline
+                totalDuration={MATCH_DURATION}
+                totalRemaining={totalRemaining}
+                currentShift={currentShift ?? ""}
+                isAllianceActive={isAllianceActive ?? false}
+                shifts={shifts}
+              />
+            </Card>
+
+            {/* Status Cards */}
             <Grid container spacing={1.5}>
-              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                <StatCard title="Active Alliance" bgGradient={allianceGradient}>
-                  <Typography variant="h6" sx={{ textTransform: 'uppercase', fontSize: '1rem' }}>{activeAlliance}</Typography>
-                </StatCard>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                <StatCard title="Current Shift">
-                  <Typography sx={{ fontSize: '0.9rem', opacity: 0.9 }}>{currentShift}</Typography>
-                </StatCard>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                <StatCard title="Alliance Active" bgGradient={isAllianceActive ? gradients.green : gradients.red}>
-                  <Typography variant="h6" sx={{ fontSize: '1rem' }}>{isAllianceActive ? "YES" : "NO"}</Typography>
-                </StatCard>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-                <StatCard title="Active Next Shift" bgGradient={isAllianceActiveNextShift ? gradients.green : gradients.red}>
-                  <Typography variant="h6" sx={{ fontSize: '1rem' }}>{isAllianceActiveNextShift ? "YES" : "NO"}</Typography>
-                </StatCard>
-              </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                 <StatCard title="Camera Status" bgGradient={camerasConnected ? gradients.green : gradients.red}>
                   <Typography variant="h6" sx={{ fontSize: '1rem' }}>{camerasConnected ? "ONLINE" : "OFFLINE"}</Typography>
                 </StatCard>
               </Grid>
-              <Grid size={{ xs: 12, sm: 6, md: 2 }}>
+              <Grid size={{ xs: 12, sm: 6, md: 6 }}>
                 <StatCard title="Twindexer" bgGradient={twindexerJammed ? gradients.warning : gradients.glass}>
                   <Typography variant="h6" sx={{ fontSize: '1rem', color: twindexerJammed ? '#000' : '#fff', textShadow: twindexerJammed ? 'none' : undefined }}>
                     {twindexerJammed ? "JAMMED" : "CLEAR"}
@@ -446,10 +474,10 @@ function App() {
                 <Canvas>
                   <CanvasMjpgStream
                     srcs={streams}
-                    resolutionWidth={320}
-                    resolutionHeight={160}
-                    fps={fps}
-                    quality={quality}
+                    width={320}
+                    height={160}
+                  // fps={fps}
+                  // quality={quality}
                   />
                 </Canvas>
               </Box>
