@@ -119,7 +119,8 @@ public class RobotContainer {
 
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
-        private final RobotHealth robotHealth = new RobotHealth(this);
+        
+        public final RobotHealth robotHealth = new RobotHealth(this);
 
 
         @SuppressWarnings("unused")
