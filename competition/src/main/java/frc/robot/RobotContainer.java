@@ -219,6 +219,9 @@ public class RobotContainer {
                 drivetrain.registerTelemetry(logger::telemeterize);
 
                 RobotModeTriggers.disabled().onTrue(disableEverything());
+
+                RobotModeTriggers.autonomous().onTrue(hood.hoodDownandReset());
+                RobotModeTriggers.teleop().onTrue(hood.hoodDownandReset());
         }
 
         private void configureDriveControllerBindings() {
