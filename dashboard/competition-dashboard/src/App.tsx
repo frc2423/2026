@@ -116,11 +116,11 @@ const bubblyTheme = createTheme({
 
 // Gradients — KWARQS green/yellow team colours
 const gradients = {
-  glass: `rgba(37, 150, 190, 0.18)`,
+  glass: `rgba(0, 86, 56, 0.53)`,
   red: 'linear-gradient(135deg, #ff0844 0%, #ffb199 100%)',
   blue: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
   green: `linear-gradient(135deg, ${KWARQS_GREEN} 0%, #56d97a 100%)`,
-  warning: `linear-gradient(135deg, ${KWARQS_YELLOW} 0%, #ffb800 100%)`,
+  warning: `linear-gradient(135deg, ${KWARQS_YELLOW} 0%, #eeff00 100%)`,
   kwarqs: `linear-gradient(135deg, ${KWARQS_GREEN} 0%, ${KWARQS_YELLOW} 100%)`,
 };
 
@@ -437,7 +437,7 @@ function App() {
                       {autoPaths.map((poses, index) => (
                         <FieldPath
                           poses={poses}
-                          color={["#ffffff", "#fff200", "#007830"][index]}
+                          color={["#ffffff", "#fff200", "#00c96b"][index]}
                         />
                         
                       ))}
