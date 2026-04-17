@@ -641,6 +641,7 @@ public class AutoCommands {
                 // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >=
                 // 4)
                 // .andThen(robot.intake.stop())),
+                //robot.drivetrain.idle(),
                 robot.shooterCommands.scoreDeadline(4.5),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting(),

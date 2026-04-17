@@ -228,7 +228,6 @@ public class RobotContainer {
         private void configureDriveControllerBindings() {
                 // reset the field-centric heading on left bumper press
                 driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
                 // Intake commands
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
                 driverController.button(10).whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake()))
