@@ -1093,6 +1093,9 @@ public class AutoCommands {
             } else {
                 addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToDepotPath));
             }
+            poses.add(shootInFrontOfHubPose.getX());
+            poses.add(shootInFrontOfHubPose.getY());
+            poses.add(shootInFrontOfHubPose.getRotation().getDegrees());
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(shootToTrenchPath));
         }
         startIndexes[1] = poses.size();
@@ -1115,6 +1118,9 @@ public class AutoCommands {
             } else {
                 addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToDepotPath));
             }
+            poses.add(shootInFrontOfHubPose.getX());
+            poses.add(shootInFrontOfHubPose.getY());
+            poses.add(shootInFrontOfHubPose.getRotation().getDegrees());
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(shootToTrenchPath));
         } else if (steps[2].equals("shoot")) {
             poses.add(shootInFrontOfHubPose.getX());
