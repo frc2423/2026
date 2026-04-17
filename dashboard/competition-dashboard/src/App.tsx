@@ -177,6 +177,14 @@ function getShifts(autoWinner: 'red' | 'blue' | 'both') {
   return SHIFTS;
 }
 
+function posesToPaths(poses: number[], startIndexes: number[]): number[][] {
+  const paths: number[][] = [];
+  paths.push(poses.slice(startIndexes[0], startIndexes[1]+3));
+  paths.push(poses.slice(startIndexes[1], startIndexes[2]+3));
+  paths.push(poses.slice(startIndexes[2]));
+  return paths;
+}
+
 function App() {
   const { isConnected, address, connect } = useNTConnection();
   const [addressInput, setAddressInput] = useState(address);
@@ -206,15 +214,21 @@ function App() {
   const [isAllianceActive] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActive", true);
   // const [_isAllianceActiveNextShift] = useNTValue<boolean>("/Robot/robotContainer/dashboardlogger/isAllianceActiveNextShift", true);
   const [winningAutoAlliance] = useNTValue<string>("/Robot/robotContainer/dashboardlogger/winningAutoAlliance", 'red');
-  
+
   const [velocityOffset] = useNTValue<number>("/tuning/velocityOffset", 0);
-    
-    
+
+
   // const [camerasConnected] = useNTValue<boolean>("/visionDebug/april_tag_cam/camerasConnected", true);
   // const [twindexerJammed] = useNTValue<boolean>("/Robot/robotContainer/twindexer/isJammed", false);
   const [robotPose] = useNTValue<number[]>("/Pose/Robot", [0, 0, 0]);
   const [matchTime] = useNTValue<number>("/Robot/robotContainer/dashboardlogger/matchTime", 160);
-  const [poses] = useNTValue<number[]>("/SmartDashboard/someDoubleArray", [0, 0, 0]);
+  const [poses] = useNTValue<number[]>("/SmartDashboard/autoPathPoints", [0, 0, 0]);
+  const [startIndexes] = useNTValue<number[]>("/SmartDashboard/startIndexes", [0, 0, 0]);
+
+
+  const autoPaths = posesToPaths(poses ?? [], startIndexes ?? []);
+
+  console.log("POSES:", poses);
 
 
   const shifts = useMemo(() => {
@@ -420,9 +434,13 @@ function App() {
                         length={0.85}
                         color={isRedAlliance ? "#ff4444" : "#4488ff"}
                       />
-                      <FieldPath
-                        poses={poses}
-                      />
+                      {autoPaths.map((poses, index) => (
+                        <FieldPath
+                          poses={poses}
+                          color={["#ffffff", "#fff200", "#007830"][index]}
+                        />
+                        
+                      ))}
                     </Field>
                   </Box>
                   <Stack direction="row" spacing={2} sx={{ mt: 1 }}>

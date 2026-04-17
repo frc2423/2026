@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import javax.lang.model.element.Element;
 
 import frc.robot.lib.BLine.Path;
+import frc.robot.lib.BLine.Path.TranslationTarget;
 import frc.robot.lib.BLine.Path.Waypoint;
 
 public class AutoPaths {
@@ -81,11 +82,15 @@ public class AutoPaths {
 
     public static double[] getDoubleArrayFromPath(Path path) {
         ArrayList<Double> poses = new ArrayList<Double>();
-        for (int i = 0; i < path.getPathElements().size(); i += 3) {
+        for (int i = 0; i < path.getPathElements().size(); i++) {
             if (path.getPathElements().get(i).getClass() == Waypoint.class) {
-                poses.set(i, ((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getX());
-                poses.set(i + 1, ((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getX());
-                poses.set(i + 2, ((Waypoint) path.getPathElements().get(i)).rotationTarget().rotation().getDegrees());
+                poses.add(((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getX());
+                poses.add(((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getY());
+                poses.add(((Waypoint) path.getPathElements().get(i)).rotationTarget().rotation().getDegrees());
+            } else if (path.getPathElements().get(i).getClass() == TranslationTarget.class) {
+                poses.add(((TranslationTarget) path.getPathElements().get(i)).translation().getX());
+                poses.add(((TranslationTarget) path.getPathElements().get(i)).translation().getY());
+                poses.add(0.0);
             }
         }
         double[] posesArray = new double[poses.size()];

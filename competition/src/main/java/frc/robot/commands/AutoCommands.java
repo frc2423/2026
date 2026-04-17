@@ -53,7 +53,11 @@ public class AutoCommands {
     private Path shootToTrenchPath;
     private Path trenchToCollectPath;
 
+
     public void resetPaths() {
+        
+
+
         System.out.println("Auto paths reset");
         trenchToCenterPath = AutoPaths.getTrenchToCenterPath();
         centerToTrenchPath = AutoPaths.getCenterToTrenchPath();
@@ -119,6 +123,15 @@ public class AutoCommands {
 
         NTHelper.setStringArray("/SmartDashboard/someStringArray", new String[] { "Default" });
         NTHelper.setDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 });
+
+
+        NTHelper.listen("/SmartDashboard/someStringArray", (value) -> {
+             NTHelper.setDoubleArray("/SmartDashboard/autoPathPoints", getCombinedPath(
+                    NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" })));
+        });
+        // NTHelper.listen("/SmartDashboard/setSomeNumberArray", (value) -> {
+            
+        // });
 
     }
 
@@ -1044,7 +1057,7 @@ public class AutoCommands {
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot and Outpost Auto")) {
             return centerOnceBumpDepotAndOutpostAuto();
         } else if (m_chooser.getSelected().equals("Custom")) {
-            // NTHelper.setDoubleArray("/SmartDashboard/someDoubleArray",getCombinedPath(NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" })));
+           
             return customAuto(
                     NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" }),
                     NTHelper.getDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 }));
@@ -1069,9 +1082,11 @@ public class AutoCommands {
 
     public double[] getCombinedPath(String[] steps) {
         ArrayList<Double> poses = new ArrayList<>();
+        double[] startIndexes = new double[3];
         if (steps.length != 3) {
             return new double[0];
         }
+        startIndexes[0] = 0;
         if (steps[0].equals("outpost or depot")) {
             if (isOutpostSide()) {
                 addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToOutpostPath));
@@ -1080,6 +1095,7 @@ public class AutoCommands {
             }
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(shootToTrenchPath));
         }
+        startIndexes[1] = poses.size();
         if (steps[1].equals("trench")) {
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToCenterPath));
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(centerToLeftoversPath));
@@ -1087,6 +1103,7 @@ public class AutoCommands {
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToCenterPath));
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(centerToBumpPath));
         }
+        startIndexes[2] = poses.size();
         if (steps[2].equals("trench")) {
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToLeftoversPath));
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(leftoversToTrenchPath));
@@ -1106,6 +1123,7 @@ public class AutoCommands {
         } else if (steps[2].equals("collect")) {
             addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToCollectPath));
         }
+        NTHelper.setDoubleArray("/SmartDashboard/startIndexes", startIndexes);
         double[] posesArray = new double[poses.size()];
         for (int j = 0; j < poses.size(); j++) {
             posesArray[j] = poses.get(j);
