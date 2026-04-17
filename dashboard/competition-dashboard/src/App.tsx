@@ -179,8 +179,8 @@ function getShifts(autoWinner: 'red' | 'blue' | 'both') {
 
 function posesToPaths(poses: number[], startIndexes: number[]): number[][] {
   const paths: number[][] = [];
-  paths.push(poses.slice(startIndexes[0], startIndexes[1]+3));
-  paths.push(poses.slice(startIndexes[1], startIndexes[2]+3));
+  paths.push(poses.slice(startIndexes[0], startIndexes[1] + 3));
+  paths.push(poses.slice(startIndexes[1], startIndexes[2] + 3));
   paths.push(poses.slice(startIndexes[2]));
   return paths;
 }
@@ -192,6 +192,7 @@ function App() {
 
   const [, setSomeStringArray] = useNTValue<string[]>("/SmartDashboard/someStringArray");
   const [, setSomeNumberArray] = useNTValue<number[]>("/SmartDashboard/setSomeNumberArray");
+  const [side, setSide] = useNTValue<string>("/SmartDashboard/OutpostOrDepotSide");
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -402,11 +403,50 @@ function App() {
 
               {/* Auto Chooser */}
               <Grid size={{ xs: 12, lg: 2 }}>
-                <Card sx={{ p: 2, height: '100%', background: gradients.glass }}>
-                  <Typography variant="subtitle2" sx={{ mb: 1.5, fontSize: '0.75rem', opacity: 0.7 }}>Auto Chooser</Typography>
-                  <SendableChooser ntKey="/SmartDashboard/autoChooser" />
-                </Card>
-              </Grid>
+  <Card
+    sx={{
+      p: 2,
+      height: '100%',
+      background: gradients.glass,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between'
+    }}
+  >
+    <Box>
+      <Typography
+        variant="subtitle2"
+        sx={{ mb: 1.5, fontSize: '0.75rem', opacity: 0.7 }}
+      >
+        Auto Chooser
+      </Typography>
+
+      <SendableChooser ntKey="/SmartDashboard/autoChooser" />
+    </Box>
+
+    {/* TOGGLE BUTTON */}
+    <Button
+      variant="contained"
+      size="small"
+      onClick={() => {
+        const newSide = side === "depot" ? "outpost" : "depot";
+        setSide(newSide);
+      }}
+      sx={{
+        mt: 2,
+        background: gradients.kwarqs,
+        color: '#071a09',
+        fontSize: '0.8rem',
+        py: 0.75,
+        '&:hover': {
+          background: `linear-gradient(135deg, #25a342 0%, #d4aa00 100%)`
+        }
+      }}
+    >
+      {side === "depot" ? "Depot Side" : "Outpost Side"}
+    </Button>
+  </Card>
+</Grid>
 
               {/* Odometry */}
               <Grid size={{ xs: 12, lg: 6 }}>
@@ -439,7 +479,7 @@ function App() {
                           poses={poses}
                           color={["#ffffff", "#fff200", "#00c96b"][index]}
                         />
-                        
+
                       ))}
                     </Field>
                   </Box>
