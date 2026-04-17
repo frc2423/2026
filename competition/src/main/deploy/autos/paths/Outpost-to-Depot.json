@@ -64,8 +64,8 @@
   "constraints": {
     "max_velocity_meters_per_sec": [
       {
-        "value": 3.5,
-        "start_ordinal": 1,
+        "value": 2.9999999999999996,
+        "start_ordinal": 0,
         "end_ordinal": 1
       },
       {
@@ -74,7 +74,7 @@
         "end_ordinal": 3
       },
       {
-        "value": 1.5,
+        "value": 0.9999999999999997,
         "start_ordinal": 4,
         "end_ordinal": 4
       }

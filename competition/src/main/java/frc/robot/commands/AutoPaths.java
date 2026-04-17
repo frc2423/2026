@@ -4,9 +4,12 @@ import java.util.ArrayList;
 
 import javax.lang.model.element.Element;
 
+import frc.robot.NTHelper;
+import frc.robot.generated.PoseTransformUtils;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.TranslationTarget;
 import frc.robot.lib.BLine.Path.Waypoint;
+import frc.robot.subsystems.FloppingUtil;
 
 public class AutoPaths {
     private static final Path trenchToCenterPath = new Path("Trench-to-Center");
@@ -81,6 +84,12 @@ public class AutoPaths {
     }
 
     public static double[] getDoubleArrayFromPath(Path path) {
+        // if (PoseTransformUtils.isRedAlliance()) {
+        //     path.flip();
+        // }
+        // if (!NTHelper.getString("OutpostOrDepotSide", "outpost").equals("oupost")) {
+        //     FloppingUtil.flopPath(path);
+        // }
         ArrayList<Double> poses = new ArrayList<Double>();
         for (int i = 0; i < path.getPathElements().size(); i++) {
             if (path.getPathElements().get(i).getClass() == Waypoint.class) {

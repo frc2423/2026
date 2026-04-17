@@ -396,16 +396,13 @@ public class AutoCommands {
     }
 
     public Command depotAuto() {
-        Pose2d depot = new Pose2d(1.25, 6, Rotation2d.fromDegrees(180));
-        Pose2d shoot = new Pose2d(0.4, 6, Rotation2d.fromDegrees(180));
         if (PoseTransformUtils.isRedAlliance()) {
-            FlippingUtil.flipFieldPose(depot);
-            FlippingUtil.flipFieldPose(shoot);
+            bumpToDepotPath.flip();
         }
+        FollowPath bumpToDepot = robot.bline.pathBuilder.build(bumpToDepotPath);
         return Commands.sequence(
-                robot.driveShortestPath.driveShortestPath(depot),
+                bumpToDepot,
                 startIntaking(),
-                robot.driveShortestPath.driveShortestPath(shoot),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
@@ -1092,7 +1089,7 @@ public class AutoCommands {
                 addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToOutpostPath));
             } else {
                 addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToDepotPath));
-            }
+            }            
             poses.add(shootInFrontOfHubPose.getX());
             poses.add(shootInFrontOfHubPose.getY());
             poses.add(shootInFrontOfHubPose.getRotation().getDegrees());
@@ -1138,8 +1135,7 @@ public class AutoCommands {
     }
 
     public boolean isOutpostSide() {
-        return !((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
-                .isRedAlliance());
+        return NTHelper.getString("OutpostOrDepotSide", "outpost").equals("oupost");
     }
 
     private Pose2d flipPoseBasedOnRobotPose(Pose2d unflippedPose2d) {
