@@ -1,5 +1,6 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
 import java.util.function.BooleanSupplier;
 
 import edu.wpi.first.math.geometry.Pose2d;
@@ -52,7 +53,11 @@ public class AutoCommands {
     private Path shootToTrenchPath;
     private Path trenchToCollectPath;
 
+
     public void resetPaths() {
+        
+
+
         System.out.println("Auto paths reset");
         trenchToCenterPath = AutoPaths.getTrenchToCenterPath();
         centerToTrenchPath = AutoPaths.getCenterToTrenchPath();
@@ -74,31 +79,41 @@ public class AutoCommands {
         resetPaths();
         this.robot = robot;
 
-        m_chooser.addOption("Center Once Trench Auto", "Center Once Trench Auto");
+        // m_chooser.addOption("Center Once Trench Auto", "Center Once Trench Auto");
         m_chooser.addOption("Outpost Auto", "Outpost Auto");
-        m_chooser.addOption("Outpost and Depot Auto", "Outpost and Depot Auto");
         m_chooser.addOption("Depot Auto", "Depot Auto");
+        m_chooser.addOption("Outpost and Depot Auto", "Outpost and Depot Auto");
         m_chooser.addOption("Shoot Auto", "Shoot Auto");
         m_chooser.addOption("Center Twice Trench Auto", "Center Twice Trench Auto");
-        m_chooser.addOption("Center Twice Trench Auto with Breif Delay", "Center Twice Trench Auto with Breif Delay");
-        m_chooser.addOption("Center Twice Trench Auto with Shoot Delay", "Center Twice Trench Auto with Shoot Delay");
-        m_chooser.addOption("Center Twice Trench Auto with Long Shoot Delay",
-                "Center Twice Trench Auto with Long Shoot Delay");
+        // m_chooser.addOption("Center Twice Trench Auto with Breif Delay", "Center
+        // Twice Trench Auto with Breif Delay");
+        // m_chooser.addOption("Center Twice Trench Auto with Shoot Delay", "Center
+        // Twice Trench Auto with Shoot Delay");
+        // m_chooser.addOption("Center Twice Trench Auto with Long Shoot Delay",
+        // "Center Twice Trench Auto with Long Shoot Delay");
         m_chooser.addOption("Center Twice Bump Auto", "Center Twice Bump Auto");
-        m_chooser.addOption("Custom Center Twice Bump Auto", "Custom Center Twice Bump Auto");
-        m_chooser.addOption("Center Twice Bump Auto with Breif Delay", "Center Twice Bump Auto with Breif Delay");
-        m_chooser.addOption("Center Twice Bump Auto with Shoot Delay", "Center Twice Bump Auto with Shoot Delay");
-        m_chooser.addOption("Center Twice Bump Auto with Long Shoot Delay",
-                "Center Twice Bump Auto with Long Shoot Delay");
-        m_chooser.addOption("Center Twice Bump Auto with Outpost or Depot Delay",
-                "Center Twice Bump Auto with Outpost or Depot Delay");
-        m_chooser.addOption("Center Once Bump Depot or Outpost Auto", "Center Once Bump Depot or Outpost Auto");
-        m_chooser.addOption("Center Once Bump Depot and Outpost Auto", "Center Once Bump Depot and Outpost Auto");
+        // m_chooser.addOption("Custom Center Twice Bump Auto", "Custom Center Twice
+        // Bump Auto");
+        // m_chooser.addOption("Center Twice Bump Auto with Breif Delay", "Center Twice
+        // Bump Auto with Breif Delay");
+        // m_chooser.addOption("Center Twice Bump Auto with Shoot Delay", "Center Twice
+        // Bump Auto with Shoot Delay");
+        // m_chooser.addOption("Center Twice Bump Auto with Long Shoot Delay",
+        // "Center Twice Bump Auto with Long Shoot Delay");
+        // m_chooser.addOption("Center Twice Bump Auto with Outpost or Depot Delay",
+        // "Center Twice Bump Auto with Outpost or Depot Delay");
+        // m_chooser.addOption("Center Once Bump Depot or Outpost Auto", "Center Once
+        // Bump Depot or Outpost Auto");
+        // m_chooser.addOption("Center Once Bump Depot and Outpost Auto", "Center Once
+        // Bump Depot and Outpost Auto");
         m_chooser.addOption("Custom", "Custom");
-        m_chooser.addOption("Center Once Bump Collect Auto", "Center Once Bump Collect Auto");
+        // m_chooser.addOption("Center Once Bump Collect Auto", "Center Once Bump
+        // Collect Auto");
         m_chooser.addOption("Mechanical Advantage Delay", "Mechanical Advantage Delay");
-        m_chooser.addOption("Test", "Test");
-        m_chooser.addOption("Custom Center Once Bump Collect Auto with Outpost or Depot Delay", "Custom Center Once Bump Collect Auto with Outpost or Depot Delay");
+        // m_chooser.addOption("Test", "Test");
+        // m_chooser.addOption("Custom Center Once Bump Collect Auto with Outpost or
+        // Depot Delay", "Custom Center Once Bump Collect Auto with Outpost or Depot
+        // Delay");
         m_chooser.setDefaultOption("none", "none");
         SmartDashboard.putData("autoChooser", m_chooser);
 
@@ -106,8 +121,17 @@ public class AutoCommands {
         SmartDashboard.putData("setPoseToRightTrench", resetRobotPose(rightTrenchPose));
         SmartDashboard.putData("setPoseToHub", resetRobotPose(hubPose));
 
-        NTHelper.setStringArray("/SmartDashboard/someStringArray", new String[]{"Default"});
-        NTHelper.setDoubleArray("/SmartDashboard/setSomeNumberArray", new double[]{0.0});
+        NTHelper.setStringArray("/SmartDashboard/someStringArray", new String[] { "Default" });
+        NTHelper.setDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 });
+
+
+        NTHelper.listen("/SmartDashboard/someStringArray", (value) -> {
+             NTHelper.setDoubleArray("/SmartDashboard/autoPathPoints", getCombinedPath(
+                    NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" })));
+        });
+        // NTHelper.listen("/SmartDashboard/setSomeNumberArray", (value) -> {
+            
+        // });
 
     }
 
@@ -372,16 +396,13 @@ public class AutoCommands {
     }
 
     public Command depotAuto() {
-        Pose2d depot = new Pose2d(1.25, 6, Rotation2d.fromDegrees(180));
-        Pose2d shoot = new Pose2d(0.4, 6, Rotation2d.fromDegrees(180));
         if (PoseTransformUtils.isRedAlliance()) {
-            FlippingUtil.flipFieldPose(depot);
-            FlippingUtil.flipFieldPose(shoot);
+            bumpToDepotPath.flip();
         }
+        FollowPath bumpToDepot = robot.bline.pathBuilder.build(bumpToDepotPath);
         return Commands.sequence(
-                robot.driveShortestPath.driveShortestPath(depot),
+                bumpToDepot,
                 startIntaking(),
-                robot.driveShortestPath.driveShortestPath(shoot),
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
@@ -620,6 +641,7 @@ public class AutoCommands {
                 // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >=
                 // 4)
                 // .andThen(robot.intake.stop())),
+                //robot.drivetrain.idle(),
                 robot.shooterCommands.scoreDeadline(4.5),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting(),
@@ -746,8 +768,9 @@ public class AutoCommands {
 
     public Command shootDelay(double deadline) {
         return Commands.sequence(
-                robot.shooterCommands.scoreUntil(() -> timer.hasElapsed(deadline-0.5)),
-                robot.shooterCommands.lookAtAngle(new Rotation2d(PoseTransformUtils.isRedAlliance() ? Math.PI : 0)).withTimeout(1),
+                robot.shooterCommands.scoreUntil(() -> timer.hasElapsed(deadline - 0.5)),
+                robot.shooterCommands.lookAtAngle(new Rotation2d(PoseTransformUtils.isRedAlliance() ? Math.PI : 0))
+                        .withTimeout(1),
                 robot.shooterCommands.stopShooting(),
                 robot.shooterCommands.stopFeeding(),
                 robot.intakeCommands.armDown());
@@ -761,8 +784,7 @@ public class AutoCommands {
         boolean outpost = true;
         Path bumpToDepotOrOutpostPath = bumpToOutpostPath;
 
-        if ((robot.drivetrain.getPose().getY() >= FieldConstants.LinesHorizontal.center) == !PoseTransformUtils
-                .isRedAlliance()) {
+        if (!isOutpostSide()) {
             bumpToDepotOrOutpostPath = bumpToDepotPath;
             outpost = false;
             FloppingUtil.flopPath(shootToTrenchPath);
@@ -926,7 +948,6 @@ public class AutoCommands {
         FollowPath trenchToCollect = robot.bline.pathBuilder.build(trenchToCollectPath);
         FollowPath shootToTrench = robot.bline.pathBuilder.build(shootToTrenchPath);
 
-
         return Commands.sequence(
                 shootToTrench,
                 robot.intakeCommands.armDown(),
@@ -974,57 +995,70 @@ public class AutoCommands {
         if (m_chooser.getSelected().equals("Center Once Trench Auto")) {
             return centerOnceTrenchAuto();
         } else if (m_chooser.getSelected().equals("Outpost Auto")) {
-            // return outpostAuto();
-            return customAuto(new String[] { "outpost or depot", "", "" }, new double[] { 20, 20 });
+            return outpostAuto();
+            // return customAuto(new String[] { "outpost or depot", "", "" }, new double[] {
+            // 20, 20 });
         } else if (m_chooser.getSelected().equals("Outpost and Depot Auto")) {
             return outpostAndDepotAuto();
         } else if (m_chooser.getSelected().equals("Depot Auto")) {
-            // return depotAuto();
-            return customAuto(new String[] { "outpost or depot", "", "" }, new double[] { 20, 20 });
+            return depotAuto();
+            // return customAuto(new String[] { "outpost or depot", "", "" }, new double[] {
+            // 20, 20 });
 
         } else if (m_chooser.getSelected().equals("Shoot Auto")) {
-            // return shootAuto();
-            return customAuto(new String[] { "", "", "shoot" }, new double[] { 20, 20 });
+            return shootAuto();
+            // return customAuto(new String[] { "", "", "shoot" }, new double[] { 20, 20 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto")) {
-            // return centerTwiceTrenchAuto();
-            return customAuto(new String[] { "", "trench", "trench" }, new double[] { 0, 10 });
+            return centerTwiceTrenchAuto();
+            // return customAuto(new String[] { "", "trench", "trench" }, new double[] { 0,
+            // 10 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Breif Delay")) {
-            // return centerTwiceTrenchAutoWithBreifDelay(1.5);
-            return customAuto(new String[] { "brief", "trench", "trench" }, new double[] { 1.5, 11.5 });
+            return centerTwiceTrenchAutoWithBreifDelay(1.5);
+            // return customAuto(new String[] { "brief", "trench", "trench" }, new double[]
+            // { 1.5, 11.5 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Shoot Delay")) {
-            // return centerTwiceTrenchAutoWithShootDelay(3);
-            return customAuto(new String[] { "shoot", "trench", "trench" }, new double[] { 3, 13 });
+            return centerTwiceTrenchAutoWithShootDelay(3);
+            // return customAuto(new String[] { "shoot", "trench", "trench" }, new double[]
+            // { 3, 13 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Long Shoot Delay")) {
-            // return centerTwiceTrenchAutoWithShootDelay(4);
-            return customAuto(new String[] { "shoot", "trench", "trench" }, new double[] { 4.5, 10 });
+            return centerTwiceTrenchAutoWithShootDelay(4);
+            // return customAuto(new String[] { "shoot", "trench", "trench" }, new double[]
+            // { 4.5, 10 });
         } else if (m_chooser.getSelected().equals("Center Twice Trench Auto with Outpost or Depot Delay")) {
-            // return centerTwiceTrenchAuto();
-            return customAuto(new String[] { "outpost or depot", "trench", "trench" }, new double[] { 6, 16 });
+            return centerTwiceTrenchAuto();
+            // return customAuto(new String[] { "outpost or depot", "trench", "trench" },
+            // new double[] { 6, 16 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto")) {
             return centerTwiceBumpAuto();
         } else if (m_chooser.getSelected().equals("Custom Center Twice Bump Auto")) {
             return customAuto(new String[] { "", "bump", "bump" }, new double[] { 0, 10 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Breif Delay")) {
-            // return centerTwiceBumpAutoWithBreifDelay(1.5);
-            return customAuto(new String[] { "brief", "bump", "bump" }, new double[] { 1.5, 11.5 });
+            return centerTwiceBumpAutoWithBreifDelay(1.5);
+            // return customAuto(new String[] { "brief", "bump", "bump" }, new double[] {
+            // 1.5, 11.5 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Shoot Delay")) {
-            // return centerTwiceBumpAutoWithShootDelay(3);
-            return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 3, 13 });
+            return centerTwiceBumpAutoWithShootDelay(3);
+            // return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 3,
+            // 13 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Long Shoot Delay")) {
-            // return centerTwiceBumpAutoWithShootDelay(4);
-            return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] { 4.5, 14.5 });
+            return centerTwiceBumpAutoWithShootDelay(4);
+            // return customAuto(new String[] { "shoot", "bump", "bump" }, new double[] {
+            // 4.5, 14.5 });
         } else if (m_chooser.getSelected().equals("Center Twice Bump Auto with Outpost or Depot Delay")) {
-            // return centerTwiceBumpAuto();
-            return customAuto(new String[] { "outpost or depot", "bump", "bump" }, new double[] { 6, 16 });
+            return centerTwiceBumpAuto();
+            // return customAuto(new String[] { "outpost or depot", "bump", "bump" }, new
+            // double[] { 6, 16 });
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot or Outpost Auto")) {
-            // return centerOnceBumpDepotOrOutpostAuto();
-            return customAuto(new String[] { "", "bump", "outpost or depot" }, new double[] { 0, 12 });
+            return centerOnceBumpDepotOrOutpostAuto();
+            // return customAuto(new String[] { "", "bump", "outpost or depot" }, new
+            // double[] { 0, 12 });
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot and Outpost Auto")) {
             return centerOnceBumpDepotAndOutpostAuto();
         } else if (m_chooser.getSelected().equals("Custom")) {
+           
             return customAuto(
-                    NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[]{"Default"}),
-                    NTHelper.getDoubleArray("/SmartDashboard/setSomeNumberArray", new double[]{0.0}));
+                    NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" }),
+                    NTHelper.getDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 }));
         } else if (m_chooser.getSelected().equals("Center Once Bump Collect Auto")) {
             return customAuto(new String[] { "", "bump", "collect" }, new double[] { 0, 12 });
         } else if (m_chooser.getSelected().equals("Mechanical Advantage Delay")) {
@@ -1033,9 +1067,76 @@ public class AutoCommands {
             return customAuto(new String[] { "outpost or depot", "trench", "collect" }, new double[] { 5, 14 });
         } else if (m_chooser.getSelected().equals("Test")) {
             return customAuto(new String[] { "none", "trench", "bump" }, new double[] { 0, 14 });
-        }else{
+        } else {
             return Commands.none();
         }
+    }
+
+    public void addAllDoubleArray(ArrayList<Double> list, double[] array) {
+        for (double num : array) {
+            list.add(num);
+        }
+    }
+
+    public double[] getCombinedPath(String[] steps) {
+        ArrayList<Double> poses = new ArrayList<>();
+        double[] startIndexes = new double[3];
+        if (steps.length != 3) {
+            return new double[0];
+        }
+        startIndexes[0] = 0;
+        if (steps[0].equals("outpost or depot")) {
+            if (isOutpostSide()) {
+                addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToOutpostPath));
+            } else {
+                addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToDepotPath));
+            }            
+            poses.add(shootInFrontOfHubPose.getX());
+            poses.add(shootInFrontOfHubPose.getY());
+            poses.add(shootInFrontOfHubPose.getRotation().getDegrees());
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(shootToTrenchPath));
+        }
+        startIndexes[1] = poses.size();
+        if (steps[1].equals("trench")) {
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToCenterPath));
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(centerToLeftoversPath));
+        } else if (steps[1].equals("bump")) {
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToCenterPath));
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(centerToBumpPath));
+        }
+        startIndexes[2] = poses.size();
+        if (steps[2].equals("trench")) {
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToLeftoversPath));
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(leftoversToTrenchPath));
+        } else if (steps[2].equals("bump")) {
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToLeftoversPath));
+        } else if (steps[2].equals("outpost or depot")) {
+            if (isOutpostSide()) {
+                addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToOutpostPath));
+            } else {
+                addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToDepotPath));
+            }
+            poses.add(shootInFrontOfHubPose.getX());
+            poses.add(shootInFrontOfHubPose.getY());
+            poses.add(shootInFrontOfHubPose.getRotation().getDegrees());
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(shootToTrenchPath));
+        } else if (steps[2].equals("shoot")) {
+            poses.add(shootInFrontOfHubPose.getX());
+            poses.add(shootInFrontOfHubPose.getY());
+            poses.add(shootInFrontOfHubPose.getRotation().getDegrees());
+        } else if (steps[2].equals("collect")) {
+            addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(trenchToCollectPath));
+        }
+        NTHelper.setDoubleArray("/SmartDashboard/startIndexes", startIndexes);
+        double[] posesArray = new double[poses.size()];
+        for (int j = 0; j < poses.size(); j++) {
+            posesArray[j] = poses.get(j);
+        }
+        return posesArray;
+    }
+
+    public boolean isOutpostSide() {
+        return NTHelper.getString("OutpostOrDepotSide", "outpost").equals("oupost");
     }
 
     private Pose2d flipPoseBasedOnRobotPose(Pose2d unflippedPose2d) {

@@ -53,6 +53,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+    m_robotContainer.robotHealth.update();
   }
 
   @Override
@@ -72,6 +73,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     if (m_autonomousCommand != null) {
+      m_robotContainer.auto.timer.reset();
       m_robotContainer.auto.timer.start();
       m_autonomousCommand.schedule();
     }

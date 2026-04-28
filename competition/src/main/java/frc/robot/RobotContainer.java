@@ -119,7 +119,8 @@ public class RobotContainer {
 
         @Logged
         private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
-        private final RobotHealth robotHealth = new RobotHealth(this);
+        
+        public final RobotHealth robotHealth = new RobotHealth(this);
 
 
         @SuppressWarnings("unused")
@@ -219,12 +220,14 @@ public class RobotContainer {
                 drivetrain.registerTelemetry(logger::telemeterize);
 
                 RobotModeTriggers.disabled().onTrue(disableEverything());
+
+                // RobotModeTriggers.autonomous().onTrue(hood.hoodDownandReset());
+                RobotModeTriggers.teleop().onTrue(hood.hoodDownandReset());
         }
 
         private void configureDriveControllerBindings() {
                 // reset the field-centric heading on left bumper press
                 driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
                 // Intake commands
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
                 driverController.button(10).whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake()))

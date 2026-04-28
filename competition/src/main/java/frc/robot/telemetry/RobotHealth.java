@@ -2,7 +2,6 @@ package frc.robot.telemetry;
 
 import java.util.*;
 
-import edu.wpi.first.wpilibj.Notifier;
 import frc.robot.NTHelper;
 import frc.robot.RobotContainer;
 
@@ -22,10 +21,6 @@ public class RobotHealth {
     //     }
     // }
 
-   
-
-
-    private Notifier notifier = new Notifier(this::update);
 
     public RobotHealth(RobotContainer robot) {
         this.robot = robot;
@@ -39,21 +34,9 @@ public class RobotHealth {
         motorLogs.put("hood", new HashMap<String, Boolean>());
         motorLogs.put("arm", new HashMap<String, Boolean>());
         motorLogs.put("intake", new HashMap<String, Boolean>());
-        
-        notifier.startPeriodic(.02);
-        //HashMap<String, Boolean> hashMap = new HashMap<>();
-        // (Map.of(
-        //     "twindexer", new HashMap<String, Boolean>(),
-        //     "feederRight", new HashMap<String,Boolean>(),
-        //     "feederLeft", new HashMap<String,Boolean>()
-        // ));
     }
 
-     private static void addDefinition(Map<String, List<String>> dict, String word, String definition) {
-        dict.computeIfAbsent(word, k -> new ArrayList<>()).add(definition);
-    }
-
-    private void update() {
+    public void update() {
         
         //isCameraConnected = vision.isCameraConnected();
         motorLogs.get("twindexer").put("isConnected", isConnected(robot.twindexer.getSparkFlex().getBusVoltage()));

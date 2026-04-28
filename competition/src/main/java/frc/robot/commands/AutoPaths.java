@@ -1,6 +1,15 @@
 package frc.robot.commands;
 
+import java.util.ArrayList;
+
+import javax.lang.model.element.Element;
+
+import frc.robot.NTHelper;
+import frc.robot.generated.PoseTransformUtils;
 import frc.robot.lib.BLine.Path;
+import frc.robot.lib.BLine.Path.TranslationTarget;
+import frc.robot.lib.BLine.Path.Waypoint;
+import frc.robot.subsystems.FloppingUtil;
 
 public class AutoPaths {
     private static final Path trenchToCenterPath = new Path("Trench-to-Center");
@@ -17,8 +26,7 @@ public class AutoPaths {
     private static final Path depotToDepotPath = new Path("Depot-to-Outpost");
     private static final Path shootToTrenchPath = new Path("Shoot-to-Trench");
     private static final Path trenchToCollectPath = new Path("Trench-to-Collect");
-    
-    
+
     public static Path getTrenchToCenterPath() {
         return trenchToCenterPath.copy();
     }
@@ -73,5 +81,31 @@ public class AutoPaths {
 
     public static Path getTrenchToCollectPath() {
         return trenchToCollectPath.copy();
+    }
+
+    public static double[] getDoubleArrayFromPath(Path path) {
+        // if (PoseTransformUtils.isRedAlliance()) {
+        //     path.flip();
+        // }
+        // if (!NTHelper.getString("OutpostOrDepotSide", "outpost").equals("oupost")) {
+        //     FloppingUtil.flopPath(path);
+        // }
+        ArrayList<Double> poses = new ArrayList<Double>();
+        for (int i = 0; i < path.getPathElements().size(); i++) {
+            if (path.getPathElements().get(i).getClass() == Waypoint.class) {
+                poses.add(((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getX());
+                poses.add(((Waypoint) path.getPathElements().get(i)).translationTarget().translation().getY());
+                poses.add(((Waypoint) path.getPathElements().get(i)).rotationTarget().rotation().getDegrees());
+            } else if (path.getPathElements().get(i).getClass() == TranslationTarget.class) {
+                poses.add(((TranslationTarget) path.getPathElements().get(i)).translation().getX());
+                poses.add(((TranslationTarget) path.getPathElements().get(i)).translation().getY());
+                poses.add(0.0);
+            }
+        }
+        double[] posesArray = new double[poses.size()];
+        for (int j = 0; j < poses.size(); j++) {
+            posesArray[j] = poses.get(j);
+        }
+        return posesArray;
     }
 }

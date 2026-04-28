@@ -10,6 +10,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
 import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -121,8 +122,15 @@ public class ShooterCommands extends SubsystemBase {
 
   public Command lookAtPose(Supplier<Pose2d> targetPoseSupplier) {
     return robot.drivetrain.applyRequest(() -> {
-      double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
+
+       double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
       double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
+
+      x = MathUtil.applyDeadband(x, .25*MaxSpeed);
+      y = MathUtil.applyDeadband(y, .25*MaxSpeed);
+
+      // double x = driverController.axisMagnitudeGreaterThan(0, .25).getAsBoolean()?xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed):0;
+      // double y = driverController.axisMagnitudeGreaterThan(2, .25).getAsBoolean()?ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed):0;
       Rotation2d targetHeading = getLookAngle(targetPoseSupplier.get()).plus(Rotation2d.k180deg);
 
       return driveFacing

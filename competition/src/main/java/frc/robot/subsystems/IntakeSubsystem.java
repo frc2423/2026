@@ -28,12 +28,12 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public IntakeSubsystem() {
         motorConfig.inverted(true);
-        motorConfig.smartCurrentLimit(60, 60);
+        motorConfig.smartCurrentLimit(80, 60);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.openLoopRampRate(.1);
 
         motorConfig2.inverted(false);
-        motorConfig2.smartCurrentLimit(60, 60);
+        motorConfig2.smartCurrentLimit(80, 60);
         motorConfig2.idleMode(IdleMode.kCoast);
         motorConfig2.openLoopRampRate(.1);
 
