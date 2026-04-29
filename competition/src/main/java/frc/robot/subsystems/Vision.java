@@ -26,9 +26,12 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.NTHelper;
 import frc.robot.Robot;
+import yams.mechanisms.swerve.SwerveDrive;
 import frc.robot.QuackNav;
 
 import java.awt.Desktop;
+import java.io.Console;
+import java.lang.annotation.Target;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -146,6 +149,27 @@ public class Vision {
    * @param swerveDrive
    *                    {@link SwerveDrive} instance.
    */
+
+  private double getTargetYaw() {
+    Cameras camera = Cameras.FRONT_LEFT_CAM;
+  
+    var result = camera.resultsList.get(camera.resultsList.size() - 1);
+    if(result.hasTargets()) {
+      var target = result.getTargets().get(0);
+  
+      return target.getYaw();
+    }
+    
+    return 0;
+  }
+
+  public double getRelativeBinYaw(double offset) {
+    double yaw = getTargetYaw();
+
+    return yaw - offset;
+
+  }
+
   public void updatePoseEstimation(CommandSwerveDrivetrain swerveDrive, QuackNav quackNav) {
     if (Robot.isSimulation()) {
       /*
@@ -164,6 +188,7 @@ public class Vision {
       return;
     }
     for (Cameras camera : Cameras.values()) {
+      // PhotonUtils.calculateDistanceToTargetMeters()
       Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
       if (poseEst.isPresent()) {
         var pose = poseEst.get();
