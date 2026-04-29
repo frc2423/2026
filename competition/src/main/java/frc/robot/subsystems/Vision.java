@@ -152,19 +152,37 @@ public class Vision {
 
   private double getTargetYaw() {
     Cameras camera = Cameras.FRONT_LEFT_CAM;
-  
-    var result = camera.resultsList.get(camera.resultsList.size() - 1);
-    if(result.hasTargets()) {
-      var target = result.getTargets().get(0);
+
+    // var bestResult = camera.getBestResult();
+
+    var latestResult = camera.getLatestResult2();
+
+    NTHelper.setBoolean("/coolyaw/hasBestResult", latestResult.hasTargets());
+
+    if(latestResult.hasTargets()) {
+    // var result = camera.resultsList.get(camera.resultsList.size() - 1);
+    NTHelper.setBoolean("/coolyaw/SeeAprilTag", latestResult.hasTargets());
+    if(latestResult.hasTargets()) {
+      var target = latestResult.getTargets().get(0);
   
       return target.getYaw();
     }
+  }
     
     return 0;
   }
 
   public double getRelativeBinYaw(double offset) {
     double yaw = getTargetYaw();
+
+    NTHelper.setDouble("/coolyaw/TargetYaw", yaw);
+    
+    if(yaw == 0) {
+      return yaw;
+    }
+    
+    NTHelper.setDouble("/coolyaw/RelativeBinYaw", yaw - offset);
+
 
     return yaw - offset;
 
@@ -588,6 +606,7 @@ public class Vision {
 
       camera = new PhotonCamera(name);
 
+
       // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
       robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
 
@@ -616,6 +635,10 @@ public class Vision {
         cameraSim = new PhotonCameraSim(camera, cameraProp);
         cameraSim.enableDrawWireframe(true);
       }
+    }
+
+    public PhotonPipelineResult getLatestResult2() {
+      return camera.getLatestResult();
     }
 
     public boolean isConnected() {
