@@ -28,6 +28,7 @@ import frc.robot.generated.PoseTransformUtils;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.subsystems.DAS;
+import frc.robot.subsystems.Vision;
 
 public class ShooterCommands extends SubsystemBase {
 
@@ -36,6 +37,8 @@ public class ShooterCommands extends SubsystemBase {
   public static final DAS das = new DAS();
   private final SwerveRequest.FieldCentricFacingAngle driveFacing = new SwerveRequest.FieldCentricFacingAngle()
       .withHeadingPID(3, 0, 0);
+
+  private final SwerveRequest.RobotCentric drive = new SwerveRequest.RobotCentric();
   private final CommandXboxController driverController = new CommandXboxController(0);
   private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
 
@@ -111,6 +114,14 @@ public class ShooterCommands extends SubsystemBase {
     }).until(() -> isFacingAngle(targetHeading));
   }
 
+  public Command lookAtAprilTag() {
+    return robot.drivetrain.applyRequest(() -> {
+      double yaw = robot.vision.getRelativeBinYaw(180);
+      return drive
+        .withRotationalRate(yaw);
+    });
+  }
+
   public Command lookAtPose() {
     return lookAtPose(() -> getHubPose());
   }
@@ -165,7 +176,7 @@ public class ShooterCommands extends SubsystemBase {
   }
 
   public Command prepareToShoot() {
-    Command command = Commands.parallel(lookAtPose(), revSpeedFromDAS());
+    Command command = Commands.parallel(lookAtAprilTag(), revSpeedFromDAS());
     return command;
   }
 
@@ -237,7 +248,7 @@ public class ShooterCommands extends SubsystemBase {
     return robot.hood.setAngle(() -> {
       double distance = this.getDistanceToHub(); // not real
       DAS.MotorSettings as = das.calculateAS(distance);
-      return Degrees.of(as.angle);
+      return Degrees.of(20.0);
     });
   }
 
@@ -245,12 +256,12 @@ public class ShooterCommands extends SubsystemBase {
     Command left = robot.shooterLeft.spinWithSetpoint(() -> {
       double distance = this.getDistanceToHub(); // not real
       DAS.MotorSettings as = das.calculateAS(distance);
-      return as.velocity;
+      return 2500.0;
     });
     Command right = robot.shooterRight.spinWithSetpoint(() -> {
       double distance = this.getDistanceToHub(); // not real
       DAS.MotorSettings as = das.calculateAS(distance);
-      return as.velocity;
+      return 2500.0;
     });
 
     return Commands.parallel(
