@@ -200,10 +200,10 @@ public class RobotContainer {
                                                                                 targetHeading.plus(Rotation2d.k180deg));
                                         }
 
-                                        return drive.withVelocityX(-x)
-                                                        .withVelocityY(-y)
+                                        return drive.withVelocityX(-x * .5)
+                                                        .withVelocityY(-y * .5)
                                                         .withRotationalRate(
-                                                                        -driverController.getRightX() * MaxAngularRate);
+                                                                        -driverController.getRightX() * MaxAngularRate * .5);
                                 }));
 
                 // Idle while the robot is disabled. This ensures the configured

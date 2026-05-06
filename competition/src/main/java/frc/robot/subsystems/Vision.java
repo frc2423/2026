@@ -157,16 +157,15 @@ public class Vision {
 
     var latestResult = camera.getLatestResult2();
 
-    NTHelper.setBoolean("/coolyaw/hasBestResult", latestResult.hasTargets());
 
-    if(latestResult.hasTargets()) {
-    // var result = camera.resultsList.get(camera.resultsList.size() - 1);
     NTHelper.setBoolean("/coolyaw/SeeAprilTag", latestResult.hasTargets());
     if(latestResult.hasTargets()) {
+      // var result = camera.resultsList.get(camera.resultsList.size() - 1);
       var target = latestResult.getTargets().get(0);
-  
-      return target.getYaw();
-    }
+      
+      NTHelper.setDouble("/coolyaw/yaw", target.getYaw());
+      return target.getYaw() - 10;
+    
   }
     
     return 0;
@@ -184,7 +183,7 @@ public class Vision {
     NTHelper.setDouble("/coolyaw/RelativeBinYaw", yaw - offset);
 
 
-    return yaw - offset;
+    return yaw;
 
   }
 
@@ -230,8 +229,8 @@ public class Vision {
 
           // Convert FPGA timestamp to CTRE's time domain using Phoenix 6 utility
           double ctreTimestamp = Utils.fpgaToCurrentTime(timestamp);
-          swerveDrive.addVisionMeasurement(quackNav.getPose(), ctreTimestamp,
-              QUESTNAV_STD_DEVS);
+          // swerveDrive.addVisionMeasurement(quackNav.getPose(), ctreTimestamp,
+          //     QUESTNAV_STD_DEVS);
         }
 
         quackNav.updateQuestPose(swerveDrive.getState().Pose, camera.curStdDevs);

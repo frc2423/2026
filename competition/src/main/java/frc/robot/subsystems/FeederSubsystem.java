@@ -36,7 +36,7 @@ public class FeederSubsystem extends SubsystemBase {
 
     public Command spin() {
         return runOnce(() -> {
-            motorPercent = 1;
+            motorPercent = .5;
         }).withName("spinFeeder");
     }
 

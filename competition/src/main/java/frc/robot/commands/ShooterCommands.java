@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.NTHelper;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.generated.FieldConstants;
@@ -117,6 +118,13 @@ public class ShooterCommands extends SubsystemBase {
   public Command lookAtAprilTag() {
     return robot.drivetrain.applyRequest(() -> {
       double yaw = robot.vision.getRelativeBinYaw(180);
+      yaw = -yaw * .1;
+      yaw = MathUtil.clamp(yaw, -.7, .7);
+      
+      NTHelper.setDouble("/coolyaw/scaledYaw", yaw);
+      if (Math.abs(yaw) < .3) {
+        yaw = 0;
+      }
       return drive
         .withRotationalRate(yaw);
     });
@@ -248,7 +256,7 @@ public class ShooterCommands extends SubsystemBase {
     return robot.hood.setAngle(() -> {
       double distance = this.getDistanceToHub(); // not real
       DAS.MotorSettings as = das.calculateAS(distance);
-      return Degrees.of(20.0);
+      return Degrees.of(25.0);
     });
   }
 
