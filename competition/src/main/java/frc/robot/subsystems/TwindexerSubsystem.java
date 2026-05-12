@@ -77,6 +77,11 @@ public class TwindexerSubsystem extends SubsystemBase {
     }
 
     @Logged
+    public double getInputCurrent() {
+        return Math.abs(motor.getOutputCurrent() * motor.getAppliedOutput());
+    }
+
+    @Logged
     public double getSpeed() {
         return motor.get();
     }

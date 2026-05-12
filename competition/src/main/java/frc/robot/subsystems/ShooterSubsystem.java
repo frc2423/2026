@@ -107,6 +107,10 @@ public class ShooterSubsystem extends SubsystemBase {
     public SparkFlex getSparkFlex(){
         return this.motor;
     }
+
+    public double getInputCurrent() {
+        return Math.abs(motor.getOutputCurrent() * motor.getAppliedOutput());
+    }
     
     @Logged
     public double getFeedforward() {

@@ -71,6 +71,8 @@ public class RobotHealth {
         motorLogs.get("feederLeft").put("isStalled", robot.feederLeft.isStalled()==true);
         motorLogs.get("feederRight").put("isStalled", robot.feederRight.isStalled()==true);
         motorLogs.get("twindexer").put("isStalled", robot.twindexer.isJammed()==true);
+                        
+        
 
         log();
     }
@@ -84,6 +86,13 @@ public class RobotHealth {
                 NTHelper.setBoolean(key,value.getValue()); 
             }
         }
+
+        NTHelper.setDouble("Twindexer Current", robot.twindexer.getInputCurrent());
+        NTHelper.setDouble("Feeder Right Current", robot.feederRight.getInputCurrent());
+        NTHelper.setDouble("Feeder Left Current", robot.feederLeft.getInputCurrent());
+        NTHelper.setDouble("Intake Current", robot.intake.getInputCurrent());
+        NTHelper.setDouble("Shooter Right Current", robot.shooterRight.getInputCurrent());
+        NTHelper.setDouble("Shooter Left Current", robot.shooterLeft.getInputCurrent());
 
         // double voltage = robot.feederRight.getSparkFlex().getBusVoltage();
 
@@ -103,5 +112,3 @@ public class RobotHealth {
     }
 
 }
-
-

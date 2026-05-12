@@ -99,6 +99,10 @@ public class IntakeSubsystem extends SubsystemBase {
         return motor.getOutputCurrent();
     }
 
+    public double getInputCurrent() {
+        return Math.abs(motor.getOutputCurrent() * motor.getAppliedOutput());
+    }
+
     public double getSampledCurrentInAmps() {
         return currentFilter.calculate(getCurrentInAmps());
     }
