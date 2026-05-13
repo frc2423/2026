@@ -49,12 +49,35 @@ import frc.robot.telemetry.SubsystemMechanism2d;
 import frc.robot.telemetry.Telemetry;
 import frc.robot.telemetry.DashboardTelemetry;
 import frc.robot.telemetry.RobotHealth;
+import com.ctre.phoenix6.Orchestra;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 public class RobotContainer {
+        
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                       // speed
         private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
                                                                                           // second
+        private Orchestra mOrchestra = new Orchestra();
+
+        private TalonFX motor = new TalonFX(1);
+
+        public void playMusic() {
+                mOrchestra.addInstrument(motor);
+                var status = mOrchestra.loadMusic("weezer.chrp");
+
+                if(status.isOK()) {
+                        System.out.println("PLAYING MUSIC ******* MUSIC MUSIC MUSIC FCFGAbFGC#C");
+                        mOrchestra.play();
+                        
+                } else {
+                        System.err.println("Failed to orcehstra YOUR A FAILURE YOU BUM YOU PIECE OF FECULENT CRAPPPPPPPPPPPPPPPPPPPPPP, bc its crap");
+                }
+        }
+
+
+
+        // var song = mOrchestra.loadMusic(null)
                                                                                           // max angular velocity
 
         /* Setting up bindings for necessary control of the swerve drive platform */
@@ -129,6 +152,7 @@ public class RobotContainer {
         private final PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
         public RobotContainer() {
+
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
                 SmartDashboard.putData("subsystems/feederRight", feederRight);
