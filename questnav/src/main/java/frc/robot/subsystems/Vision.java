@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.NTHelper;
 import frc.robot.Robot;
-import frc.robot.QuackNav;
 
 import java.awt.Desktop;
 import java.util.ArrayList;
@@ -146,7 +145,7 @@ public class Vision {
    * @param swerveDrive
    *                    {@link SwerveDrive} instance.
    */
-  public void updatePoseEstimation(CommandSwerveDrivetrain swerveDrive, QuackNav quackNav) {
+  public void updatePoseEstimation(CommandSwerveDrivetrain swerveDrive) {
     if (Robot.isSimulation()) {
       /*
        * In the maple-sim, odometry is simulated using encoder values, accounting for
@@ -172,27 +171,10 @@ public class Vision {
         NTHelper.setDouble("/swerveSubsystem/vision/poseX",
             pose.estimatedPose.getRotation().toRotation2d().getDegrees());
 
-        if (!quackNav.isQuestMode()) {
-          swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
-              pose.timestampSeconds,
-              camera.curStdDevs);
-        } else {
-          Matrix<N3, N1> QUESTNAV_STD_DEVS = VecBuilder.fill(
-              0.02, // Trust down to 2cm in X direction
-              0.02, // Trust down to 2cm in Y direction
-              0.035 // Trust down to 2 degrees rotational
-          );
-          // Get timestamp from the QuestNav instance
-          double timestamp = quackNav.getTimestamp();
-
-          // Convert FPGA timestamp to CTRE's time domain using Phoenix 6 utility
-          double ctreTimestamp = Utils.fpgaToCurrentTime(timestamp);
-          swerveDrive.addVisionMeasurement(quackNav.getPose(), ctreTimestamp,
-              QUESTNAV_STD_DEVS);
-        }
-
-        quackNav.updateQuestPose(swerveDrive.getState().Pose, camera.curStdDevs);
-
+        swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
+            pose.timestampSeconds,
+            camera.curStdDevs);
+      
         var stdDev = camera.curStdDevs;
         NTHelper.setDouble("/swerveSubsystem/vision/stdDevX", stdDev.get(0, 0));
         NTHelper.setDouble("/swerveSubsystem/vision/stdDevY", stdDev.get(1, 0));

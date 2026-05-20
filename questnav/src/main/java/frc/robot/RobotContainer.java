@@ -26,28 +26,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import frc.robot.commands.AutoCommands;
-import frc.robot.commands.IntakeCommands;
-import frc.robot.commands.PassingCommands;
-import frc.robot.commands.ShooterCommands;
 import frc.robot.generated.TunerConstants;
 import frc.robot.generated.PoseTransformUtils;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.DriveShortestPath;
-import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.TwindexerSubsystem;
+
 import frc.robot.subsystems.Vision;
-import frc.robot.subsystems.LEDS.KwarqsLed;
-import frc.robot.subsystems.HoodSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.utils.ShootOnMove;
-import frc.robot.telemetry.SubsystemMechanism2d;
 import frc.robot.telemetry.Telemetry;
-import frc.robot.telemetry.DashboardTelemetry;
-import frc.robot.telemetry.RobotHealth;
+
 
 public class RobotContainer {
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
@@ -69,10 +54,6 @@ public class RobotContainer {
         public final CommandXboxController driverController = new CommandXboxController(0);
         public final CommandXboxController operatorController = new CommandXboxController(1);
         public final CommandXboxController shooterTuningController = new CommandXboxController(2);
-        public final IntakeSubsystem intake = new IntakeSubsystem();
-
-        @Logged
-        public final ArmSubsystem arm = new ArmSubsystem();
 
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -82,58 +63,14 @@ public class RobotContainer {
 
         private Supplier<Pose2d> currentPose;
 
-        @Logged
-        public final ShooterSubsystem shooterLeft = new ShooterSubsystem(35, true);
-        @Logged
-        public final ShooterSubsystem shooterRight = new ShooterSubsystem(37, false);
-        @Logged
-        public final FeederSubsystem feederLeft = new FeederSubsystem(34, false);
-        @Logged
-        public final FeederSubsystem feederRight = new FeederSubsystem(36, true);
-        @Logged
-        public final TwindexerSubsystem twindexer = new TwindexerSubsystem();
         // @Logged
         public final Vision vision = new Vision(currentPose);
 
-        @Logged
-        public final HoodSubsystem hood = new HoodSubsystem(this);
-
-        public final BLine bline = new BLine(drivetrain);
-
-        @Logged
-        public KwarqsLed kwarqsLed = new KwarqsLed();
-
-        @Logged
-        public final ShooterCommands shooterCommands = new ShooterCommands(this);
-
-        public final PassingCommands passingCommands = new PassingCommands(this);
-        public final IntakeCommands intakeCommands = new IntakeCommands(this);
-        public final ShootOnMove shootOnMove = new ShootOnMove(drivetrain);
-        public final DriveShortestPath driveShortestPath = new DriveShortestPath(drivetrain, bline);
-        public final AutoCommands auto = new AutoCommands(this);
-
         private final Telemetry logger = new Telemetry(MaxSpeed);
-
-        @Logged
-        private final DashboardTelemetry dashboardlogger = new DashboardTelemetry();
-        // @Logged
-        private final RobotHealth robotHealth = new RobotHealth(vision,drivetrain,twindexer,intake,shooterRight,hood,arm,feederRight); //If one feeder / shooter isn't working the other one likely isn't
-
-
-        @SuppressWarnings("unused")
-        private final SubsystemMechanism2d subsystemMechanism2d = new SubsystemMechanism2d(this);
 
         private final PowerDistribution pdh = new PowerDistribution();
 
         public RobotContainer() {
-                SmartDashboard.putData("subsystems/arm", arm);
-                SmartDashboard.putData("subsystems/feederLeft", feederLeft);
-                SmartDashboard.putData("subsystems/feederRight", feederRight);
-                SmartDashboard.putData("subsystems/intake", intake);
-                SmartDashboard.putData("subsystems/shooterLeft", shooterLeft);
-                SmartDashboard.putData("subsystems/shooterRight", shooterRight);
-                SmartDashboard.putData("subsystems/twindexer", twindexer);
-                SmartDashboard.putData("subsystems/hood", hood);
                 SmartDashboard.putData("pdh", pdh);
 
                 configureBindings();
@@ -143,27 +80,6 @@ public class RobotContainer {
 
         }
 
-        private void configureLeds() {
-                kwarqsLed.setDefaultCommand(kwarqsLed.setLeds(() -> {
-                        if (!drivetrain.isCameraConnected()) {
-                                return "GreenCycle";
-                        }
-                        if (twindexer.isJammed()) {
-                                return "yellow"; // make a yellow cycle
-                        }
-                        if (intake.isJammed()) {
-                                return "orange"; // make an orange cycle
-                        }
-                        if (drivetrain.isSeeingAprilTag()) {
-                                return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
-                        }
-                        if (RobotState.isAutonomous()) {
-                                return "YellowAndGreenCycle";
-                        }
-                        return "dark";
-                }));
-        }
-
         private void configureBindings() {
                 // Note that X is defined as forward according to WPILib convention,
                 // and Y is defined as to the left according to WPILib convention.
@@ -171,7 +87,6 @@ public class RobotContainer {
                                 // Drivetrain will execute this command periodically
                                 drivetrain.applyRequest(() -> {
 
-                                        shooterCommands.isFacingHub();
                                         double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
                                         double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
 
@@ -211,55 +126,13 @@ public class RobotContainer {
 
                 configureDriveControllerBindings();
                 configureOperatorControllerBindings();
-                configureShooterTuningControllerBindings();
-                configureLeds();
 
                 drivetrain.registerTelemetry(logger::telemeterize);
-
-                RobotModeTriggers.disabled().onTrue(disableEverything());
         }
 
         private void configureDriveControllerBindings() {
                 // reset the field-centric heading on left bumper press
                 driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
-
-                // Intake commands
-                driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
-                driverController.button(10).whileTrue(intakeCommands.armDown().andThen(intake.intake()))
-                                .onFalse(intake.stop());
-                driverController.b().onTrue(arm.armUp());
-                driverController.a().onTrue(intakeCommands.armDown());
-                // driverController.x().onTrue(hood.set(.1)).onFalse(hood.set(0));
-                // driverController.y().onTrue(hood.set(-.1)).onFalse(hood.set(0));
-
-                driverController.rightTrigger(0.25).whileTrue(shooterCommands.prepareToShoot())
-                                .onFalse(shooterCommands.stopShooting());
-
-                // Use passing feed command when left trigger is pressed, and shooter feed
-                // command otherwise
-                Command shooterFeedCommand = shooterCommands.feed();
-                Command passingFeedCommand = passingCommands
-                                .feedForPassing();
-                Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
-                                () -> driverController.leftTrigger().getAsBoolean());
-
-                // Feed when right bumper is pressed
-                driverController.rightBumper()
-                                .whileTrue(feedCommand)
-                                .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
-                // Trench pass when left bumper is pressed
-                driverController.leftBumper().whileTrue(passingCommands.trenchPass()).onFalse(intake.stop());
-                // Aim to pass on left trigger
-                driverController.leftTrigger().whileTrue(passingCommands.aimToPass())
-                                .onFalse(shooterCommands.stopShooting());
-
-                driverController.povUp().onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Auto")));
-                driverController.povLeft()
-                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Left Bump")));
-                driverController.povRight()
-                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Right Bump")));
-                driverController.povDown()
-                                .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Tower")));
 
         }
 
@@ -277,48 +150,9 @@ public class RobotContainer {
                 // NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
                 // .onFalse(shooterCommands.stopShooting());
 
-                operatorController.leftBumper().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
-                operatorController.rightBumper().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
-
-                operatorController.a().onTrue(hood.hoodDownandReset());
-
-                
-
                 operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain
                                 .resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance() ? 180 : 0))));
                 operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
-
-                operatorController.povUp()
-                                .onTrue(ShooterCommands.das.increaseVelocityOffset());
-                operatorController.povDown()
-                                .onTrue(ShooterCommands.das.decreaseVelocityOffset());
-        }
-
-        private void configureShooterTuningControllerBindings() {
-                shooterTuningController.leftBumper().whileTrue(Commands.waitSeconds(.5).andThen(shooterCommands.feedOnly()))
-                                .onFalse(shooterCommands.stopFeeding());
-
-                shooterTuningController.rightBumper()
-                                .whileTrue(shooterCommands.rev(() -> NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
-                                .onFalse(shooterCommands.stopShooting());
-        }
-
-
-        public Command getAutonomousCommand() {
-                return auto.getAuto();
-        }
-
-        public Command disableEverything() {
-                Command command = Commands.parallel(
-                                arm.set(0),
-                                feederLeft.stop(),
-                                feederRight.stop(),
-                                hood.set(0),
-                                intake.stop(),
-                                shooterLeft.stop(),
-                                shooterRight.stop(),
-                                twindexer.stop()).ignoringDisable(true);
-                return command;
         }
 
 }

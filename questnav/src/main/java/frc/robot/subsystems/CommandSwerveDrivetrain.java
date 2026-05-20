@@ -28,7 +28,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.NTHelper;
-import frc.robot.QuackNav;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.simulation.MapleSimSwerveDrivetrain;
 import frc.robot.generated.*;
@@ -52,7 +51,6 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
     private final SwerveRequest.SysIdSwerveTranslation m_translationCharacterization = new SwerveRequest.SysIdSwerveTranslation();
 
     private final Vision vision = new Vision(() -> getState().Pose);
-    private QuackNav questNav = new QuackNav();
 
     ProfiledPIDController thetaController = new ProfiledPIDController(3, 0, 0,
             new TrapezoidProfile.Constraints(6.28, 12));
@@ -239,7 +237,7 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
             });
         }
 
-        vision.updatePoseEstimation(this, questNav);
+        vision.updatePoseEstimation(this);
         vision.logCameras();
     }
 
