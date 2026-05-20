@@ -60,18 +60,26 @@ public class RobotContainer {
                                                                                           // second
         private Orchestra mOrchestra = new Orchestra();
 
-        private TalonFX motor = new TalonFX(1);
+        // private TalonFX motor = new TalonFX(1);
 
-        public void playMusic() {
+        public void setupMusic() {
+                TalonFX motor = drivetrain.getModule(0).getDriveMotor();
                 mOrchestra.addInstrument(motor);
                 var status = mOrchestra.loadMusic("weezer.chrp");
-
+                
                 if(status.isOK()) {
-                        System.out.println("PLAYING MUSIC ******* MUSIC MUSIC MUSIC FCFGAbFGC#C");
-                        mOrchestra.play();
-                        
+                        Command startMusic = Commands.runOnce(() -> {
+                                mOrchestra.stop();
+                                var statusPlay = mOrchestra.play();
+                                if(statusPlay.isOK()) {
+                                        System.out.println("******* PLAYING MUSIC ******* MUSIC MUSIC MUSIC FCFGAbFGC#C");
+                                } else {
+                                        System.err.println("Failed to orcehstra PLAY! you failure of playingness, bc its crap ur a bum ur a bum ur a bum ur a bum");
+                                }
+                        }).ignoringDisable(true);
+                        SmartDashboard.putData("Weezer", startMusic);
                 } else {
-                        System.err.println("Failed to orcehstra YOUR A FAILURE YOU BUM YOU PIECE OF FECULENT CRAPPPPPPPPPPPPPPPPPPPPPP, bc its crap");
+                        System.err.println("Failed to load orcehstra!!! errror load error load YOUR A FAILURE YOU BUM YOU PIECE OF FECULENT CRAPPPPPPPPPPPPPPPPPPPPPP, bc its crap");
                 }
         }
 
