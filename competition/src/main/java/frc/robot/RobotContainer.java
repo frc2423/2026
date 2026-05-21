@@ -63,24 +63,42 @@ public class RobotContainer {
         // private TalonFX motor = new TalonFX(1);
 
         public void setupMusic() {
-                TalonFX motor = drivetrain.getModule(0).getDriveMotor();
-                mOrchestra.addInstrument(motor);
-                var status = mOrchestra.loadMusic("weezer.chrp");
                 
-                if(status.isOK()) {
-                        Command startMusic = Commands.runOnce(() -> {
-                                mOrchestra.stop();
+                
+                for(int i = 0; i < 4; i++) {
+                        TalonFX motor = drivetrain.getModule(i).getDriveMotor();
+                        mOrchestra.addInstrument(motor);
+                }
+                Command startMusic = Commands.runOnce(() -> {
+                        mOrchestra.stop();
+
+                        String fileName = NTHelper.getString("/music/File_Name", "defualted_to_none");
+                        
+                        var statusLoad = mOrchestra.loadMusic(fileName);
+
+                        if(statusLoad.isOK()) {
+                                System.out.println("******* LOADED MUSIC *******");
+
                                 var statusPlay = mOrchestra.play();
+
                                 if(statusPlay.isOK()) {
                                         System.out.println("******* PLAYING MUSIC ******* MUSIC MUSIC MUSIC FCFGAbFGC#C");
                                 } else {
-                                        System.err.println("Failed to orcehstra PLAY! you failure of playingness, bc its crap ur a bum ur a bum ur a bum ur a bum");
+                                        System.err.println("******* FAILED TO PLAY MUSIC *******");
                                 }
-                        }).ignoringDisable(true);
-                        SmartDashboard.putData("Weezer", startMusic);
-                } else {
-                        System.err.println("Failed to load orcehstra!!! errror load error load YOUR A FAILURE YOU BUM YOU PIECE OF FECULENT CRAPPPPPPPPPPPPPPPPPPPPPP, bc its crap");
-                }
+                        } else {
+                                System.err.println("******* FAILED TO LOAD MUSIC *******");
+                        }
+
+                }).ignoringDisable(true);
+
+                Command stopMusic = Commands.runOnce(() -> {
+                        mOrchestra.stop();
+                }).ignoringDisable(true);
+                
+                SmartDashboard.putData("/music/Play", startMusic);
+                SmartDashboard.putData("/music/Stop", stopMusic);
+                NTHelper.setString("/music/File_Name", "Weezer.chrp");
         }
 
 
