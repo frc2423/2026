@@ -66,8 +66,10 @@ public class RobotContainer {
                 
                 
                 for(int i = 0; i < 4; i++) {
-                        TalonFX motor = drivetrain.getModule(i).getDriveMotor();
-                        mOrchestra.addInstrument(motor);
+                        TalonFX DriveMotor = drivetrain.getModule(i).getDriveMotor();
+                        TalonFX SteerMotor = drivetrain.getModule(i).getSteerMotor();
+                        mOrchestra.addInstrument(DriveMotor,i+1);
+                        mOrchestra.addInstrument(SteerMotor,i+1);
                 }
                 Command startMusic = Commands.runOnce(() -> {
                         mOrchestra.stop();
