@@ -60,19 +60,31 @@ public class RobotContainer {
                                                                                           // second
         private Orchestra mOrchestra = new Orchestra();
 
-        // private TalonFX motor = new TalonFX(1);
+        public void setupMusic() {    
+                Command startMusic = Commands.runOnce(() -> { // maybe remove track number from network tables, and find off file prefix: ex {#tracks}_{fileName}
 
-        public void setupMusic() {
-                
-                
-                for(int i = 0; i < 4; i++) {
-                        TalonFX DriveMotor = drivetrain.getModule(i).getDriveMotor();
-                        TalonFX SteerMotor = drivetrain.getModule(i).getSteerMotor();
-                        mOrchestra.addInstrument(DriveMotor,i+1);
-                        mOrchestra.addInstrument(SteerMotor,i+1);
-                }
-                Command startMusic = Commands.runOnce(() -> {
+                        // Clear & assign instruments to tracks
+                        int Numberof_Tracks = (int)NTHelper.getDouble("/music/Numberof_Tracks", 1); 
+                        int motorsPerTrack = 8 / Numberof_Tracks;
+
+                        mOrchestra.clearInstruments();
+
+                        for(int i = 0; i < 8; i++) { 
+                                int moduleIndex = i / 2;
+                                int track = i / motorsPerTrack; 
+
+                                if(i %  2 == 0) {
+                                        TalonFX DriveMotor = drivetrain.getModule(moduleIndex).getDriveMotor();
+                                        mOrchestra.addInstrument(DriveMotor,  track);
+                                } else {
+                                        TalonFX SteerMotor = drivetrain.getModule(moduleIndex).getSteerMotor();
+                                        mOrchestra.addInstrument(SteerMotor,  track);
+                                }
+                        } // ---------------------------------------------
+
                         mOrchestra.stop();
+
+                        // Get file and play
 
                         String fileName = NTHelper.getString("/music/File_Name", "defualted_to_none");
                         
@@ -92,20 +104,20 @@ public class RobotContainer {
                                 System.err.println("******* FAILED TO LOAD MUSIC *******");
                         }
 
+                        // ---------------------------------
+
                 }).ignoringDisable(true);
 
                 Command stopMusic = Commands.runOnce(() -> {
                         mOrchestra.stop();
                 }).ignoringDisable(true);
-                
+
+                // Add to dash and Network tables
                 SmartDashboard.putData("/music/Play", startMusic);
                 SmartDashboard.putData("/music/Stop", stopMusic);
                 NTHelper.setString("/music/File_Name", "Weezer.chrp");
+                NTHelper.setDouble("/music/Numberof_Tracks", 1);
         }
-
-
-
-        // var song = mOrchestra.loadMusic(null)
                                                                                           // max angular velocity
 
         /* Setting up bindings for necessary control of the swerve drive platform */
