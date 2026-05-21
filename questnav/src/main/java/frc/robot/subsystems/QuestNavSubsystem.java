@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.generated.QuestNavConstants;
 import frc.robot.generated.TunerConstants;
@@ -15,11 +16,32 @@ import edu.wpi.first.math.geometry.Rotation3d;
 
 public class QuestNavSubsystem extends SubsystemBase {
 
+    QuestNav questNav = new QuestNav();
+    
     public QuestNavSubsystem() {
-
+        questNav.onConnected(() ->
+            System.out.println("Quest connected!")
+        );
+        questNav.onDisconnected(() ->
+            DriverStation.reportWarning("Quest disconnected!", false)
+        );
+        questNav.onTrackingAcquired(() ->
+            System.out.println("Quest tracking acquired!")
+        );
+        questNav.onTrackingLost(() ->
+            DriverStation.reportWarning("Quest tracking lost!", false)
+        );
+        questNav.onLowBattery(20, level ->
+            DriverStation.reportWarning("Quest battery low: " + level + "%", false)
+        );
+        questNav.onCommandSuccess(response ->
+            System.out.println("Command succeeded: " + response.getCommandId())
+        );
+        questNav.onCommandFailure(response ->
+            DriverStation.reportError("Command failed: " + response.getErrorMessage(), false)
+        );
     }
 
-    QuestNav questNav = new QuestNav();
     CommandSwerveDrivetrain swerveDrivetrain = TunerConstants.createDrivetrain();
     QuestNavConstants questConstants = new QuestNavConstants();
      
