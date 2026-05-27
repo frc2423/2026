@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.DataLogManager;
+import frc.robot.utils.HubTracker;
 
 import java.util.Map;
 
@@ -54,6 +55,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     m_robotContainer.robotHealth.update();
+    m_robotContainer.rumbleWarning();
   }
 
   @Override

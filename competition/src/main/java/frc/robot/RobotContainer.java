@@ -20,6 +20,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -44,6 +45,7 @@ import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDS.KwarqsLed;
 import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.utils.HubTracker;
 import frc.robot.utils.ShootOnMove;
 import frc.robot.telemetry.SubsystemMechanism2d;
 import frc.robot.telemetry.Telemetry;
@@ -265,7 +267,6 @@ public class RobotContainer {
                                 .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Right Bump")));
                 driverController.povDown()
                                 .onTrue(new InstantCommand(() -> shooterCommands.setFixedShootingPose("Tower")));
-
         }
 
 
@@ -324,6 +325,22 @@ public class RobotContainer {
                                 shooterRight.stop(),
                                 twindexer.stop()).ignoringDisable(true);
                 return command;
+        }
+
+        public void rumbleWarning() {
+                if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 10 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 9.75) {
+                        driverController.setRumble(RumbleType.kBothRumble, .3);
+                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 5 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 4.75) {
+                        driverController.setRumble(RumbleType.kBothRumble, .5);
+                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 3 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 2.75) {
+                        driverController.setRumble(RumbleType.kBothRumble, .8);
+                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 1.5 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 1.25) {
+                        driverController.setRumble(RumbleType.kBothRumble, 1);
+                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 0.5) {
+                        driverController.setRumble(RumbleType.kBothRumble, 1);
+                } else {
+                driverController.setRumble(RumbleType.kBothRumble, 0);
+                }
         }
 
 }
