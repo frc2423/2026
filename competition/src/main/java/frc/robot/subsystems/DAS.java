@@ -43,7 +43,7 @@ public class DAS {
     }
 
     private void initializeMap() {
-       distanceMap.put(1.5, new MotorSettings(10, 2400));
+       distanceMap.put(1.5, new MotorSettings(5, 2400));
         // distanceMap.put(2.0, new MotorSettings(20, 2500));
         // distanceMap.put(2.4, new MotorSettings(20, 2650));
         // distanceMap.put(2.7, new MotorSettings(20, 2750));
@@ -56,11 +56,11 @@ public class DAS {
 
 
         
-        distanceMap.put(2.0, new MotorSettings(30, 2550));
-        distanceMap.put(2.5, new MotorSettings(35, 2600));
-        distanceMap.put(3.0, new MotorSettings(40, 2650));
+        distanceMap.put(2.0, new MotorSettings(20, 2450));
+        distanceMap.put(2.5, new MotorSettings(30, 2500));
+        distanceMap.put(3.0, new MotorSettings(35, 2600));
         
-        distanceMap.put(3.5, new MotorSettings(40, 2800));
+        distanceMap.put(3.5, new MotorSettings(40, 2700));
         distanceMap.put(4.0, new MotorSettings(40, 2900));
         distanceMap.put(4.5, new MotorSettings(40, 3100));
 
