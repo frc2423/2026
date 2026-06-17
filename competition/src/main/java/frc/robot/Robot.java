@@ -34,17 +34,17 @@ public class Robot extends TimedRobot {
     });
     Epilogue.bind(this);
     URCL.start(Map.of(
-      21, "arm",
-      23, "twindexer",
-      24, "intakeMotor1",
-      32, "hood",
-      34, "feederLeft",
-      35, "shootLeft",
-      36, "feederRight",
-      37, "shooterRight",
-      38, "intakeMotor2"
-    ));
+        21, "arm",
+        23, "twindexer",
+        24, "intakeMotor1",
+        32, "hood",
+        34, "feederLeft",
+        35, "shootLeft",
+        36, "feederRight",
+        37, "shooterRight",
+        38, "intakeMotor2"));
     m_robotContainer = new RobotContainer();
+    m_robotContainer.setupMusic();
     DriverStation.silenceJoystickConnectionWarning(true);
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     SignalLogger.stop();
@@ -59,6 +59,7 @@ public class Robot extends TimedRobot {
   @Override
   public void disabledInit() {
     m_robotContainer.auto.resetPaths();
+
   }
 
   @Override
@@ -118,4 +119,5 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {
   }
+
 }

@@ -4,13 +4,15 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
 
+import java.io.File;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.Orchestra;
+import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -18,9 +20,11 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.PowerDistribution;
-import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
+import edu.wpi.first.wpilibj.RobotState;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -31,30 +35,120 @@ import frc.robot.commands.AutoCommands;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.PassingCommands;
 import frc.robot.commands.ShooterCommands;
-import frc.robot.generated.TunerConstants;
 import frc.robot.generated.PoseTransformUtils;
+import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.BLine;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.DriveShortestPath;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.HoodSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.TwindexerSubsystem;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.LEDS.KwarqsLed;
-import frc.robot.subsystems.HoodSubsystem;
-import frc.robot.subsystems.ShooterSubsystem;
-import frc.robot.utils.ShootOnMove;
-import frc.robot.telemetry.SubsystemMechanism2d;
-import frc.robot.telemetry.Telemetry;
 import frc.robot.telemetry.DashboardTelemetry;
 import frc.robot.telemetry.RobotHealth;
+import frc.robot.telemetry.SubsystemMechanism2d;
+import frc.robot.telemetry.Telemetry;
+import frc.robot.utils.ShootOnMove;
 
 public class RobotContainer {
+        
         private double MaxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top
                                                                                       // speed
         private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per
                                                                                           // second
+        private Orchestra mOrchestra = new Orchestra();
+
+        private SendableChooser<String> song_Chooser = new SendableChooser<String>();
+ 
+        public void setupMusic() {    
+                Command startMusic = Commands.runOnce(() -> { // maybe remove track number from network tables, and find off file prefix: ex {#tracks}_{fileName}
+
+                        // Clear & assign instruments to tracks
+
+                        String fileName = song_Chooser.getSelected();
+                        if(fileName == null || fileName.equals("Error")) {
+                                System.err.println("******* NO SONG SELECTED *******");
+                                return;
+                        }
+
+                        int Numberof_Tracks = Integer.parseInt(fileName.split("_")[0]); // Should split off the #_ THEOREITCALLY
+                        int motorsPerTrack = 8 / Numberof_Tracks;
+
+                        mOrchestra.clearInstruments();
+
+                        for(int i = 0; i < 8; i++) { 
+                                int moduleIndex = i / 2;
+                                int track = i / motorsPerTrack; 
+
+                                if(i %  2 == 0) {
+                                        TalonFX DriveMotor = drivetrain.getModule(moduleIndex).getDriveMotor();
+                                        mOrchestra.addInstrument(DriveMotor,  track);
+                                } else {
+                                        TalonFX SteerMotor = drivetrain.getModule(moduleIndex).getSteerMotor();
+                                        mOrchestra.addInstrument(SteerMotor,  track);
+                                }
+                        } // ---------------------------------------------
+
+                        mOrchestra.stop();
+
+                        // Play
+                        
+                        var statusLoad = mOrchestra.loadMusic(fileName);
+
+                        NTHelper.setString("/music/fileName", fileName);
+
+                        if(statusLoad.isOK()) {
+                                System.out.println("******* LOADED MUSIC *******");
+
+                                var statusPlay = mOrchestra.play();
+
+                                if(statusPlay.isOK()) {
+                                        System.out.println("******* PLAYING MUSIC ******* MUSIC MUSIC MUSIC FCFGAbFGC#C");
+                                } else {
+                                        System.err.println("******* FAILED TO PLAY MUSIC *******");
+                                }
+                        } else {
+                                System.err.println("******* FAILED TO LOAD MUSIC *******");
+                        }
+
+                        // ---------------------------------
+
+                }).ignoringDisable(true);
+
+                Command stopMusic = Commands.runOnce(() -> {
+                        mOrchestra.stop();
+                }).ignoringDisable(true);
+
+                // Add to dash and Network tables
+
+                SmartDashboard.putData("/music/Play", startMusic);
+                SmartDashboard.putData("/music/Stop", stopMusic);
+
+                // NTHelper.setString("/music/File_Name", "Weezer.chrp");
+                // NTHelper.setDouble("/music/Numberof_Tracks", 1);
+                
+                File musicDir = new File(Filesystem.getDeployDirectory(), "music");
+
+                File[] musicFiles = musicDir.listFiles((dir, name) -> name.endsWith(".chrp"));
+
+                if(musicFiles != null) {                       
+                        for(File file : musicFiles) {
+                                String raw_name = file.getName();
+                                song_Chooser.addOption(raw_name, raw_name);
+                        }
+        
+                        song_Chooser.setDefaultOption("Default", "2_The_Duck_Song.chrp");
+                } else {
+                        song_Chooser.addOption("Error: Failed to find music files", "Error");
+                }
+
+
+                SmartDashboard.putData("/music/Song_Selector", song_Chooser);
+        }
                                                                                           // max angular velocity
 
         /* Setting up bindings for necessary control of the swerve drive platform */
@@ -129,6 +223,7 @@ public class RobotContainer {
         private final PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
         public RobotContainer() {
+
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
                 SmartDashboard.putData("subsystems/feederRight", feederRight);
