@@ -48,7 +48,7 @@ public class HoodSubsystem extends SubsystemBase {
             // Telemetry name and verbosity level
             .withTelemetry("HoodMotor", TelemetryVerbosity.HIGH)
             .withIdleMode(MotorMode.BRAKE)
-            .withStatorCurrentLimit(Amps.of(20))
+            .withStatorCurrentLimit(Amps.of(30))
             .withMotorInverted(true)
             .withClosedLoopRampRate(Seconds.of(0.25))
             .withGearing(20 * 85 / 10.0)
@@ -136,7 +136,7 @@ public class HoodSubsystem extends SubsystemBase {
 
     @Logged
     public boolean isStalled() {
-        return getSampledCurrentInAmps() > 10;
+        return getSampledCurrentInAmps() > 25;
     }
 
     public Command hoodDownandReset() {

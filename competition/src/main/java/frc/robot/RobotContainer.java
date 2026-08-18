@@ -328,15 +328,15 @@ public class RobotContainer {
         }
 
         public void rumbleWarning() {
-                if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 10 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 9.75) {
+                if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 15 && HubTracker.timeRemainingInCurrentShiftInSeconds() >= 14) {
+                        driverController.setRumble(RumbleType.kBothRumble, .1); }
+                 else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 10 && HubTracker.timeRemainingInCurrentShiftInSeconds() >= 9) {
+                        driverController.setRumble(RumbleType.kBothRumble, .3);
+                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 5 && HubTracker.timeRemainingInCurrentShiftInSeconds() >= 4) {
                         driverController.setRumble(RumbleType.kBothRumble, .5);
-                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 5 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 4.75) {
-                        driverController.setRumble(RumbleType.kBothRumble, .65);
-                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 3 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 2.75) {
+                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 3 && HubTracker.timeRemainingInCurrentShiftInSeconds() >= 2) {
                         driverController.setRumble(RumbleType.kBothRumble, .8);
-                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 1.5 && HubTracker.timeRemainingInCurrentShiftInSeconds() > 1.25) {
-                        driverController.setRumble(RumbleType.kBothRumble, 1);
-                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 0.5) {
+                } else if (HubTracker.timeRemainingInCurrentShiftInSeconds() < 1 && HubTracker.timeRemainingInCurrentShiftInSeconds() >= 0) {
                         driverController.setRumble(RumbleType.kBothRumble, 1);
                 } else {
                 driverController.setRumble(RumbleType.kBothRumble, 0);

@@ -165,7 +165,7 @@ public class Vision {
     }
     for (Cameras camera : Cameras.values()) {
       Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
-      if (poseEst.isPresent()) {
+      if (poseEst.isPresent() && !camera.isDisabled) {
         var pose = poseEst.get();
         NTHelper.setDouble("/swerveSubsystem/vision/poseX", pose.estimatedPose.getX());
         NTHelper.setDouble("/swerveSubsystem/vision/poseX", pose.estimatedPose.getY());
@@ -477,14 +477,14 @@ public class Vision {
         new Translation3d(Units.inchesToMeters(-11),
             Units.inchesToMeters(13.3),
             Units.inchesToMeters(17.5)),
-        VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1), true),
 
     FRONT_LEFT_CAM("april_tag_cam",
         new Rotation3d(0, Math.toRadians(-25), Math.toRadians(-180)),
         new Translation3d(Units.inchesToMeters(-12.560),
             Units.inchesToMeters(-11),
             Units.inchesToMeters(19.919)),
-        VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1));
+        VecBuilder.fill(2, 2, 8), VecBuilder.fill(0.5, 0.5, 1), false);
 
     /**
      * Latency alert to use when high latency is detected.
@@ -534,6 +534,7 @@ public class Vision {
     private double lastReadTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
 
     private boolean isTargetPresent = false;
+    private boolean isDisabled;
 
     /**
      * Construct a Photon Camera class with help. Standard deviations are fake
@@ -558,11 +559,12 @@ public class Vision {
      *                              camera.
      */
     Cameras(String name, Rotation3d robotToCamRotation, Translation3d robotToCamTranslation,
-        Matrix<N3, N1> singleTagStdDevs, Matrix<N3, N1> multiTagStdDevsMatrix) {
+        Matrix<N3, N1> singleTagStdDevs, Matrix<N3, N1> multiTagStdDevsMatrix, Boolean disable) {
       latencyAlert = new Alert("'" + name + "' Camera is experiencing high latency.", AlertType.kWarning);
 
       camera = new PhotonCamera(name);
-
+      
+      isDisabled = disable;
       // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
       robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
 
@@ -573,7 +575,7 @@ public class Vision {
 
       this.singleTagStdDevs = singleTagStdDevs;
       this.multiTagStdDevs = multiTagStdDevsMatrix;
-
+      
       if (Robot.isSimulation()) {
         SimCameraProperties cameraProp = new SimCameraProperties();
         // A 640 x 480 camera with a 100 degree diagonal FOV.
@@ -594,7 +596,7 @@ public class Vision {
     }
 
     public boolean isConnected() {
-      return camera.isConnected();
+      return camera.isConnected() && !isDisabled;
     }
 
     public Transform3d getTransform3d() {
