@@ -18,6 +18,7 @@ import edu.wpi.first.epilogue.Logged;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.PowerDistribution.ModuleType;
@@ -149,14 +150,18 @@ public class RobotContainer {
         private void configureLeds() {
                 kwarqsLed.setDefaultCommand(kwarqsLed.setLeds(() -> {
                         if (!drivetrain.isCameraConnected()) {
+                                Speech.say("Camera Disconnected");
                                 return "GreenCycle";
                         }
                         if (twindexer.isJammed()) {
+                                Speech.say("Twindexer Jammed");
                                 return "yellow"; // make a yellow cycle
                         }
                         if (intake.isJammed()) {
+                                Speech.say("Intake Jammed");
                                 return "orange"; // make an orange cycle
                         }
+                        
                         if (drivetrain.isSeeingAprilTag()) {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
                         }
@@ -325,5 +330,4 @@ public class RobotContainer {
                                 twindexer.stop()).ignoringDisable(true);
                 return command;
         }
-
 }
