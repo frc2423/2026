@@ -67,8 +67,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     boolean wereAtSetpoint = areAtSetpoint;
     areAtSetpoint = Math.abs(m_robotContainer.shooterRight.getVelocity() - m_robotContainer.shooterRight.getSetpoint()) <= 300 && Math.abs(m_robotContainer.shooterLeft.getVelocity() - m_robotContainer.shooterLeft.getSetpoint()) <= 300
-        && m_robotContainer.shooterRight.getSetpoint() != 0 && m_robotContainer.shooterLeft.getSetpoint() != 0;
-      System.out.println(areAtSetpoint+"   "+wereAtSetpoint);    
+        && m_robotContainer.shooterRight.getSetpoint() != 0 && m_robotContainer.shooterLeft.getSetpoint() != 0;  
       if (areAtSetpoint && !wereAtSetpoint) {
       int oldNumber = randomNumber;
       randomNumber = (int) (Math.random() * phrases.length);
@@ -82,6 +81,9 @@ public class Robot extends TimedRobot {
     if (160 - HubTracker.getMatchTime() < 15) {
       Speech.say((Integer.toString((int) (HubTracker.timeRemainingInCurrentShift().in(Seconds)) - 1)));
     }
+    if (HubTracker.getMatchTime() < 5) {
+      Speech.start();
+    }
     // System.out.println(HubTracker.timeRemainingInCurrentShift().in(Seconds));
     if (HubTracker.timeRemainingInCurrentShift().in(Seconds) < 1) {
       // System.out.println("I'm working!");
@@ -90,13 +92,14 @@ public class Robot extends TimedRobot {
         int index = shift.indexOf("_");
         shift = shift.substring(0,index) +" "+ shift.substring(index+1);
       }
-      Speech.say("Starting " + shift);
+      if (shift == "AUTO") {
+        int randomIndex = (int)(Math.random() * endings.length);
+        Speech.say(endings[randomIndex]);
+        Speech.stop();
+      } else{
+        Speech.say("Starting " + shift);
+      }
     }
-    if (160 - HubTracker.getMatchTime() == 1){
-      int randomIndex = (int)(Math.random() * endings.length);
-      Speech.say(endings[randomIndex]);
-    }
-
   }
 
   @Override

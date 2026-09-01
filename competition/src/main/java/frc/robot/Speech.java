@@ -1,7 +1,20 @@
 package frc.robot;
 
 public class Speech {
+
+    private static boolean disabled = false;
+
+    public static void start() {
+        disabled = false;
+    }
+
+    public static void stop() {
+        disabled = true;
+    }
+
     public static void say(String text) {
-        NTHelper.setString("/robotSpeech", text);
+        if (!disabled) {
+            NTHelper.setString("/robotSpeech", text);
+        }
     }
 }
