@@ -1,0 +1,57 @@
+{
+  "NetworkTables": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/Pose": "Field2d",
+      "/SmartDashboard//QuackNavCommands/clearInitialPose": "Command",
+      "/SmartDashboard//QuackNavCommands/randomizePose": "Command",
+      "/SmartDashboard//QuackNavCommands/zeroAngle": "Command",
+      "/SmartDashboard//QuackNavCommands/zeroPose": "Command",
+      "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Mechanisms/Commands/ArmMotor/Down": "Command",
+      "/SmartDashboard/Mechanisms/Commands/ArmMotor/Up": "Command",
+      "/SmartDashboard/Mechanisms/Commands/ArmMotor/ZeroEncoder": "Command",
+      "/SmartDashboard/Mechanisms/Commands/ArmSubsystem/Live Tuning": "Command",
+      "/SmartDashboard/Mechanisms/Commands/HoodMotor/Down": "Command",
+      "/SmartDashboard/Mechanisms/Commands/HoodMotor/Up": "Command",
+      "/SmartDashboard/Mechanisms/Commands/HoodMotor/ZeroEncoder": "Command",
+      "/SmartDashboard/Mechanisms/Commands/HoodSubsystem/Live Tuning": "Command",
+      "/SmartDashboard/Module 0": "Mechanism2d",
+      "/SmartDashboard/Module 1": "Mechanism2d",
+      "/SmartDashboard/Module 2": "Mechanism2d",
+      "/SmartDashboard/Module 3": "Mechanism2d",
+      "/SmartDashboard/PhotonAlerts": "Alerts",
+      "/SmartDashboard/Weezer": "Command",
+      "/SmartDashboard/autoChooser": "String Chooser",
+      "/SmartDashboard/mechanism2ds": "Mechanism2d",
+      "/SmartDashboard/setPoseToHub": "Command",
+      "/SmartDashboard/setPoseToLeftTrench": "Command",
+      "/SmartDashboard/setPoseToRightTrench": "Command",
+      "/SmartDashboard/subsystems/arm": "Subsystem",
+      "/SmartDashboard/subsystems/feederLeft": "Subsystem",
+      "/SmartDashboard/subsystems/feederRight": "Subsystem",
+      "/SmartDashboard/subsystems/hood": "Subsystem",
+      "/SmartDashboard/subsystems/hood/hoodDownandReset": "Command",
+      "/SmartDashboard/subsystems/hood/setZero": "Command",
+      "/SmartDashboard/subsystems/hood/updateSetpoint": "Command",
+      "/SmartDashboard/subsystems/intake": "Subsystem",
+      "/SmartDashboard/subsystems/shooterLeft": "Subsystem",
+      "/SmartDashboard/subsystems/shooterRight": "Subsystem",
+      "/SmartDashboard/subsystems/twindexer": "Subsystem"
+    },
+    "windows": {
+      "/SmartDashboard/Weezer": {
+        "window": {
+          "visible": true
+        }
+      }
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  },
+  "NetworkTables Settings": {
+    "mode": "Client (NT4)",
+    "serverTeam": "2423"
+  }
+}

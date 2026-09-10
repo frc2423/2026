@@ -78,8 +78,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        motor.set(percentSpeed * .75);
-        motor2.set(percentSpeed * .75);
+        motor.set(percentSpeed);
+        motor2.set(percentSpeed);
     }
 
     public boolean isJammed() {
