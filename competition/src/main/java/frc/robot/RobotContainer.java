@@ -67,6 +67,8 @@ public class RobotContainer {
         public void setupMusic() {    
                 Command startMusic = Commands.runOnce(() -> { // maybe remove track number from network tables, and find off file prefix: ex {#tracks}_{fileName}
 
+                        mOrchestra.stop();
+
                         // Clear & assign instruments to tracks
 
                         String fileName = song_Chooser.getSelected();
@@ -76,13 +78,13 @@ public class RobotContainer {
                         }
 
                         int Numberof_Tracks = Integer.parseInt(fileName.split("_")[0]); // Should split off the #_ THEOREITCALLY
-                        int motorsPerTrack = 8 / Numberof_Tracks;
+                        // int motorsPerTrack = 8 / Numberof_Tracks;
 
                         mOrchestra.clearInstruments();
 
                         for(int i = 0; i < 8; i++) { 
                                 int moduleIndex = i / 2;
-                                int track = i / motorsPerTrack; 
+                                int track = moduleIndex / (4 / Numberof_Tracks);
 
                                 if(i %  2 == 0) {
                                         TalonFX DriveMotor = drivetrain.getModule(moduleIndex).getDriveMotor();
@@ -93,7 +95,6 @@ public class RobotContainer {
                                 }
                         } // ---------------------------------------------
 
-                        mOrchestra.stop();
 
                         // Play
                         
@@ -101,6 +102,7 @@ public class RobotContainer {
 
                         if(statusLoad.isOK()) {
                                 System.out.println("******* LOADED MUSIC *******");
+                                System.out.println("# Tracks = " + Numberof_Tracks);
 
                                 var statusPlay = mOrchestra.play();
 
