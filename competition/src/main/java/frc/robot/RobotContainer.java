@@ -100,6 +100,8 @@ public class RobotContainer {
                         
                         var statusLoad = mOrchestra.loadMusic(fileName);
 
+                        NTHelper.setString("/music/fileName", fileName);
+
                         if(statusLoad.isOK()) {
                                 System.out.println("******* LOADED MUSIC *******");
                                 System.out.println("# Tracks = " + Numberof_Tracks);
