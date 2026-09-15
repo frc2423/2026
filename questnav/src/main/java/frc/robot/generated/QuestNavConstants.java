@@ -7,5 +7,5 @@ public final class QuestNavConstants {
     public QuestNavConstants() {
 
     }
-    public final Transform3d ROBOT_TO_QUEST = new Transform3d(0.3, 0.0, 0.5, new Rotation3d());
+    public final Transform3d ROBOT_TO_QUEST = new Transform3d(0.3175, 0.3175, 0.5, new Rotation3d());
 }
