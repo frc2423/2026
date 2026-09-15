@@ -38,7 +38,10 @@ public class Robot extends TimedRobot {
       "The first law of robotics is: A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
       "The second law of robotics is: A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
       "The second law of robotics is: A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.",
-      "The zero-ith law of robotics is: A robot may not harm humanity, or, by inaction, allow humanity to come to harm." };
+      "The zero-ith law of robotics is: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.", 
+      "outro_song.mp3",
+      "The first law of amory: We don't talk about Amory",
+      "sad_trombone.mp3" };
 
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
