@@ -2,7 +2,8 @@ import argparse
 import time
 
 import ntcore
-
+from playsound3 import playsound
+from pathlib import Path
 from speech import Speaker
 
 TOPIC = "/robotSpeech"
@@ -43,6 +44,13 @@ def main():
 
     def on_change(event):
         text = event.data.value.getString()
+        
+        filePath = Path(f"SOUNDS/{text}")
+
+        if filePath.is_file():
+            playsound(f"SOUNDS/{text}")
+            return
+
         if text:
             print(f"Speaking: {text}")
             speaker.stop()
