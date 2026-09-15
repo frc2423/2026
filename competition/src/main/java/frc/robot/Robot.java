@@ -31,17 +31,18 @@ public class Robot extends TimedRobot {
   private final RobotContainer m_robotContainer;
 
   private String phrases[] = { "duck", "Exterminate", "Destroy", "Eradicate", "Shoot", "fire", "attack", "go",
-      "onwards", "fire in the hole", "Hasta la vista", "Duck and cover" };
+      "onwards", "fire in the hole", "terminator-2-hasta-lavista-baby.mp3", "Duck and cover", "R2D2_beep.mp3", "exterminate-short.mp3" };
   int randomNumber;
   boolean areAtSetpoint;
-  private String endings[] = { "I'll be Back", "Bye Bye", "See you later, alligator", "gg no re", "good game",
+  private String endings[] = { "ill-be-back-arnold-schwarzenegger-the-terminator.mp3", "Bye Bye", "See you later, alligator", "gg no re", "good game",
       "The first law of robotics is: A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
       "The second law of robotics is: A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
       "The second law of robotics is: A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.",
       "The zero-ith law of robotics is: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.", 
       "outro_song.mp3",
       "The first law of amory: We don't talk about Amory",
-      "sad_trombone.mp3" };
+      "sad_trombone.mp3",
+      "aughaughagugh.mp3" };
 
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
