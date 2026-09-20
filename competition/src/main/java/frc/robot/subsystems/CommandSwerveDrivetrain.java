@@ -7,6 +7,7 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.SignalLogger;
 import com.ctre.phoenix6.Utils;
 import com.ctre.phoenix6.swerve.SwerveDrivetrainConstants;
+import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
@@ -172,6 +173,21 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
      */
     public Command applyRequest(Supplier<SwerveRequest> requestSupplier) {
         return run(() -> this.setControl(requestSupplier.get()));
+    }
+
+    private final SwerveRequest.RobotCentric m_driveDistanceRequest = new SwerveRequest.RobotCentric()
+            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+
+    /** Drive straight along the current heading. Negative meters drives backward. */
+    public Command driveToDistanceCommand(double meters, double speedMetersPerSecond) {
+        double vx = Math.copySign(Math.abs(speedMetersPerSecond), meters);
+        Pose2d[] start = new Pose2d[1];
+
+        return runOnce(() -> start[0] = getPose())
+                .andThen(applyRequest(() -> m_driveDistanceRequest.withVelocityX(vx))
+                        .until(() -> getPose().getTranslation()
+                                .getDistance(start[0].getTranslation()) >= Math.abs(meters)))
+                .finallyDo(() -> setControl(new SwerveRequest.SwerveDriveBrake()));
     }
 
     /**
