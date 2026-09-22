@@ -230,8 +230,7 @@ public class RobotContainer {
                 driverController.start().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
                 // Intake commands
                 driverController.button(9).whileTrue(intake.outtake()).onFalse(intake.stop());
-                driverController.button(10).whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake()))
-                                .onFalse(intake.stop());
+                driverController.button(10).whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake())).onFalse(intake.stop());
                 driverController.b().onTrue(arm.armUp());
                 driverController.a().onTrue(intakeCommands.armDown());
                 // driverController.x().onTrue(hood.set(.1)).onFalse(hood.set(0));
@@ -245,13 +244,13 @@ public class RobotContainer {
                 Command shooterFeedCommand = shooterCommands.feed();
                 Command passingFeedCommand = passingCommands
                                 .feedForPassing();
-                Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
-                                () -> driverController.leftTrigger().getAsBoolean());
+                // Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
+                //                 () -> driverController.leftTrigger().getAsBoolean());
 
                 // Feed when right bumper is pressed
-                driverController.rightBumper()
-                                .whileTrue(feedCommand)
-                                .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
+                // driverController.rightBumper()
+                //                 .whileTrue(feedCommand)
+                //                 .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
                 // Trench pass when left bumper is pressed
                 driverController.leftBumper().whileTrue(passingCommands.trenchPass()).onFalse(intake.stop());
                 // Aim to pass on left trigger
@@ -282,16 +281,26 @@ public class RobotContainer {
                 // NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
                 // .onFalse(shooterCommands.stopShooting());
 
-                operatorController.leftBumper().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
-                operatorController.rightBumper().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
+                operatorController.back().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
+                operatorController.start().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
-                operatorController.a().onTrue(hood.hoodDownandReset());
+                // operatorController.a().onTrue(hood.hoodDownandReset());
 
-                
+                operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
+                operatorController.a().whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake())).onFalse(intake.stop());
 
-                operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain
-                                .resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance() ? 180 : 0))));
-                operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
+                // operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain
+                //                 .resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance() ? 180 : 0))));
+                // operatorController.button(8).onTrue(new InstantCommand(() -> drivetrain.resetPose(new Pose2d())));
+
+                Command shooterFeedCommand = shooterCommands.feed();
+                Command passingFeedCommand = passingCommands
+                                .feedForPassing();
+                Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
+                                () -> driverController.leftTrigger().getAsBoolean());
+                operatorController.rightBumper().whileTrue(feedCommand).onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
+
+                operatorController.rightTrigger(0.25).whileTrue(shooterCommands.revSpeedFromDAS()).onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
 
                 operatorController.povUp()
                                 .onTrue(ShooterCommands.das.increaseVelocityOffset());
