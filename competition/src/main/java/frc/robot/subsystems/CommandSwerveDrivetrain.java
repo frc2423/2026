@@ -190,6 +190,33 @@ public class CommandSwerveDrivetrain extends TunerSwerveDrivetrain implements Su
                 .finallyDo(() -> setControl(new SwerveRequest.SwerveDriveBrake()));
     }
 
+    // class RotationCommand extends Command {
+
+    //     double degrees;
+    //     double degreesPerSecond;
+    //     double initialAngle;
+
+    //     public RotationCommand(double degrees, double degreesPerSecond) {
+    //         this.degrees = degrees;
+    //         this.degreesPerSecond = degreesPerSecond;
+    //     }
+
+    //     public void initialize() {
+    //         initialAngle = 0;
+    //     }
+
+    //     public void execute() {
+            
+    //     }
+    // }
+
+    public Command rotateToDegreesCommand(double degrees, double degreesPerSecond) {
+        SwerveRequest.RobotCentricFacingAngle rotateDegreesRequest = new SwerveRequest.RobotCentricFacingAngle()
+            .withTargetDirection(new Rotation2d(degreesPerSecond));
+        
+        return applyRequest(()-> rotateDegreesRequest.withTargetDirection(Rotation2d.fromDegrees(degrees)));        
+    }
+
     /**
      * Runs the SysId Quasistatic test in the given direction for the routine
      * specified by {@link #m_sysIdRoutineToApply}.

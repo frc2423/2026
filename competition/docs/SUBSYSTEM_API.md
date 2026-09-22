@@ -115,18 +115,3 @@ Not a `Subsystem`; the shared instance is `ShooterCommands.das`.
 | --- | --- | --- |
 | `increaseVelocityOffset()` | Adds 50 RPM to the shot-speed offset and publishes it to `/tuning/velocityOffset` | `ShooterCommands.das.increaseVelocityOffset()` |
 | `decreaseVelocityOffset()` | Subtracts 50 RPM from the shot-speed offset | `ShooterCommands.das.decreaseVelocityOffset()` |
-
-## Calling a command
-
-```java
-// Bind to a button
-robot.driverController.a().onTrue(robot.intake.intake());
-robot.driverController.a().onFalse(robot.intake.stop());
-
-// Compose in a sequence
-Commands.sequence(
-    robot.hood.setAngle(Degrees.of(25)),
-    robot.shooterLeft.spinWithSetpoint(2800),
-    Commands.waitUntil(robot.shooterLeft::isAtSetpoint),
-    robot.feederLeft.spin());
-```

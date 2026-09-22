@@ -21,6 +21,15 @@ public class Psyduck {
                 .doubleParam("meters", "Signed distance to travel in meters.", -10.0, 10.0)
                 .timeout(20.0)
                 .command(p -> m_robotContainer.drivetrain.driveToDistanceCommand(p.getDouble("meters"), 1.0));
+
+        LlmCommands.register("rotation")
+                .description(
+                    "Have the robot rotate a certain number of degrees"
+                )
+                .doubleParam("degrees", "how much do you want the robot to turn in degrees", -360.0, 360.0)
+                .timeout(10.0)
+                .command(p -> m_robotContainer.drivetrain.rotateToDegreesCommand(p.getDouble("degrees"), 10.0));
+        
     }
 
     public void periodic() {
