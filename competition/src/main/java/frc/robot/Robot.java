@@ -30,19 +30,7 @@ public class Robot extends TimedRobot {
   @Logged(name = "robotContainer")
   private final RobotContainer m_robotContainer;
 
-  private String phrases[] = { "duck", "Exterminate", "Destroy", "Eradicate", "Shoot", "fire", "attack", "go",
-      "onwards", "fire in the hole", "terminator-2-hasta-lavista-baby.mp3", "Duck and cover", "R2D2_beep.mp3", "exterminate-short.mp3" };
-  int randomNumber;
-  boolean areAtSetpoint;
-  private String endings[] = { "ill-be-back-arnold-schwarzenegger-the-terminator.mp3", "Bye Bye", "See you later, alligator", "gg no re", "good game",
-      "The first law of robotics is: A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
-      "The second law of robotics is: A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
-      "The second law of robotics is: A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.",
-      "The zero-ith law of robotics is: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.", 
-      "outro_song.mp3",
-      "The first law of amory: We don't talk about Amory",
-      "sad_trombone.mp3",
-      "aughaughagugh.mp3" };
+  private final Speech speech;
 
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
@@ -62,6 +50,7 @@ public class Robot extends TimedRobot {
         37, "shooterRight",
         38, "intakeMotor2"));
     m_robotContainer = new RobotContainer();
+    speech = new Speech(m_robotContainer);
     DriverStation.silenceJoystickConnectionWarning(true);
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     SignalLogger.stop();
@@ -69,41 +58,9 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotPeriodic() {
-    boolean wereAtSetpoint = areAtSetpoint;
-    areAtSetpoint = Math.abs(m_robotContainer.shooterRight.getVelocity() - m_robotContainer.shooterRight.getSetpoint()) <= 300 && Math.abs(m_robotContainer.shooterLeft.getVelocity() - m_robotContainer.shooterLeft.getSetpoint()) <= 300
-        && m_robotContainer.shooterRight.getSetpoint() != 0 && m_robotContainer.shooterLeft.getSetpoint() != 0;  
-      if (areAtSetpoint && !wereAtSetpoint) {
-      int oldNumber = randomNumber;
-      randomNumber = (int) (Math.random() * phrases.length);
-      while (oldNumber == randomNumber) {
-        randomNumber = (int) (Math.random() * phrases.length);
-      }
-      Speech.say(phrases[randomNumber]);
-    }
     CommandScheduler.getInstance().run();
     m_robotContainer.robotHealth.update();
-    if (160 - HubTracker.getMatchTime() < 15) {
-      Speech.say((Integer.toString((int) (HubTracker.timeRemainingInCurrentShift().in(Seconds)) - 1)));
-    }
-    if (HubTracker.getMatchTime() < 5) {
-      Speech.start();
-    }
-    // System.out.println(HubTracker.timeRemainingInCurrentShift().in(Seconds));
-    if (HubTracker.timeRemainingInCurrentShift().in(Seconds) < 1) {
-      // System.out.println("I'm working!");
-      String shift = HubTracker.getNextShift().toString();
-      if (shift.contains("_")) {
-        int index = shift.indexOf("_");
-        shift = shift.substring(0,index) +" "+ shift.substring(index+1);
-      }
-      if (shift == "AUTO") {
-        int randomIndex = (int)(Math.random() * endings.length);
-        Speech.say(endings[randomIndex]);
-        Speech.stop();
-      } else{
-        Speech.say("Starting " + shift);
-      }
-    }
+    speech.periodic();
   }
 
   @Override
