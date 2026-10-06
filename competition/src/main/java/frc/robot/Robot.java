@@ -13,6 +13,10 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.utils.DataLogManager;
+import frc.robot.utils.HubTracker;
+import frc.robot.utils.HubTracker.Shift;
+
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.Map;
 
@@ -26,6 +30,8 @@ public class Robot extends TimedRobot {
   @Logged(name = "robotContainer")
   private final RobotContainer m_robotContainer;
 
+  private final Speech speech;
+
   public Robot() {
     DataLogManager.start(); // Optional to mirror the NetworkTables-logged data to a file on disk
     Epilogue.configure(config -> {
@@ -34,17 +40,17 @@ public class Robot extends TimedRobot {
     });
     Epilogue.bind(this);
     URCL.start(Map.of(
-      21, "arm",
-      23, "twindexer",
-      24, "intakeMotor1",
-      32, "hood",
-      34, "feederLeft",
-      35, "shootLeft",
-      36, "feederRight",
-      37, "shooterRight",
-      38, "intakeMotor2"
-    ));
+        21, "arm",
+        23, "twindexer",
+        24, "intakeMotor1",
+        32, "hood",
+        34, "feederLeft",
+        35, "shootLeft",
+        36, "feederRight",
+        37, "shooterRight",
+        38, "intakeMotor2"));
     m_robotContainer = new RobotContainer();
+    speech = new Speech(m_robotContainer);
     DriverStation.silenceJoystickConnectionWarning(true);
     WebServer.start(5800, Filesystem.getDeployDirectory().getPath());
     SignalLogger.stop();
@@ -54,6 +60,7 @@ public class Robot extends TimedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
     m_robotContainer.robotHealth.update();
+    speech.periodic();
   }
 
   @Override
