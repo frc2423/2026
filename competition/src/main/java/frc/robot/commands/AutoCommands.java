@@ -362,14 +362,15 @@ public class AutoCommands {
     }
 
     public Command outpostAuto() {
-        Path outpost = new Path(constraints,
-                new Waypoint(new Pose2d(1.0, 0.70, Rotation2d.fromDegrees(180))),
-                new Waypoint(new Pose2d(0.4, 0.70, Rotation2d.fromDegrees(180))));
+        
         if (PoseTransformUtils.isRedAlliance()) {
-            outpost.flip();
+            bumpToOutpostPath.flip();
         }
+
+        FollowPath bumpToOutpost = robot.bline.pathBuilder.build(bumpToOutpostPath);
+
         return Commands.sequence(
-                robot.bline.pathBuilder.build(outpost),
+                bumpToOutpost,
                 Commands.waitSeconds(2),
                 goToHubAndShoot());
     }
@@ -396,20 +397,29 @@ public class AutoCommands {
     }
 
     public Command depotAuto() {
+
         if (PoseTransformUtils.isRedAlliance()) {
             bumpToDepotPath.flip();
         }
+
         FollowPath bumpToDepot = robot.bline.pathBuilder.build(bumpToDepotPath);
+        
+        Command bumpToDepotCommand = Commands.deadline(
+            bumpToDepot, 
+            Commands.sequence(
+                Commands.waitUntil(() -> bumpToDepot.getCurrentTranslationElementIndex() >= 1),
+                robot.intakeCommands.armDown(),
+                robot.intake.intake()));
+
         return Commands.sequence(
-                bumpToDepot,
-                startIntaking(),
+                bumpToDepotCommand,
                 robot.intake.stop(),
                 goToHubAndShoot());
     }
 
     public Command shootAuto() {
         return goToHubAndShoot();
-
+        
         // Commands.sequence(shooter.prepareToShoot(),
         // shooter.spinFeeder(() -> feederSpeed));
     }
