@@ -129,6 +129,8 @@ public class RobotContainer {
 
         private final PowerDistribution pdh = new PowerDistribution(30, ModuleType.kRev);
 
+        public final Psyduck psyduck;
+
         public RobotContainer() {
                 SmartDashboard.putData("subsystems/arm", arm);
                 SmartDashboard.putData("subsystems/feederLeft", feederLeft);
@@ -141,6 +143,7 @@ public class RobotContainer {
                 SmartDashboard.putData("pdh", pdh);
 
                 configureBindings();
+                psyduck = new Psyduck(this);
                 NTHelper.setDouble("/tuning/FeederSpeed", 1);
                 NTHelper.setDouble("/tuning/ShooterSpeed", 2800);
                 NTHelper.setBoolean("/tuning/snakeMode", false);
