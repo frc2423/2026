@@ -286,13 +286,16 @@ public class RobotContainer {
                 // NTHelper.getDouble("/tuning/ShooterSpeed", 0)))
                 // .onFalse(shooterCommands.stopShooting());
 
+
                 operatorController.back().whileTrue(twindexer.spindexBack()).onFalse(twindexer.stop());
                 operatorController.start().whileTrue(twindexer.spindex()).onFalse(twindexer.stop());
 
                 // operatorController.a().onTrue(hood.hoodDownandReset());
 
-                operatorController.y().whileTrue(intake.outtake()).onFalse(intake.stop());
-                operatorController.a().whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake())).onFalse(intake.stop());
+                operatorController.leftBumper().whileTrue(intake.outtake()).onFalse(intake.stop());
+                operatorController.leftTrigger().whileTrue(Commands.parallel(intakeCommands.armDown(),intake.intake())).onFalse(intake.stop());
+
+                operatorController.y().onTrue(hood.hoodDownandReset());
 
                 // operatorController.button(7).onTrue(new InstantCommand(() -> drivetrain
                 //                 .resetRotation(new Rotation2d(PoseTransformUtils.isRedAlliance() ? 180 : 0))));
