@@ -28,6 +28,7 @@ import frc.robot.generated.PoseTransformUtils;
 import frc.robot.generated.TunerConstants;
 import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.subsystems.DAS;
+import frc.robot.subsystems.FloppingUtil;
 
 public class ShooterCommands extends SubsystemBase {
 
@@ -134,8 +135,8 @@ public class ShooterCommands extends SubsystemBase {
       Rotation2d targetHeading = getLookAngle(targetPoseSupplier.get()).plus(Rotation2d.k180deg);
 
       return driveFacing
-          .withVelocityX(-x)
-          .withVelocityY(-y)
+          .withVelocityX(x)
+          .withVelocityY(y)
           .withTargetDirection(targetHeading);
     });
   }

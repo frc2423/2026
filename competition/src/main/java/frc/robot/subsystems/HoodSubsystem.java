@@ -103,7 +103,6 @@ public class HoodSubsystem extends SubsystemBase {
         return runOnce(() -> {
             setpointAngle = Degrees.of(getAngle() + 5);
         }).withName("bumpUp5Degrees");
-
     }
 
     public Command bumpDown5Degrees() {
