@@ -215,7 +215,7 @@ public class ShooterCommands extends SubsystemBase {
     });
 
     return Commands.parallel(
-        positionHoodFromDas(),
+        //positionHoodFromDas(),
         waitUntilRevved.andThen(feedOnly()));
   }
 
@@ -255,8 +255,8 @@ public class ShooterCommands extends SubsystemBase {
 
     return Commands.parallel(
         left,
-        right
-    // positionHoodFromDas()
+        right,
+        positionHoodFromDas()
     );
   }
 
