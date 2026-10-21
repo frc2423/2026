@@ -306,7 +306,7 @@ public class RobotContainer {
                                 .feedForPassing();
                 Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
                                 () -> driverController.leftTrigger().getAsBoolean());
-                operatorController.rightBumper().whileTrue(feedCommand).onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
+                operatorController.rightBumper().whileTrue(feedCommand).onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()).andThen(hood.hoodDownandReset()));
 
                 operatorController.rightTrigger(0.25).whileTrue(shooterCommands.revSpeedFromDAS()).onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()));
 
