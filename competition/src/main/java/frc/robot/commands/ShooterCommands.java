@@ -127,8 +127,8 @@ public class ShooterCommands extends SubsystemBase {
        double x = xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed);
       double y = ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed);
 
-      // x = MathUtil.applyDeadband(x, .25*MaxSpeed);
-      // y = MathUtil.applyDeadband(y, .25*MaxSpeed);
+      x = MathUtil.applyDeadband(x, .1*MaxSpeed);
+      y = MathUtil.applyDeadband(y, .1*MaxSpeed);
 
       // double x = driverController.axisMagnitudeGreaterThan(0, .25).getAsBoolean()?xSpeedLimiter.calculate(driverController.getLeftY() * MaxSpeed):0;
       // double y = driverController.axisMagnitudeGreaterThan(2, .25).getAsBoolean()?ySpeedLimiter.calculate(driverController.getLeftX() * MaxSpeed):0;
