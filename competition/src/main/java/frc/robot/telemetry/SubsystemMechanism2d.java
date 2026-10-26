@@ -118,11 +118,11 @@ public class SubsystemMechanism2d {
             }
         }
 
-        for (var ligament : leftShooterLigaments) {            
+        for (var ligament : leftShooterLigaments) {
             ligament.setAngle(ligament.getAngle() - robot.shooterLeft.getSetpoint() / 350.0);
         }
 
-        for (var ligament : hoodLigaments) {            
+        for (var ligament : hoodLigaments) {
             ligament.setAngle(robot.hood.getSetpoint());
         }
     }

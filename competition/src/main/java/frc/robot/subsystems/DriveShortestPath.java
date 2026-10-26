@@ -28,7 +28,7 @@ public class DriveShortestPath {
     private final static double leftBumpY = 5.6;
     private final static double rightBumpY = 3.5;
     private final static double rightTrenchY = .75;
- 
+
     private final static double trenchOnlyYs[] = { leftTrenchY, rightTrenchY };
     private final static double ys[] = { leftTrenchY, leftBumpY, rightBumpY, rightTrenchY };
 
@@ -142,11 +142,10 @@ public class DriveShortestPath {
      */
     public Command driveShortestPath(Pose2d inputTargetPose2d, boolean goesOverBumps, boolean flipForRedAlliance) {
         Translation2d groups[][] = goesOverBumps ? groupsTrenchAndBumps : groupsTrenchOnly;
-        Pose2d targetPose2d = (PoseTransformUtils.isRedAlliance()) ? FlippingUtil.flipFieldPose(inputTargetPose2d) : inputTargetPose2d;
+        Pose2d targetPose2d = (PoseTransformUtils.isRedAlliance()) ? FlippingUtil.flipFieldPose(inputTargetPose2d)
+                : inputTargetPose2d;
         Supplier<Command> someCommand = () -> {
-            
-            
-            
+
             Direction pathDirection = getDirection(getPose().getTranslation(), targetPose2d.getTranslation());
             int closestGroupIndex = findIndexOfClosestGroup(groups, pathDirection);
             double handoffRadius = 0.2;
@@ -198,11 +197,12 @@ public class DriveShortestPath {
             }
 
             waypoints.add(new Path.Waypoint(targetPose2d));
-            
+
             PathConstraints pathConstraints = new PathConstraints()
-                .setMaxVelocityMetersPerSec(3.5)
-                .setMaxAccelerationMetersPerSec2(12);
-            FollowPath followPath = bline.pathBuilder.build(new Path(pathConstraints,waypoints.toArray(new Path.PathElement[0])));
+                    .setMaxVelocityMetersPerSec(3.5)
+                    .setMaxAccelerationMetersPerSec2(12);
+            FollowPath followPath = bline.pathBuilder
+                    .build(new Path(pathConstraints, waypoints.toArray(new Path.PathElement[0])));
             return followPath;
         };
 

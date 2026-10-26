@@ -85,10 +85,10 @@ public class AutoPaths {
 
     public static double[] getDoubleArrayFromPath(Path path) {
         // if (PoseTransformUtils.isRedAlliance()) {
-        //     path.flip();
+        // path.flip();
         // }
         // if (!NTHelper.getString("OutpostOrDepotSide", "outpost").equals("oupost")) {
-        //     FloppingUtil.flopPath(path);
+        // FloppingUtil.flopPath(path);
         // }
         ArrayList<Double> poses = new ArrayList<Double>();
         for (int i = 0; i < path.getPathElements().size(); i++) {
