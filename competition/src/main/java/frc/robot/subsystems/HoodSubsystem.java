@@ -120,7 +120,7 @@ public class HoodSubsystem extends SubsystemBase {
         return current;
     }
 
-    public SparkMax getSparkMax(){
+    public SparkMax getSparkMax() {
         return this.hoodMotorBase;
     }
 
@@ -166,7 +166,6 @@ public class HoodSubsystem extends SubsystemBase {
             }
             return;
         }
-        
 
         if (!isHoodSafeToDeploy()) {
             setpointAngle = Degrees.of(0);

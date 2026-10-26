@@ -41,9 +41,9 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     // public Command spin(Supplier<Double> value) {
-    //     return run(() -> {
-    //         percentSpeed = .7;
-    //     }).withName("spinFeeder");
+    // return run(() -> {
+    // percentSpeed = .7;
+    // }).withName("spinFeeder");
     // }
 
     public Command stop() {
@@ -52,7 +52,7 @@ public class FeederSubsystem extends SubsystemBase {
         }).withName("stopFeeder");
     }
 
-    public SparkFlex getSparkFlex(){
+    public SparkFlex getSparkFlex() {
         return this.motor;
     }
 

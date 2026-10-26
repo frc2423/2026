@@ -1,6 +1,5 @@
 package frc.robot.subsystems;
 
-
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -37,7 +36,7 @@ public class TwindexerSubsystem extends SubsystemBase {
         }).withName("spindex");
     }
 
-    public SparkFlex getSparkFlex(){
+    public SparkFlex getSparkFlex() {
 
         return this.motor;
 

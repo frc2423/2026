@@ -53,10 +53,7 @@ public class AutoCommands {
     private Path shootToTrenchPath;
     private Path trenchToCollectPath;
 
-
     public void resetPaths() {
-        
-
 
         System.out.println("Auto paths reset");
         trenchToCenterPath = AutoPaths.getTrenchToCenterPath();
@@ -124,13 +121,12 @@ public class AutoCommands {
         NTHelper.setStringArray("/SmartDashboard/someStringArray", new String[] { "Default" });
         NTHelper.setDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 });
 
-
         NTHelper.listen("/SmartDashboard/someStringArray", (value) -> {
-             NTHelper.setDoubleArray("/SmartDashboard/autoPathPoints", getCombinedPath(
+            NTHelper.setDoubleArray("/SmartDashboard/autoPathPoints", getCombinedPath(
                     NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" })));
         });
         // NTHelper.listen("/SmartDashboard/setSomeNumberArray", (value) -> {
-            
+
         // });
 
     }
@@ -362,7 +358,7 @@ public class AutoCommands {
     }
 
     public Command outpostAuto() {
-        
+
         if (PoseTransformUtils.isRedAlliance()) {
             bumpToOutpostPath.flip();
         }
@@ -403,13 +399,13 @@ public class AutoCommands {
         }
 
         FollowPath bumpToDepot = robot.bline.pathBuilder.build(bumpToDepotPath);
-        
+
         Command bumpToDepotCommand = Commands.deadline(
-            bumpToDepot, 
-            Commands.sequence(
-                Commands.waitUntil(() -> bumpToDepot.getCurrentTranslationElementIndex() >= 1),
-                robot.intakeCommands.armDown(),
-                robot.intake.intake()));
+                bumpToDepot,
+                Commands.sequence(
+                        Commands.waitUntil(() -> bumpToDepot.getCurrentTranslationElementIndex() >= 1),
+                        robot.intakeCommands.armDown(),
+                        robot.intake.intake()));
 
         return Commands.sequence(
                 bumpToDepotCommand,
@@ -419,7 +415,7 @@ public class AutoCommands {
 
     public Command shootAuto() {
         return goToHubAndShoot();
-        
+
         // Commands.sequence(shooter.prepareToShoot(),
         // shooter.spinFeeder(() -> feederSpeed));
     }
@@ -651,7 +647,7 @@ public class AutoCommands {
                 // Commands.waitUntil(() -> centerToBump.getCurrentTranslationElementIndex() >=
                 // 4)
                 // .andThen(robot.intake.stop())),
-                //robot.drivetrain.idle(),
+                // robot.drivetrain.idle(),
                 robot.shooterCommands.scoreDeadline(4.5),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting(),
@@ -1065,7 +1061,7 @@ public class AutoCommands {
         } else if (m_chooser.getSelected().equals("Center Once Bump Depot and Outpost Auto")) {
             return centerOnceBumpDepotAndOutpostAuto();
         } else if (m_chooser.getSelected().equals("Custom")) {
-           
+
             return customAuto(
                     NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" }),
                     NTHelper.getDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 }));
@@ -1100,7 +1096,7 @@ public class AutoCommands {
                 addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToOutpostPath));
             } else {
                 addAllDoubleArray(poses, AutoPaths.getDoubleArrayFromPath(bumpToDepotPath));
-            }            
+            }
             poses.add(shootInFrontOfHubPose.getX());
             poses.add(shootInFrontOfHubPose.getY());
             poses.add(shootInFrontOfHubPose.getRotation().getDegrees());

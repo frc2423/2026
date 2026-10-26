@@ -43,30 +43,27 @@ public class DAS {
     }
 
     private void initializeMap() {
-       distanceMap.put(1.5, new MotorSettings(10, 2400));
+        distanceMap.put(1.5, new MotorSettings(10, 2400));
         distanceMap.put(2.0, new MotorSettings(20, 2500));
         distanceMap.put(2.4, new MotorSettings(20, 2650));
         distanceMap.put(2.7, new MotorSettings(20, 2750));
         // distanceMap.put(2.9, new MotorSettings(30, 2700));
         distanceMap.put(3.2, new MotorSettings(30, 2825));
 
-
-
-        
         distanceMap.put(2.0, new MotorSettings(30, 2550));
         distanceMap.put(2.5, new MotorSettings(35, 2600));
         distanceMap.put(3.0, new MotorSettings(40, 2650));
-        
+
         distanceMap.put(3.5, new MotorSettings(40, 2800));
         distanceMap.put(4.0, new MotorSettings(40, 2900));
         distanceMap.put(4.5, new MotorSettings(40, 3100));
 
-        passingDistanceMap.put(5.5, new MotorSettings(55,3300));
-        passingDistanceMap.put(6.7, new MotorSettings(55,4000));
-        passingDistanceMap.put(8.0, new MotorSettings(55,5000));
+        passingDistanceMap.put(5.5, new MotorSettings(55, 3300));
+        passingDistanceMap.put(6.7, new MotorSettings(55, 4000));
+        passingDistanceMap.put(8.0, new MotorSettings(55, 5000));
     }
 
-     public MotorSettings calculatePassingAS(double distance) {
+    public MotorSettings calculatePassingAS(double distance) {
         return calculateAS(distance, passingDistanceMap, 0, 0);
     }
 
@@ -76,9 +73,10 @@ public class DAS {
         return calculateAS(distance, distanceMap, distanceOffset, velocityOffset);
     }
 
-    public MotorSettings calculateAS(double distance, NavigableMap<Double, MotorSettings> distanceMap, double distanceOffset, double velocityOffset) {
+    public MotorSettings calculateAS(double distance, NavigableMap<Double, MotorSettings> distanceMap,
+            double distanceOffset, double velocityOffset) {
         distance = distance + distanceOffset;
-        
+
         // Direct match
         if (distanceMap.containsKey(distance)) {
             return distanceMap.get(distance);
@@ -108,7 +106,7 @@ public class DAS {
                 + ratio * (higherSettings.getVelocity() - lowerSettings.getVelocity());
 
         // if (distance > 2.5) {
-            interpolatedVoltage += velocityOffset;
+        interpolatedVoltage += velocityOffset;
         // }
 
         return new MotorSettings(interpolatedAngle, interpolatedVoltage);
