@@ -140,8 +140,8 @@ public class HoodSubsystem extends SubsystemBase {
 
     public Command hoodDownandReset() {
         return Commands.sequence(
-                set(-.1),
-                Commands.waitUntil(() -> isStalled()).withTimeout(1.5),
+                set(-.95), // bandaid fix this is rough we increase speed maybe good?
+                Commands.waitUntil(() -> isStalled()).withTimeout(10),
                 set(0),
                 Commands.waitSeconds(.5),
                 setEncoderPosition(Degrees.of(0)));

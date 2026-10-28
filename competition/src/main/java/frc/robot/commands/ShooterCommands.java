@@ -99,9 +99,9 @@ public class ShooterCommands extends SubsystemBase {
 
   public Pose2d getHubPose() {
     Translation2d hubTranslation = FieldConstants.Hub.topCenterPoint.toTranslation2d();
-    if (PoseTransformUtils.isRedAlliance()) {
-      hubTranslation = FlippingUtil.flipFieldPosition(hubTranslation);
-    }
+   if (PoseTransformUtils.isRedAlliance()) {
+       hubTranslation = FlippingUtil.flipFieldPosition(hubTranslation);
+     }
     return new Pose2d(hubTranslation, Rotation2d.kZero);
   }
 
@@ -143,9 +143,12 @@ public class ShooterCommands extends SubsystemBase {
 
   public boolean isFacingPose(Pose2d targetPose) {
     Angle targetAngle = getLookAngle(targetPose).getMeasure();
-    Angle robotAngle = PoseTransformUtils.isRedAlliance() ? getShootingPose().getRotation().getMeasure()
-        : getShootingPose().getRotation().getMeasure().plus(Degrees.of(180));
-    if (robotAngle.in(Degrees) < 0) {
+   // Angle robotAngle = PoseTransformUtils.isRedAlliance() ? getShootingPose().getRotation().getMeasure()
+     //: getShootingPose().getRotation().getMeasure().plus(Degrees.of(180));
+    Angle robotAngle = getShootingPose().getRotation().getMeasure(); //.plus(Degrees.of(180));
+   
+   
+     if (robotAngle.in(Degrees) < 0) {
       robotAngle = Degrees.of(robotAngle.plus(Degrees.of(360)).in(Degrees));
     }
     if (targetAngle.in(Degrees) < 0) {

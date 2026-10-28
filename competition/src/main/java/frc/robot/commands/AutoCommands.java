@@ -158,7 +158,9 @@ public class AutoCommands {
     }
 
     public Command goToHubAndShoot() {
-        Command driveToHub = driveToPose(shootInFrontOfHubPose);
+
+        Command driveToHub = driveToPose(shootInFrontOfHubPose); //we flipped the pose for the alliance here
+        SmartDashboard.putString("AutoState","DRIVING TO HUB");
         return Commands.sequence(
                 Commands.deadline(driveToHub,
                         robot.shooterCommands.rev(() -> 3000.0)),
@@ -471,14 +473,10 @@ public class AutoCommands {
                 Commands.deadline(
                         centerToTrench,
                         robot.shooterCommands.rev(() -> 3000.0)),
-                Commands.print("SCORE DEADLINE"),
                 robot.shooterCommands.scoreDeadline(3),
-                Commands.print("STOP FEEDING"),
                 robot.shooterCommands.stopFeeding(),
-                Commands.print("STOP SHOOTING"),
                 robot.shooterCommands.stopShooting(),
                 // robot.shooterCommands.lookAtAngle(Rotation2d.fromDegrees(0)),
-                Commands.print("THE REST"),
                 trenchToLeftoversAndIntake,
                 leftoversToTrenchAndIntake,
                 robot.shooterCommands.scoreDeadline(3));
