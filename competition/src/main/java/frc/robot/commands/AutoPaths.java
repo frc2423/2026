@@ -5,15 +5,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.lang.model.element.Element;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import frc.robot.NTHelper;
-import frc.robot.generated.PoseTransformUtils;
 import frc.robot.lib.BLine.Path;
 import frc.robot.lib.BLine.Path.TranslationTarget;
 import frc.robot.lib.BLine.Path.Waypoint;
-import frc.robot.subsystems.FloppingUtil;
 
 public class AutoPaths {
     private static final Map<String, Path> pathCache = new HashMap<>();
@@ -23,10 +20,35 @@ public class AutoPaths {
     }
 
     public static Path getPath(String autosDir, String pathFileName) {
+        return loadPath(autosDir, pathFileName).copy();
+    }
+
+    public static void loadAllPaths() {
+        loadAllPaths("autos");
+    }
+
+    // Loads every path in <autosDir>/paths into the cache so later getPath calls don't read files
+    public static void loadAllPaths(String autosDir) {
+        File pathsDir = new File(new File(Filesystem.getDeployDirectory(), autosDir), "paths");
+        File[] pathFiles = pathsDir.listFiles((dir, name) -> name.endsWith(".json"));
+        if (pathFiles == null) {
+            DriverStation.reportError("Auto paths directory not found: " + pathsDir, false);
+            return;
+        }
+        for (File pathFile : pathFiles) {
+            String pathFileName = pathFile.getName().substring(0, pathFile.getName().length() - ".json".length());
+            try {
+                loadPath(autosDir, pathFileName);
+            } catch (RuntimeException e) {
+                DriverStation.reportError("Failed to load auto path " + pathFile + ": " + e, e.getStackTrace());
+            }
+        }
+    }
+
+    private static Path loadPath(String autosDir, String pathFileName) {
         String key = autosDir + "/" + pathFileName;
-        Path path = pathCache.computeIfAbsent(key,
+        return pathCache.computeIfAbsent(key,
                 k -> new Path(new File(Filesystem.getDeployDirectory(), autosDir), pathFileName));
-        return path.copy();
     }
 
     public static double[] getDoubleArrayFromPath(Path path) {

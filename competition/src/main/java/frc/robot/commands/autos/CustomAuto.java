@@ -24,9 +24,16 @@ public class CustomAuto extends AutoRoutine {
     private final String[] steps;
     private final double[] times;
 
-    public CustomAuto(RobotContainer robot, Timer timer, String[] steps, double[] times) {
+    public CustomAuto(RobotContainer robot) {
+        this(robot,
+                NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" }),
+                NTHelper.getDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 }));
+    }
+
+    // For autos that are a custom auto with preset steps
+    protected CustomAuto(RobotContainer robot, String[] steps, double[] times) {
         super(robot);
-        this.timer = timer;
+        this.timer = robot.auto.timer;
         this.steps = steps;
         this.times = times;
     }
