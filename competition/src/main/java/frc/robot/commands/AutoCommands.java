@@ -16,6 +16,7 @@ import frc.robot.RobotContainer;
 import frc.robot.commands.autos.AutoRoutine;
 import frc.robot.commands.autos.CenterTwiceBumpAuto;
 import frc.robot.commands.autos.CenterTwiceTrenchAuto;
+import frc.robot.commands.autos.ChargedUpTestAuto;
 import frc.robot.commands.autos.CustomAuto;
 import frc.robot.commands.autos.DepotAuto;
 import frc.robot.commands.autos.MechanicalAdvantageDelayAuto;
@@ -39,6 +40,7 @@ public class AutoCommands {
         autos.put("Center Twice Bump Auto", CenterTwiceBumpAuto.class);
         autos.put("Custom", CustomAuto.class);
         autos.put("Mechanical Advantage Delay", MechanicalAdvantageDelayAuto.class);
+        autos.put("Charged Up Test Auto", ChargedUpTestAuto.class);
     }
 
     // @Logged
@@ -53,6 +55,7 @@ public class AutoCommands {
     public AutoCommands(RobotContainer robot) {
         // Load paths at startup so building an auto doesn't have to read files
         AutoPaths.loadAllPaths();
+        AutoPaths.loadAllPaths("chargedup-autos");
         this.robot = robot;
 
         for (String autoName : autos.keySet()) {
