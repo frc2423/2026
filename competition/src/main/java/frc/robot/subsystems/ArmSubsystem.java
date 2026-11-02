@@ -15,7 +15,6 @@ import static edu.wpi.first.units.Units.Pounds;
 import static edu.wpi.first.units.Units.Radians;
 import static edu.wpi.first.units.Units.Revolutions;
 
-
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 
@@ -44,14 +43,16 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final Arm arm;
 
-    private Angle offset = Degrees.of(119 + 5);//Revolutions.of(.735).plus(Degrees.of(30)); // Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
+    private Angle offset = Degrees.of(119 + 5);// Revolutions.of(.735).plus(Degrees.of(30)); //
+                                               // Revolutions.of(Robot.isReal() ? 0.235 + .75 : 0);
 
     private Angle setpointAngle;
     private double motorPercent = 0;
 
     public ArmSubsystem() {
         // SparkMaxConfig config = new SparkMaxConfig();
-        // armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // armMotor.configure(config, ResetMode.kResetSafeParameters,
+        // PersistMode.kPersistParameters);
 
         SmartMotorControllerConfig smcConfig = new SmartMotorControllerConfig(this)
                 .withControlMode(ControlMode.CLOSED_LOOP)
@@ -145,13 +146,13 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor.set(motorSpeed);
     }
 
-    public SparkMax getSparkMax(){
+    public SparkMax getSparkMax() {
         return this.armMotor;
     }
 
     @Override
     public void simulationPeriodic() {
-       arm.simIterate();
+        arm.simIterate();
     }
 
     @Logged
@@ -162,8 +163,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     @Logged
     public double getVoltage() {
-       return arm.getMotor().getVoltage().in(Volts);
-    //    return 0;
+        return arm.getMotor().getVoltage().in(Volts);
+        // return 0;
     }
 
     @Logged
@@ -176,8 +177,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     @Logged
     public double getMotorPercent() {
-       return armMotor.get();
-    //    return 0;
+        return armMotor.get();
+        // return 0;
     }
 
     public boolean isNear(Angle angle, Angle tolerance) {

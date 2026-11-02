@@ -11,16 +11,16 @@ public class Speech {
             "exterminate-short.mp3" };
     private static int randomNumber;
     private static String endings[] = { "ill-be-back-arnold-schwarzenegger-the-terminator.mp3", "Bye Bye",
-    "See you later, alligator", "gg no re", "good game",
-    "The first law of robotics is: A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
-    "The second law of robotics is: A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
-    "The second law of robotics is: A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.",
-    "The zero-ith law of robotics is: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.",
-    "outro_song.mp3",
-    "The first law of amory: We don't talk about Amory",
-    "sad_trombone.mp3",
-    "aughaughagugh.mp3" };
-    
+            "See you later, alligator", "gg no re", "good game",
+            "The first law of robotics is: A robot may not injure a human being or, through inaction, allow a human being to come to harm.",
+            "The second law of robotics is: A robot must obey the orders given it by human beings except where such orders would conflict with the First Law.",
+            "The second law of robotics is: A robot must protect its own existence as long as such protection does not conflict with the First or Second Law.",
+            "The zero-ith law of robotics is: A robot may not harm humanity, or, by inaction, allow humanity to come to harm.",
+            "outro_song.mp3",
+            "The first law of amory: We don't talk about Amory",
+            "sad_trombone.mp3",
+            "aughaughagugh.mp3" };
+
     boolean areAtSetpoint;
     private RobotContainer robotContainer;
 
