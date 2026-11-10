@@ -19,6 +19,7 @@ import frc.robot.commands.autos.CenterTwiceTrenchAuto;
 import frc.robot.commands.autos.ChargedUpTestAuto;
 import frc.robot.commands.autos.CustomAuto;
 import frc.robot.commands.autos.DepotAuto;
+import frc.robot.commands.autos.DoubleScoreDock;
 import frc.robot.commands.autos.MechanicalAdvantageDelayAuto;
 import frc.robot.commands.autos.OutpostAndDepotAuto;
 import frc.robot.commands.autos.OutpostAuto;
@@ -29,7 +30,8 @@ import frc.robot.lib.BLine.FlippingUtil;
 public class AutoCommands {
     private final RobotContainer robot;
 
-    // Autos shown in the chooser, in order. Each class needs a constructor that takes just a RobotContainer.
+    // Autos shown in the chooser, in order. Each class needs a constructor that
+    // takes just a RobotContainer.
     private static final Map<String, Class<? extends AutoRoutine>> autos = new LinkedHashMap<>();
     static {
         autos.put("Outpost Auto", OutpostAuto.class);
@@ -41,6 +43,7 @@ public class AutoCommands {
         autos.put("Custom", CustomAuto.class);
         autos.put("Mechanical Advantage Delay", MechanicalAdvantageDelayAuto.class);
         autos.put("Charged Up Test Auto", ChargedUpTestAuto.class);
+        autos.put("Double Score Dock Auto", DoubleScoreDock.class);
     }
 
     // @Logged
@@ -72,7 +75,7 @@ public class AutoCommands {
         NTHelper.setDoubleArray("/SmartDashboard/setSomeNumberArray", new double[] { 0.0 });
 
         NTHelper.listen("/SmartDashboard/someStringArray", (value) -> {
-             NTHelper.setDoubleArray("/SmartDashboard/autoPathPoints", CustomAuto.getCombinedPath(
+            NTHelper.setDoubleArray("/SmartDashboard/autoPathPoints", CustomAuto.getCombinedPath(
                     NTHelper.getStringArray("/SmartDashboard/someStringArray", new String[] { "Default" })));
         });
 

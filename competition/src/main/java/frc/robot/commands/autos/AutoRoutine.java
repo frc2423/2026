@@ -13,7 +13,8 @@ import frc.robot.lib.BLine.FlippingUtil;
 import frc.robot.subsystems.FloppingUtil;
 
 /**
- * Base class for autos. Each auto builds its command in {@link #build()}, loading
+ * Base class for autos. Each auto builds its command in {@link #build()},
+ * loading
  * fresh copies of its paths so flipping/flopping never affects another auto.
  */
 public abstract class AutoRoutine {
@@ -47,6 +48,15 @@ public abstract class AutoRoutine {
                 Commands.deadline(driveToHub,
                         robot.shooterCommands.rev(() -> 3000.0)),
                 robot.shooterCommands.scoreDeadline(20),
+                robot.shooterCommands.stopFeeding(),
+                robot.shooterCommands.stopShooting());
+    }
+
+    protected Command shoot() {
+        return Commands.sequence(
+                Commands.deadline(
+                        robot.shooterCommands.rev(() -> 3000.0)),
+                // robot.shooterCommands.scoreDeadline(3),
                 robot.shooterCommands.stopFeeding(),
                 robot.shooterCommands.stopShooting());
     }

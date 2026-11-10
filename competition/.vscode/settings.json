@@ -57,5 +57,18 @@
     "edu.wpi.first.math.**.proto.*",
     "edu.wpi.first.math.**.struct.*",
   ],
-  "java.dependency.enableDependencyCheckup": false
+  "java.dependency.enableDependencyCheckup": false,
+  "workbench.colorCustomizations": {
+    "activityBar.background": "#1E1E5C",
+    "titleBar.activeBackground": "#2A2A81",
+    "titleBar.activeForeground": "#FCFCFE",
+    "titleBar.inactiveBackground": "#1E1E5C",
+    "titleBar.inactiveForeground": "#FCFCFE",
+    "statusBar.background": "#1E1E5C",
+    "statusBar.foreground": "#FCFCFE",
+    "statusBar.debuggingBackground": "#1E1E5C",
+    "statusBar.debuggingForeground": "#FCFCFE",
+    "statusBar.noFolderBackground": "#1E1E5C",
+    "statusBar.noFolderForeground": "#FCFCFE"
+  }
 }

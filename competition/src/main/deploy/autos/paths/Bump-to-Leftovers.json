@@ -4,7 +4,7 @@
       "type": "waypoint",
       "translation_target": {
         "x_meters": 3.286,
-        "y_meters": 0.7241510791366874,
+        "y_meters": 0.72415,
         "intermediate_handoff_radius_meters": 0.2
       },
       "rotation_target": {
@@ -15,9 +15,9 @@
     {
       "type": "waypoint",
       "translation_target": {
-        "x_meters": 6.876187050359711,
-        "y_meters": 0.6736762589928027,
-        "intermediate_handoff_radius_meters": 0.44999999999999996
+        "x_meters": 6.87619,
+        "y_meters": 0.67368,
+        "intermediate_handoff_radius_meters": 0.45
       },
       "rotation_target": {
         "rotation_radians": 0.0,
@@ -26,31 +26,31 @@
     },
     {
       "type": "rotation",
-      "rotation_radians": 1.5923063354423714,
-      "t_ratio": 0.9251780010391796,
+      "rotation_radians": 1.59231,
+      "t_ratio": 0.92518,
       "profiled_rotation": false
     },
     {
       "type": "waypoint",
       "translation_target": {
-        "x_meters": 6.803372281305882,
-        "y_meters": 2.381967500784926,
+        "x_meters": 6.80337,
+        "y_meters": 2.38197,
         "intermediate_handoff_radius_meters": 0.3
       },
       "rotation_target": {
-        "rotation_radians": -2.2278021683935014,
+        "rotation_radians": -2.2278,
         "profiled_rotation": false
       }
     },
     {
       "type": "waypoint",
       "translation_target": {
-        "x_meters": 5.166927371862089,
-        "y_meters": 2.398476216660896,
+        "x_meters": 5.16693,
+        "y_meters": 2.39848,
         "intermediate_handoff_radius_meters": 0.2
       },
       "rotation_target": {
-        "rotation_radians": 3.9269908169872414,
+        "rotation_radians": 3.92699,
         "profiled_rotation": false
       }
     },
@@ -62,11 +62,12 @@
         "intermediate_handoff_radius_meters": 0.2
       },
       "rotation_target": {
-        "rotation_radians": 3.7524578917878086,
+        "rotation_radians": 3.75246,
         "profiled_rotation": true
       }
     }
   ],
+  "tank_drive_direction": "forward",
   "constraints": {
     "end_translation_tolerance_meters": 0.2,
     "end_rotation_tolerance_deg": 10.0,
@@ -77,7 +78,7 @@
         "end_ordinal": 2
       },
       {
-        "value": 1.9999999999999996,
+        "value": 2.0,
         "start_ordinal": 0,
         "end_ordinal": 1
       },

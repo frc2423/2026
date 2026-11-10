@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "project_id": "workspace-9f951150-c161-490b-bf4b-ef3efabb2434",
+  "display_name": "autos",
+  "editor_config": {
+    "gui": {
+      "robot": {
+        "length_meters": 0.8636,
+        "width_meters": 0.914
+      },
+      "protrusions": {
+        "enabled": false,
+        "distance_meters": 0,
+        "side": "none",
+        "default_state": "",
+        "show_on_event_keys": [],
+        "hide_on_event_keys": []
+      }
+    },
+    "kinematic_constraints": {
+      "default_auto_velocity_velocity_safety_factor": 1,
+      "default_auto_velocity_acceleration_safety_factor": 1,
+      "default_auto_velocity_merge_tolerance_meters_per_sec": 0.3
+    }
+  },
+  "paths": [
+    {
+      "path_id": "Bump-to-Depot.json",
+      "display_name": "Bump-to-Depot",
+      "file_name": "Bump-to-Depot.json"
+    },
+    {
+      "path_id": "Bump-to-Leftovers.json",
+      "display_name": "Bump-to-Leftovers",
+      "file_name": "Bump-to-Leftovers.json"
+    },
+    {
+      "path_id": "Bump-to-Outpost.json",
+      "display_name": "Bump-to-Outpost",
+      "file_name": "Bump-to-Outpost.json"
+    },
+    {
+      "path_id": "Center-to-Bump.json",
+      "display_name": "Center-to-Bump",
+      "file_name": "Center-to-Bump.json"
+    },
+    {
+      "path_id": "Center-to-Leftovers-fast.json",
+      "display_name": "Center-to-Leftovers-fast",
+      "file_name": "Center-to-Leftovers-fast.json"
+    },
+    {
+      "path_id": "Center-to-Leftovers.json",
+      "display_name": "Center-to-Leftovers",
+      "file_name": "Center-to-Leftovers.json"
+    },
+    {
+      "path_id": "Center-to-Trench.json",
+      "display_name": "Center-to-Trench",
+      "file_name": "Center-to-Trench.json"
+    },
+    {
+      "path_id": "Depot-to-Outpost.json",
+      "display_name": "Depot-to-Outpost",
+      "file_name": "Depot-to-Outpost.json"
+    },
+    {
+      "path_id": "double_score_dock.json",
+      "display_name": "Double-Score-Dock",
+      "file_name": "Double-Score-Dock.json",
+      "editor_metadata": {
+        "ranged_constraints": [
+          {
+            "key": "max_velocity_meters_per_sec",
+            "value": 2.2,
+            "start_ordinal": 1,
+            "end_ordinal": 1,
+            "source": "auto_velocity",
+            "auto_velocity": {
+              "velocity_safety_factor": 1,
+              "acceleration_safety_factor": 1,
+              "merge_tolerance_meters_per_sec": 0.3,
+              "input_signature": "{\"solverVersion\":17,\"driveType\":\"swerve\",\"preview\":null,\"tankDirection\":null,\"handoffModes\":[\"radius\",\"radius\",\"radius\",\"radius\",\"radius\",\"radius\",\"radius\",\"radius\"],\"pathElements\":[{\"type\":\"waypoint\",\"xMeters\":1.80966,\"yMeters\":0.77639,\"handoffRadiusMeters\":\"auto\",\"rotationRadians\":3.14159,\"profiledRotation\":true},{\"type\":\"event_trigger\",\"tRatio\":1},{\"type\":\"waypoint\",\"xMeters\":6.92742,\"yMeters\":0.75334,\"handoffRadiusMeters\":\"auto\",\"rotationRadians\":0,\"profiledRotation\":true},{\"type\":\"translation\",\"xMeters\":2.04019,\"yMeters\":0.81097,\"handoffRadiusMeters\":\"auto\"},{\"type\":\"event_trigger\",\"tRatio\":0.5},{\"type\":\"waypoint\",\"xMeters\":1.80966,\"yMeters\":1.32966,\"handoffRadiusMeters\":\"auto\",\"rotationRadians\":3.14159,\"profiledRotation\":true},{\"type\":\"event_trigger\",\"tRatio\":0.96565},{\"type\":\"waypoint\",\"xMeters\":3.81527,\"yMeters\":2.57452,\"handoffRadiusMeters\":\"auto\",\"rotationRadians\":-0.01404,\"profiledRotation\":true}],\"scalarConstraints\":{\"minVelocityMps\":null,\"minVelocityDegPerSec\":null,\"endTranslationTolerance\":null,\"endRotationTolerance\":null,\"maxVelocityMps\":null,\"maxAccelerationMps2\":null,\"maxVelocityDegPerSec\":null,\"maxAccelerationDegPerSec\":null},\"rangedConstraints\":[{\"key\":\"max_velocity_meters_per_sec\",\"value\":3.85,\"startOrdinal\":2,\"endOrdinal\":3},{\"key\":\"max_velocity_meters_per_sec\",\"value\":0.7,\"startOrdinal\":4,\"endOrdinal\":4},{\"key\":\"max_velocity_meters_per_sec\",\"value\":3.5,\"startOrdinal\":5,\"endOrdinal\":5}],\"config\":{\"endTranslationTolerance\":0.03,\"endRotationTolerance\":2,\"maxVelocityMps\":4.4,\"maxAccelerationMps2\":7,\"handoffRadiusMeters\":0.2,\"maxVelocityDegPerSec\":540,\"maxAccelerationDegPerSec\":860,\"autoVelocityVelocitySafetyFactor\":1,\"autoVelocityAccelerationSafetyFactor\":1},\"options\":{\"velocitySafetyFactor\":1,\"accelerationSafetyFactor\":1,\"sampleStepMeters\":null,\"mergeToleranceMps\":0.3,\"includeGeneratedRadiiInCacheKey\":false}}"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "path_id": "Leftovers-to-Trench.json",
+      "display_name": "Leftovers-to-Trench",
+      "file_name": "Leftovers-to-Trench.json"
+    },
+    {
+      "path_id": "Outpost-to-Depot.json",
+      "display_name": "Outpost-to-Depot",
+      "file_name": "Outpost-to-Depot.json"
+    },
+    {
+      "path_id": "Shoot-to-Trench.json",
+      "display_name": "Shoot-to-Trench",
+      "file_name": "Shoot-to-Trench.json"
+    },
+    {
+      "path_id": "test.json",
+      "display_name": "test",
+      "file_name": "test.json"
+    },
+    {
+      "path_id": "Trench-to-Center.json",
+      "display_name": "Trench-to-Center",
+      "file_name": "Trench-to-Center.json"
+    },
+    {
+      "path_id": "Trench-to-Collect.json",
+      "display_name": "Trench-to-Collect",
+      "file_name": "Trench-to-Collect.json"
+    },
+    {
+      "path_id": "Trench-to-Leftovers.json",
+      "display_name": "Trench-to-Leftovers",
+      "file_name": "Trench-to-Leftovers.json"
+    },
+    {
+      "path_id": "Trench-to-Outpost.json",
+      "display_name": "Trench-to-Outpost",
+      "file_name": "Trench-to-Outpost.json"
+    }
+  ],
+  "path_groups": [],
+  "linked_targets": []
+}
