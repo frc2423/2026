@@ -100,14 +100,15 @@ public class ShooterSubsystem extends SubsystemBase {
             // if (getVelocity() > )
             // double signedSetpoint = isInverted ? -shooterSetpoint : shooterSetpoint;
             double voltage = feedforward.calculate(shooterSetpoint);
-            motor.getClosedLoopController().setReference(shooterSetpoint, ControlType.kVelocity, ClosedLoopSlot.kSlot0, voltage);
+            motor.getClosedLoopController().setReference(shooterSetpoint, ControlType.kVelocity, ClosedLoopSlot.kSlot0,
+                    voltage);
         }
     }
 
-    public SparkFlex getSparkFlex(){
+    public SparkFlex getSparkFlex() {
         return this.motor;
     }
-    
+
     @Logged
     public double getFeedforward() {
         return feedforward.calculate(shooterSetpoint);
