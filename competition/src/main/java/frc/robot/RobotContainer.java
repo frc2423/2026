@@ -72,6 +72,7 @@ public class RobotContainer {
         public final CommandXboxController operatorController = new CommandXboxController(1);
         public final CommandXboxController shooterTuningController = new CommandXboxController(2);
 
+
         @Logged
         public final IntakeSubsystem intake = new IntakeSubsystem();
 
@@ -160,6 +161,7 @@ public class RobotContainer {
                                 Speech.say("Intake Jammed");
                                 return "orange"; // make an orange cycle
                         }
+
 
                         if (drivetrain.isSeeingAprilTag()) {
                                 return PoseTransformUtils.isRedAlliance() ? "RedCycle" : "BlueCycle";
@@ -292,7 +294,8 @@ public class RobotContainer {
                 // operatorController.a().onTrue(hood.hoodDownandReset());
 
                 operatorController.leftBumper().whileTrue(intake.outtake()).onFalse(intake.stop());
-                operatorController.leftTrigger().whileTrue(Commands.parallel(intakeCommands.armDown(), intake.intake()))
+                operatorController.leftTrigger().whileTrue(Commands.parallel(intakeCommands.armDown(),  intake.intake()))
+                                
                                 .onFalse(intake.stop());
 
                 operatorController.y().onTrue(hood.hoodDownandReset());
@@ -308,9 +311,11 @@ public class RobotContainer {
                                 .feedForPassing();
                 Command feedCommand = Commands.either(passingFeedCommand, shooterFeedCommand,
                                 () -> driverController.leftTrigger().getAsBoolean());
-                operatorController.rightBumper().whileTrue(feedCommand).onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()).andThen(hood.hoodDownandReset()));
+                operatorController.rightBumper().whileTrue(feedCommand)
+                                .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()).andThen(hood.hoodDownandReset()));
 
-                operatorController.rightTrigger(0.25).whileTrue(shooterCommands.revSpeedFromDAS()).onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()).andThen(shooterCommands.stopShooting()));
+                operatorController.rightTrigger(0.25).whileTrue(shooterCommands.revSpeedFromDAS())
+                                .onFalse(shooterCommands.stopFeeding().andThen(intakeCommands.armDown()).andThen(shooterCommands.stopShooting()));
 
                 operatorController.povUp()
                                 .onTrue(ShooterCommands.das.increaseVelocityOffset());
