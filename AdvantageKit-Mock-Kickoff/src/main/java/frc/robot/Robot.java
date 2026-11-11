@@ -50,10 +50,11 @@ public class Robot extends LoggedRobot {
         break;
 
       case SIM:
-        // Running a physics simulator, log to NT
+        // Running a physics simulator, log to NT and a local log file.
+        // Do NOT call setUseTiming(false) here: the physics sims step a fixed 20 ms per loop,
+        // so running the loop as fast as possible makes the robot move many times faster than
+        // real time. (setUseTiming(false) is only appropriate for log replay.)
         Logger.addDataReceiver(new NT4Publisher());
-
-        setUseTiming(false); // Run as fast as possible
         Logger.addDataReceiver(new WPILOGWriter());
         break;
 

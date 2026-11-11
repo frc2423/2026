@@ -1,0 +1,13 @@
+{
+  "enabledPlugins": {
+    "thefrc-suite@thefrc-suite": true
+  },
+  "extraKnownMarketplaces": {
+    "thefrc-suite": {
+      "source": {
+        "source": "github",
+        "repo": "rylero/ClaudeScope"
+      }
+    }
+  }
+}
