@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import org.littletonrobotics.junction.Logger;
+
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkFlex;
@@ -14,10 +16,12 @@ public class Twindexer {
     private final SparkFlexConfig motorConfig = new SparkFlexConfig();
     private final TwindexerIO io;
     private final TwindexerIOInputsAutoLogged inputs;
+    private final int index;
 
-    public Twindexer(TwindexerIO io) {
+    public Twindexer(TwindexerIO io, int index) {
         this.io = io;
-        
+        this.index = index;
+
         motorConfig.openLoopRampRate(.1);
         motorConfig.idleMode(IdleMode.kCoast);
         motorConfig.inverted(true);
@@ -25,10 +29,7 @@ public class Twindexer {
 
     public void periodic() {
         io.updateInputs(inputs);
-    }
-
-    public void stop() {
-        io.setCurrentLimit(0, 0);
+        Logger.processInputs("Twindexer/" + Integer.toString(index), inputs);
     }
     
     public SparkFlex getSparkFlex() {
@@ -46,4 +47,9 @@ public class Twindexer {
     public double getOutputCurrent() {
         return motor.getOutputCurrent();
     }
+    
+    public boolean isJammed() {
+        return motor.getOutputCurrent() > 90 && motor.getEncoder().getVelocity() < 100;
+    }
+
 }
